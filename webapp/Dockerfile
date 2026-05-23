@@ -3,7 +3,7 @@ WORKDIR /app
 
 FROM base AS deps
 COPY package.json package-lock.json .npmrc* ./
-RUN npm i
+RUN npm i --verbose
 
 FROM base AS dev
 COPY --from=deps /app/node_modules ./node_modules
