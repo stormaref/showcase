@@ -17,10 +17,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (pathname === "/admin/login") {
-      setReady(true);
-      return;
-    }
+    if (pathname === "/admin/login") return;
+
     (async () => {
       const ok = await refreshSession();
       if (!ok) {
