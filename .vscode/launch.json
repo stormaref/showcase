@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug API",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/service/cmd/api",
+      "cwd": "${workspaceFolder}/service",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "GOPROXY": "https://go.iranserver.com/repository/go/",
+        "GOSUMDB": "off"
+      },
+      "preLaunchTask": "Showcase: Dependencies Up"
+    }
+  ]
+}

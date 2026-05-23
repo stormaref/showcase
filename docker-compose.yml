@@ -1,0 +1,157 @@
+name: showcase
+
+x-api-env: &api-env
+  APP_ENV: ${APP_ENV:-development}
+  API_HOST: 0.0.0.0
+  API_PORT: "8080"
+  DATABASE_URL: postgres://${POSTGRES_USER:-showcase}:${POSTGRES_PASSWORD:-showcase_dev_password}@postgres:5432/${POSTGRES_DB:-showcase}?sslmode=disable
+  MINIO_ENDPOINT: minio:9000
+  MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-showcase_minio}
+  MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-showcase_minio_password}
+  MINIO_BUCKET: ${MINIO_BUCKET:-showcase-media}
+  MINIO_USE_SSL: "false"
+  MEDIA_PUBLIC_BASE_URL: ${MEDIA_PUBLIC_BASE_URL:-http://localhost:9000/showcase-media}
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-min-32-chars-long!!}
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-min-32-chars-long!}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+  COOKIE_DOMAIN: ${COOKIE_DOMAIN:-localhost}
+  BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@example.com}
+  BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-change-me-on-first-login}
+
+services:
+  postgres:
+    image: docker-mirror.liara.ir/postgres:18
+    profiles: [deps, dev, prod]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-showcase}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-showcase_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-showcase}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-showcase}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: docker-mirror.liara.ir/minio/minio:latest
+    profiles: [deps, dev, prod]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-showcase_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-showcase_minio_password}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://localhost:9000/minio/health/live || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  minio-init:
+    image: docker-mirror.liara.ir/minio/mc:latest
+    profiles: [deps, dev, prod]
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing local/$${MINIO_BUCKET};
+      mc anonymous set download local/$${MINIO_BUCKET}/uploads || true;
+      exit 0;
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-showcase_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-showcase_minio_password}
+      MINIO_BUCKET: ${MINIO_BUCKET:-showcase-media}
+
+  api:
+    build:
+      context: ./service
+      dockerfile: Dockerfile
+    profiles: [dev, prod]
+    environment:
+      <<: *api-env
+    ports:
+      - "8080:8080"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.showcase-api.rule=Host(`api.${DOMAIN:-localhost}`)
+      - traefik.http.routers.showcase-api.entrypoints=websecure
+      - traefik.http.routers.showcase-api.tls.certresolver=letsencrypt
+      - traefik.http.services.showcase-api.loadbalancer.server.port=8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+      target: ${WEB_DOCKER_TARGET:-dev}
+    profiles: [dev, prod]
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+      NEXT_PUBLIC_MEDIA_BASE_URL: ${MEDIA_PUBLIC_BASE_URL:-http://localhost:9000/showcase-media}
+      INTERNAL_API_URL: http://api:8080
+    ports:
+      - "3000:3000"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.showcase-www.rule=Host(`www.${DOMAIN:-localhost}`)
+      - traefik.http.routers.showcase-www.entrypoints=websecure
+      - traefik.http.routers.showcase-www.tls.certresolver=letsencrypt
+      - traefik.http.services.showcase-www.loadbalancer.server.port=3000
+      - traefik.http.routers.showcase-admin.rule=Host(`admin.${DOMAIN:-localhost}`)
+      - traefik.http.routers.showcase-admin.entrypoints=websecure
+      - traefik.http.routers.showcase-admin.tls.certresolver=letsencrypt
+      - traefik.http.routers.showcase-admin.service=showcase-www
+    depends_on:
+      - api
+
+  traefik:
+    image: docker-mirror.liara.ir/traefik:v3.3
+    profiles: [prod]
+    command:
+      - --api.dashboard=false
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    depends_on:
+      - api
+      - web
+
+volumes:
+  postgres_data:
+  minio_data:
+  traefik_letsencrypt:

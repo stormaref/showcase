@@ -1,0 +1,23 @@
+.env
+.env.prod
+.env.local
+*.log
+
+# Go
+service/bin/
+service/tmp/
+
+# Node
+webapp/node_modules/
+webapp/.next/
+webapp/out/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS
+.DS_Store

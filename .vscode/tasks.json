@@ -1,0 +1,97 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Showcase: Dependencies Up",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile deps up -d",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Dependencies Down",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile deps down",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Dev Stack Up",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile dev up -d --build",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Dev Stack Down",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile dev down",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Prod Stack Up",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile prod up -d --build",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Prod Stack Down",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile prod down",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Logs (deps)",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && docker compose --profile deps logs -f",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Run API (host)",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && [ -f scripts/env-go.sh ] && source scripts/env-go.sh; cd service && go run ./cmd/api",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "dependsOn": ["Showcase: Dependencies Up"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Run Web (host)",
+      "type": "shell",
+      "command": "set -a && [ -f .env ] && source .env; set +a && cd webapp && npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
+      "dependsOn": ["Showcase: Dependencies Up"],
+      "problemMatcher": []
+    }
+  ]
+}
