@@ -3,7 +3,7 @@ WORKDIR /app
 
 FROM base AS deps
 COPY package.json package-lock.json .npmrc* ./
-RUN npm ci --registry=https://npm.iranserver.com/repository/npm/
+RUN npm ci
 
 FROM base AS dev
 COPY --from=deps /app/node_modules ./node_modules

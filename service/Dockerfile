@@ -1,7 +1,6 @@
 FROM golang:1.24-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache git ca-certificates
-ENV GOPROXY=https://go.iranserver.com/repository/go/ GOSUMDB=off GO111MODULE=on
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
