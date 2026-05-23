@@ -2,7 +2,7 @@ FROM node:22-alpine AS base
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json package-lock.json .npmrc* ./
+COPY package.json package-lock.json ./
 RUN npm i --verbose
 
 FROM base AS dev
