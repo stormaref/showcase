@@ -7,8 +7,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  GOPROXY: https://go.iranserver.com/repository/go/
-  GOSUMDB: off
 
 jobs:
   build-push:
@@ -45,5 +43,3 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:latest
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:${{ github.sha }}
-          build-args: |
-            GOPROXY=${{ env.GOPROXY }}

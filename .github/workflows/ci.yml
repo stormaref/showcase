@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [main, master]
 
-env:
-  GOPROXY: https://go.iranserver.com/repository/go/
-  GOSUMDB: off
-  GO111MODULE: on
-
 jobs:
   service:
     runs-on: ubuntu-latest
@@ -33,6 +28,8 @@ jobs:
 
   webapp:
     runs-on: ubuntu-latest
+    env:
+      NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
     defaults:
       run:
         working-directory: webapp
@@ -44,7 +41,7 @@ jobs:
           cache: npm
           cache-dependency-path: webapp/package-lock.json
       - name: Install
-        run: npm ci --registry=https://npm.iranserver.com/repository/npm/
+        run: npm ci
       - name: Lint
         run: npm run lint
       - name: Build
