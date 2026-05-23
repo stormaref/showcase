@@ -1,5 +1,14 @@
 {
   "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "semverBump",
+      "type": "pickString",
+      "description": "Semver bump (latest tag → new tag)",
+      "options": ["patch", "minor", "major"],
+      "default": "patch"
+    }
+  ],
   "tasks": [
     {
       "label": "Showcase: Dependencies Up",
@@ -91,6 +100,16 @@
         "shell": { "executable": "/bin/bash", "args": ["-lc"] }
       },
       "dependsOn": ["Showcase: Dependencies Up"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Showcase: Tag Release",
+      "type": "shell",
+      "command": "bash ${workspaceFolder}/scripts/bump-tag.sh ${input:semverBump}",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "/bin/bash", "args": ["-lc"] }
+      },
       "problemMatcher": []
     }
   ]
