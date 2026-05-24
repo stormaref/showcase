@@ -17,22 +17,23 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (pathname === "/admin/login") return;
+    let cancelled = false;
 
     (async () => {
       const ok = await refreshSession();
+      if (cancelled) return;
       if (!ok) {
         router.replace("/admin/login");
         return;
       }
       await fetchCsrf();
-      setReady(true);
+      if (!cancelled) setReady(true);
     })();
-  }, [pathname, router]);
 
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   if (!ready) {
     return (

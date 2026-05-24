@@ -24,6 +24,7 @@ export function getAccessToken() {
 async function adminFetch<T>(
   path: string,
   init?: RequestInit,
+  retried?: { csrf?: boolean },
 ): Promise<T> {
   const headers: Record<string, string> = {
     ...(init?.headers as Record<string, string>),
@@ -44,12 +45,22 @@ async function adminFetch<T>(
     headers,
   });
 
-  if (res.status === 401 && path !== "/api/v1/auth/login") {
+  if (res.status === 401 && path !== "/api/v1/auth/login" && path !== "/api/v1/auth/refresh") {
     const refreshed = await refreshSession();
     if (refreshed) {
-      return adminFetch(path, init);
+      return adminFetch(path, init, retried);
     }
     throw new Error("unauthorized");
+  }
+
+  if (
+    res.status === 403 &&
+    init?.method &&
+    init.method !== "GET" &&
+    !retried?.csrf
+  ) {
+    await fetchCsrf();
+    return adminFetch(path, init, { ...retried, csrf: true });
   }
 
   if (!res.ok) {

@@ -138,11 +138,14 @@ func CSRF(cfg *config.Config) gin.HandlerFunc {
 
 func SetCSRFCookie(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		b := make([]byte, 16)
-		_, _ = rand.Read(b)
-		token := hex.EncodeToString(b)
-		secure := cfg.AppEnv == "production"
-		c.SetCookie(csrfCookie, token, 3600*24, "/", cfg.CookieDomain, secure, false)
+		token, err := c.Cookie(csrfCookie)
+		if err != nil || token == "" {
+			b := make([]byte, 16)
+			_, _ = rand.Read(b)
+			token = hex.EncodeToString(b)
+			secure := cfg.AppEnv == "production"
+			c.SetCookie(csrfCookie, token, 3600*24, "/", cfg.CookieDomain, secure, false)
+		}
 		c.Set("csrfToken", token)
 		c.Next()
 	}
