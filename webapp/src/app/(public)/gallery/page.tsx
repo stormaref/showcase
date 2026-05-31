@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { apiFetch, type GalleryItem } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "Gallery — Showcase",
-  description: "A curated gallery of our product and design work.",
+  title: "Gallery",
+  description: "A curated gallery of ceramic work from Art Ceramic studio.",
 };
 
 export default async function GalleryPage() {
@@ -21,7 +21,7 @@ export default async function GalleryPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight text-gray-900">Gallery</h1>
-      <p className="mt-2 text-gray-500">Selected work from our studio.</p>
+      <p className="mt-2 text-gray-500">Selected pieces from the Art Ceramic studio.</p>
       {items.length === 0 ? (
         <p className="mt-12 text-gray-400">No gallery items published yet.</p>
       ) : (

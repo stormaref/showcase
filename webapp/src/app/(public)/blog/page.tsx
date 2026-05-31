@@ -3,8 +3,8 @@ import Link from "next/link";
 import { apiFetch, type BlogPost, type Paginated } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "Blog — Showcase",
-  description: "News, insights, and updates from our team.",
+  title: "Blog",
+  description: "News, techniques, and updates from Art Ceramic.",
 };
 
 export default async function BlogListPage() {
@@ -22,7 +22,7 @@ export default async function BlogListPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight text-gray-900">Blog</h1>
-      <p className="mt-2 text-gray-500">Stories and updates from our team.</p>
+      <p className="mt-2 text-gray-500">Stories and updates from the studio.</p>
       <ul className="mt-12 divide-y divide-gray-100">
         {posts.length === 0 && (
           <li className="py-8 text-gray-400">No posts published yet.</li>

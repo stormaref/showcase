@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/markdown-content";
+import { company } from "@/lib/company";
 import { apiFetch, type BlogPost } from "@/lib/api";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -15,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt,
       openGraph: {
+        siteName: company.name,
         title: post.meta_title || post.title,
         description: post.meta_description || post.excerpt,
         images: post.image_url ? [post.image_url] : undefined,

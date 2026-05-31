@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Showcase", template: "%s | Showcase" },
-  description: "A minimal company showcase website.",
+  title: { default: "Art Ceramic", template: "%s | Art Ceramic" },
+  description:
+    "Art Ceramic — handcrafted ceramics, custom tiles, and studio services.",
 };
 
 export default function RootLayout({
