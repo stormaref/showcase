@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "siteTitle": "Art Ceramic",
+    "siteDescription": "Art Ceramic — handcrafted ceramics, custom tiles, and studio services.",
+    "titleTemplate": "%s | Art Ceramic",
+    "homeTitle": "Welcome",
+    "homeDescription": "Art Ceramic — handcrafted ceramics, custom tiles, and studio services. Visit our gallery and blog.",
+    "galleryTitle": "Gallery",
+    "galleryDescription": "A curated gallery of ceramic work from Art Ceramic studio.",
+    "blogTitle": "Blog",
+    "blogDescription": "News, techniques, and updates from Art Ceramic.",
+    "postNotFound": "Post not found"
+  },
+  "nav": {
+    "home": "Home",
+    "gallery": "Gallery",
+    "blog": "Blog",
+    "localeEn": "English",
+    "localeFa": "فارسی"
+  },
+  "company": {
+    "name": "Art Ceramic",
+    "tagline": "Handcrafted ceramics for home and space",
+    "about": "Art Ceramic is a studio dedicated to thoughtful design and traditional craftsmanship. From custom tiles to one-of-a-kind tableware, we shape clay with care for lasting beauty in everyday life.",
+    "addressLine1": "42 Kiln Street",
+    "addressLine2": "Pottery District",
+    "addressLine3": "Portland, OR 97201",
+    "phone": "+1 (555) 123-4567",
+    "email": "hello@artceramic.example"
+  },
+  "home": {
+    "eyebrow": "Ceramic studio",
+    "viewGallery": "View gallery",
+    "readBlog": "Read blog",
+    "aboutTitle": "About us",
+    "servicesTitle": "Our services",
+    "servicesSubtitle": "What we offer at the studio and for your projects.",
+    "contactTitle": "Contact",
+    "galleryTitle": "Gallery",
+    "viewAll": "View all",
+    "latestPosts": "Latest posts",
+    "services": {
+      "tilesTitle": "Custom ceramic tiles",
+      "tilesDesc": "Bespoke glazes and patterns for kitchens, bathrooms, and feature walls.",
+      "potteryTitle": "Handmade pottery",
+      "potteryDesc": "Tableware, vases, and decorative pieces thrown and finished by hand.",
+      "glazingTitle": "Glazing & finishing",
+      "glazingDesc": "Professional glazing, firing, and surface treatments for your project.",
+      "restorationTitle": "Restoration & repair",
+      "restorationDesc": "Careful repair of chipped, cracked, or worn ceramic and tile work.",
+      "consultationTitle": "Design consultation",
+      "consultationDesc": "Material selection, color palettes, and layout guidance for your space.",
+      "workshopsTitle": "Workshops",
+      "workshopsDesc": "Introductory and advanced classes in wheel throwing and hand-building."
+    }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Selected pieces from the Art Ceramic studio.",
+    "empty": "No gallery items published yet.",
+    "close": "Close",
+    "viewImage": "View larger image: {title}"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Stories and updates from the studio.",
+    "empty": "No posts published yet.",
+    "contentUnavailable": "Content unavailable."
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}

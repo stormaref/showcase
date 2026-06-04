@@ -1,0 +1,17 @@
+[
+  { "id": "error.internal", "translation": "An internal error occurred" },
+  { "id": "error.post_not_found", "translation": "Post not found" },
+  { "id": "error.admin_not_found", "translation": "Admin not found" },
+  { "id": "error.invalid_id", "translation": "Invalid ID" },
+  { "id": "error.invalid_credentials", "translation": "Invalid email or password" },
+  { "id": "error.login_failed", "translation": "Login failed" },
+  { "id": "error.invalid_refresh_token", "translation": "Invalid refresh token" },
+  { "id": "error.missing_token", "translation": "Missing token" },
+  { "id": "error.invalid_token", "translation": "Invalid token" },
+  { "id": "error.invalid_subject", "translation": "Invalid subject" },
+  { "id": "error.csrf_failed", "translation": "CSRF validation failed" },
+  { "id": "error.rate_limit", "translation": "Rate limit error" },
+  { "id": "error.rate_limited", "translation": "Too many requests" },
+  { "id": "error.file_required", "translation": "File required" },
+  { "id": "error.validation", "translation": "Validation failed" }
+]

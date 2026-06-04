@@ -11,6 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/minio/minio-go/v7 v7.0.82
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/ulule/limiter/v3 v3.11.2
 	github.com/yuin/goldmark v1.7.4
 	golang.org/x/crypto v0.31.0

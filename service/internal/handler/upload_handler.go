@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stormaref/showcase/service/internal/httpx"
 	"github.com/stormaref/showcase/service/internal/service"
 )
 
@@ -18,12 +19,12 @@ func NewUploadHandler(uploads *service.UploadService) *UploadHandler {
 func (h *UploadHandler) Upload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "validation", "message": "file required"}})
+		httpx.JSON(c, http.StatusBadRequest, "validation", "error.file_required")
 		return
 	}
 	f, err := file.Open()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{"code": "internal", "message": err.Error()}})
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
 		return
 	}
 	defer f.Close()

@@ -1,30 +1,37 @@
-import Link from "next/link";
-import { company } from "@/lib/company";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/blog", label: "Blog" },
-];
+export async function SiteHeader() {
+  const t = await getTranslations("nav");
+  const tc = await getTranslations("company");
 
-export function SiteHeader() {
+  const links = [
+    { href: "/" as const, label: t("home") },
+    { href: "/gallery" as const, label: t("gallery") },
+    { href: "/blog" as const, label: t("blog") },
+  ];
+
   return (
     <header className="border-b border-gray-100">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link href="/" className="text-lg font-semibold tracking-tight">
-          {company.name}
+          {tc("name")}
         </Link>
-        <nav className="flex gap-8 text-sm text-gray-600">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="transition hover:text-gray-900"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex items-center gap-8">
+          <nav className="flex gap-8 text-sm text-gray-600">
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="transition hover:text-gray-900"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <LocaleSwitcher />
+        </div>
       </div>
     </header>
   );

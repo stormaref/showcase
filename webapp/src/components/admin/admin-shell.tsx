@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
+import {
+  UploadProgressProvider,
+  useUploadProgress,
+} from "@/components/admin/upload-progress-context";
 import { fetchCsrf, logout, refreshSession } from "@/lib/admin-api";
 
 const nav = [
@@ -44,6 +49,26 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <UploadProgressProvider>
+      <AdminShellLayout pathname={pathname} router={router}>
+        {children}
+      </AdminShellLayout>
+    </UploadProgressProvider>
+  );
+}
+
+function AdminShellLayout({
+  children,
+  pathname,
+  router,
+}: {
+  children: React.ReactNode;
+  pathname: string;
+  router: ReturnType<typeof useRouter>;
+}) {
+  const { isUploading, percent } = useUploadProgress();
+
+  return (
     <div className="flex min-h-screen">
       <aside className="relative flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
         <div className="border-b border-gray-100 px-5 py-5">
@@ -77,7 +102,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto p-8">{children}</main>
+      <main className="flex-1 overflow-auto">
+        {isUploading && percent !== null && (
+          <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-8 py-2">
+            <UploadProgressBar percent={percent} label="Uploading image…" />
+          </div>
+        )}
+        <div className="p-8">{children}</div>
+      </main>
     </div>
   );
 }

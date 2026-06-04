@@ -9,16 +9,22 @@ export function apiBaseUrl() {
 
 export async function apiFetch<T>(
   path: string,
-  init?: RequestInit & { next?: { revalidate?: number } },
+  init?: RequestInit & { next?: { revalidate?: number }; locale?: string },
 ): Promise<T> {
-  const url = `${apiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  const { locale, next, ...rest } = init ?? {};
+  let url = `${apiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  if (locale) {
+    const sep = url.includes("?") ? "&" : "?";
+    url = `${url}${sep}locale=${encodeURIComponent(locale)}`;
+  }
   const res = await fetch(url, {
-    ...init,
+    ...rest,
     headers: {
       "Content-Type": "application/json",
-      ...init?.headers,
+      ...(locale ? { "Accept-Language": locale } : {}),
+      ...rest.headers,
     },
-    next: init?.next ?? { revalidate: 60 },
+    next: next ?? { revalidate: 60 },
   });
   if (!res.ok) {
     throw new Error(`API ${res.status}: ${path}`);
@@ -29,6 +35,16 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
+export type PostTranslation = {
+  locale: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content_md?: string;
+  meta_title: string;
+  meta_description: string;
+};
+
 export type BlogPost = {
   id: string;
   slug: string;
@@ -37,6 +53,7 @@ export type BlogPost = {
   content_md?: string;
   content_html?: string;
   status: string;
+  locale?: string;
   meta_title: string;
   meta_description: string;
   og_image_key?: string;
@@ -44,6 +61,16 @@ export type BlogPost = {
   image_url?: string;
   published_at?: string;
   created_at: string;
+  updated_at?: string;
+  translations?: Record<string, PostTranslation>;
+  has_fa?: boolean;
+};
+
+export type GalleryTranslation = {
+  locale: string;
+  title: string;
+  caption: string;
+  alt_text: string;
 };
 
 export type GalleryItem = {
@@ -51,11 +78,14 @@ export type GalleryItem = {
   title: string;
   caption: string;
   alt_text: string;
+  locale?: string;
   object_key: string;
   image_url: string;
   thumb_url: string;
   sort_order: number;
   is_published: boolean;
+  translations?: Record<string, GalleryTranslation>;
+  has_fa?: boolean;
 };
 
 export type Paginated<T> = {

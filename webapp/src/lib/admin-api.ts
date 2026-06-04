@@ -126,13 +126,90 @@ export type UploadResult = {
   thumb_url: string;
 };
 
-export async function uploadFile(file: File) {
+function xhrUpload<T>(
+  path: string,
+  body: FormData,
+  onProgress?: (percent: number) => void,
+  retried?: { csrf?: boolean },
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${base()}${path}`);
+    xhr.withCredentials = true;
+
+    if (accessToken) {
+      xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
+    }
+    if (csrfToken) {
+      xhr.setRequestHeader("X-CSRF-Token", csrfToken);
+    }
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && e.total > 0) {
+        onProgress?.(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = async () => {
+      if (
+        xhr.status === 401 &&
+        path !== "/api/v1/auth/login" &&
+        path !== "/api/v1/auth/refresh"
+      ) {
+        const refreshed = await refreshSession();
+        if (refreshed) {
+          try {
+            resolve(await xhrUpload(path, body, onProgress, retried));
+          } catch (err) {
+            reject(err);
+          }
+          return;
+        }
+        reject(new Error("unauthorized"));
+        return;
+      }
+
+      if (xhr.status === 403 && !retried?.csrf) {
+        try {
+          await fetchCsrf();
+          resolve(await xhrUpload(path, body, onProgress, { ...retried, csrf: true }));
+        } catch (err) {
+          reject(err);
+        }
+        return;
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        let message = `Request failed: ${xhr.status}`;
+        try {
+          const err = JSON.parse(xhr.responseText) as {
+            error?: { message?: string };
+          };
+          message = err?.error?.message || message;
+        } catch {
+          // keep default message
+        }
+        reject(new Error(message));
+        return;
+      }
+
+      onProgress?.(100);
+      resolve(JSON.parse(xhr.responseText) as T);
+    };
+
+    xhr.onerror = () => reject(new Error("Upload failed"));
+    xhr.send(body);
+  });
+}
+
+export async function uploadFile(
+  file: File,
+  onProgress?: (percent: number) => void,
+) {
   const form = new FormData();
   form.append("file", file);
-  return adminFetch<UploadResult>("/api/v1/admin/uploads", {
-    method: "POST",
-    body: form,
-  });
+  onProgress?.(0);
+  return xhrUpload<UploadResult>("/api/v1/admin/uploads", form, onProgress);
 }
 
 export { adminFetch };

@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stormaref/showcase/service/internal/config"
+	"github.com/stormaref/showcase/service/internal/httpx"
 	"github.com/stormaref/showcase/service/internal/util"
 	limiter "github.com/ulule/limiter/v3"
 	memory "github.com/ulule/limiter/v3/drivers/store/memory"
@@ -80,11 +81,11 @@ func RateLimit(perMinute int) gin.HandlerFunc {
 		defer cancel()
 		lctx, err := instance.Get(ctx, key)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": gin.H{"code": "rate_limit", "message": "rate limit error"}})
+			httpx.Abort(c, http.StatusInternalServerError, "rate_limit", "error.rate_limit")
 			return
 		}
 		if lctx.Reached {
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": gin.H{"code": "rate_limited", "message": "too many requests"}})
+			httpx.Abort(c, http.StatusTooManyRequests, "rate_limited", "error.rate_limited")
 			return
 		}
 		c.Next()
@@ -95,18 +96,18 @@ func AuthJWT(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 		if !strings.HasPrefix(auth, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": gin.H{"code": "unauthorized", "message": "missing token"}})
+			httpx.Abort(c, http.StatusUnauthorized, "unauthorized", "error.missing_token")
 			return
 		}
 		token := strings.TrimPrefix(auth, "Bearer ")
 		claims, err := util.ParseAccessToken(cfg, token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": gin.H{"code": "unauthorized", "message": "invalid token"}})
+			httpx.Abort(c, http.StatusUnauthorized, "unauthorized", "error.invalid_token")
 			return
 		}
 		adminID, err := uuid.Parse(claims.Subject)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": gin.H{"code": "unauthorized", "message": "invalid subject"}})
+			httpx.Abort(c, http.StatusUnauthorized, "unauthorized", "error.invalid_subject")
 			return
 		}
 		c.Set(ctxAdminID, adminID)
@@ -129,7 +130,7 @@ func CSRF(cfg *config.Config) gin.HandlerFunc {
 		cookieToken, err := c.Cookie(csrfCookie)
 		headerToken := c.GetHeader(csrfHeader)
 		if err != nil || cookieToken == "" || headerToken == "" || cookieToken != headerToken {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": gin.H{"code": "csrf", "message": "csrf validation failed"}})
+			httpx.Abort(c, http.StatusForbidden, "csrf", "error.csrf_failed")
 			return
 		}
 		c.Next()

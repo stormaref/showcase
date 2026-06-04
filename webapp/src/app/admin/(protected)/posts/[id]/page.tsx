@@ -4,47 +4,58 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { BlogEditor } from "@/components/admin/blog-editor";
+import { TranslationTabs } from "@/components/admin/translation-tabs";
 import { adminFetch } from "@/lib/admin-api";
-import type { BlogPost } from "@/lib/api";
+import type { BlogPost, PostTranslation } from "@/lib/api";
+import {
+  type LocaleTab,
+  postTranslationsFromRecord,
+} from "@/lib/translations";
 
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const editorRef = useRef<MDXEditorMethods>(null);
+  const editorRefs = useRef<Record<LocaleTab, MDXEditorMethods | null>>({
+    en: null,
+    fa: null,
+  });
   const [post, setPost] = useState<BlogPost | null>(null);
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [slug, setSlug] = useState("");
+  const [tab, setTab] = useState<LocaleTab>("en");
+  const [translations, setTranslations] = useState(
+    postTranslationsFromRecord(),
+  );
   const [status, setStatus] = useState("draft");
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     adminFetch<BlogPost>(`/api/v1/admin/posts/${id}`).then((p) => {
       setPost(p);
-      setTitle(p.title);
-      setExcerpt(p.excerpt);
-      setSlug(p.slug);
       setStatus(p.status);
-      setMetaTitle(p.meta_title);
-      setMetaDescription(p.meta_description);
+      setTranslations(postTranslationsFromRecord(p.translations));
     });
   }, [id]);
 
+  function updateTranslation(locale: LocaleTab, patch: Partial<PostTranslation>) {
+    setTranslations((prev) => ({
+      ...prev,
+      [locale]: { ...prev[locale], ...patch },
+    }));
+  }
+
   async function save() {
     setSaving(true);
-    const content_md = editorRef.current?.getMarkdown() ?? post?.content_md ?? "";
+    const enMd =
+      editorRefs.current.en?.getMarkdown() ?? translations.en.content_md ?? "";
+    const faMd =
+      editorRefs.current.fa?.getMarkdown() ?? translations.fa.content_md ?? "";
     await adminFetch(`/api/v1/admin/posts/${id}`, {
       method: "PUT",
       body: JSON.stringify({
-        title,
-        excerpt,
-        slug,
-        content_md,
         status,
-        meta_title: metaTitle,
-        meta_description: metaDescription,
+        translations: {
+          en: { ...translations.en, content_md: enMd },
+          fa: translations.fa.title || faMd ? { ...translations.fa, content_md: faMd } : undefined,
+        },
       }),
     });
     setSaving(false);
@@ -60,6 +71,8 @@ export default function EditPostPage() {
     return <p className="text-gray-500">Loading…</p>;
   }
 
+  const t = translations[tab];
+
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between">
@@ -72,30 +85,45 @@ export default function EditPostPage() {
           Delete
         </button>
       </div>
+      <div className="mt-4">
+        <TranslationTabs active={tab} onChange={setTab} hasFa={post.has_fa} />
+      </div>
       <div className="mt-6 space-y-4">
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={t.title}
+          onChange={(e) => updateTranslation(tab, { title: e.target.value })}
+          placeholder="Title"
           className="w-full rounded-lg border border-gray-200 px-3 py-2 text-lg font-medium"
         />
         <input
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
+          value={t.slug}
+          onChange={(e) => updateTranslation(tab, { slug: e.target.value })}
+          placeholder="Slug"
           className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <textarea
-          value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
+          value={t.excerpt}
+          onChange={(e) => updateTranslation(tab, { excerpt: e.target.value })}
           rows={2}
+          placeholder="Excerpt"
           className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          dir={tab === "fa" ? "rtl" : "ltr"}
         />
-        <BlogEditor key={post.id} ref={editorRef} markdown={post.content_md || ""} />
+        <BlogEditor
+          key={`${post.id}-${tab}`}
+          ref={(el) => {
+            editorRefs.current[tab] = el;
+          }}
+          markdown={t.content_md || ""}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <input
-            value={metaTitle}
-            onChange={(e) => setMetaTitle(e.target.value)}
+            value={t.meta_title}
+            onChange={(e) => updateTranslation(tab, { meta_title: e.target.value })}
             placeholder="SEO title"
             className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            dir={tab === "fa" ? "rtl" : "ltr"}
           />
           <select
             value={status}
@@ -107,11 +135,14 @@ export default function EditPostPage() {
           </select>
         </div>
         <textarea
-          value={metaDescription}
-          onChange={(e) => setMetaDescription(e.target.value)}
+          value={t.meta_description}
+          onChange={(e) =>
+            updateTranslation(tab, { meta_description: e.target.value })
+          }
           rows={2}
           placeholder="SEO description"
           className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <button
           type="button"

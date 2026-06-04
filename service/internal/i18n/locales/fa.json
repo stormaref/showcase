@@ -1,0 +1,17 @@
+[
+  { "id": "error.internal", "translation": "خطای داخلی رخ داد" },
+  { "id": "error.post_not_found", "translation": "مطلب یافت نشد" },
+  { "id": "error.admin_not_found", "translation": "مدیر یافت نشد" },
+  { "id": "error.invalid_id", "translation": "شناسه نامعتبر است" },
+  { "id": "error.invalid_credentials", "translation": "ایمیل یا رمز عبور نامعتبر است" },
+  { "id": "error.login_failed", "translation": "ورود ناموفق بود" },
+  { "id": "error.invalid_refresh_token", "translation": "توکن تازه‌سازی نامعتبر است" },
+  { "id": "error.missing_token", "translation": "توکن یافت نشد" },
+  { "id": "error.invalid_token", "translation": "توکن نامعتبر است" },
+  { "id": "error.invalid_subject", "translation": "موضوع نامعتبر است" },
+  { "id": "error.csrf_failed", "translation": "اعتبارسنجی CSRF ناموفق بود" },
+  { "id": "error.rate_limit", "translation": "خطای محدودیت نرخ" },
+  { "id": "error.rate_limited", "translation": "درخواست‌های بیش از حد" },
+  { "id": "error.file_required", "translation": "فایل الزامی است" },
+  { "id": "error.validation", "translation": "اعتبارسنجی ناموفق بود" }
+]

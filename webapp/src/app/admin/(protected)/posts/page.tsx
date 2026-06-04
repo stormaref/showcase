@@ -41,7 +41,14 @@ export default function AdminPostsPage() {
           <tbody>
             {posts.map((p) => (
               <tr key={p.id} className="border-b border-gray-50">
-                <td className="px-4 py-3 font-medium">{p.title}</td>
+                <td className="px-4 py-3 font-medium">
+                  {p.title}
+                  {p.has_fa && (
+                    <span className="ms-2 rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-normal text-indigo-700">
+                      FA
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3 capitalize text-gray-500">{p.status}</td>
                 <td className="px-4 py-3 text-gray-500">
                   {new Date(p.created_at).toLocaleDateString()}

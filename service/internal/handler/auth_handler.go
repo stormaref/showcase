@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stormaref/showcase/service/internal/config"
+	"github.com/stormaref/showcase/service/internal/httpx"
 	"github.com/stormaref/showcase/service/internal/middleware"
 	"github.com/stormaref/showcase/service/internal/service"
 )
@@ -28,16 +29,16 @@ type loginRequest struct {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "validation", "message": err.Error()}})
+		httpx.ValidationError(c, err.Error())
 		return
 	}
 	access, exp, refresh, admin, err := h.auth.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredentials) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": gin.H{"code": "invalid_credentials", "message": "invalid email or password"}})
+			httpx.JSON(c, http.StatusUnauthorized, "invalid_credentials", "error.invalid_credentials")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{"code": "internal", "message": "login failed"}})
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.login_failed")
 		return
 	}
 	middleware.SetRefreshCookie(c, h.cfg, refresh)
@@ -65,7 +66,7 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 	}
 	access, exp, newRefresh, err := h.auth.Refresh(c.Request.Context(), refresh)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": gin.H{"code": "unauthorized", "message": "invalid refresh token"}})
+		httpx.JSON(c, http.StatusUnauthorized, "unauthorized", "error.invalid_refresh_token")
 		return
 	}
 	middleware.SetRefreshCookie(c, h.cfg, newRefresh)
@@ -92,7 +93,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 func (h *AuthHandler) Me(c *gin.Context) {
 	admin, err := h.auth.Me(c.Request.Context(), middleware.AdminID(c))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": gin.H{"code": "not_found", "message": "admin not found"}})
+		httpx.JSON(c, http.StatusNotFound, "not_found", "error.admin_not_found")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

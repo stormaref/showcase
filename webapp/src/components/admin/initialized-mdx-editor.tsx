@@ -1,6 +1,7 @@
 "use client";
 
 import type { ForwardedRef } from "react";
+import { useCallback } from "react";
 import {
   MDXEditor,
   headingsPlugin,
@@ -23,17 +24,22 @@ import {
   type MDXEditorProps,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
-import { uploadFile } from "@/lib/admin-api";
-
-async function uploadImage(file: File): Promise<string> {
-  const data = await uploadFile(file);
-  return data.url;
-}
+import { useUploadProgress } from "@/components/admin/upload-progress-context";
 
 export function InitializedMDXEditor({
   editorRef,
   ...props
 }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) {
+  const { uploadImage } = useUploadProgress();
+
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      const data = await uploadImage(file);
+      return data.url;
+    },
+    [uploadImage],
+  );
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white">
       <MDXEditor
@@ -45,7 +51,7 @@ export function InitializedMDXEditor({
           markdownShortcutPlugin(),
           linkPlugin(),
           imagePlugin({
-            imageUploadHandler: uploadImage,
+            imageUploadHandler: handleImageUpload,
           }),
           codeBlockPlugin({ defaultCodeBlockLanguage: "txt" }),
           codeMirrorPlugin({

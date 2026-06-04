@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stormaref/showcase/service/internal/config"
 	"github.com/stormaref/showcase/service/internal/handler"
+	"github.com/stormaref/showcase/service/internal/locale"
 	"github.com/stormaref/showcase/service/internal/middleware"
 )
 
@@ -24,14 +25,14 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
-	r.Use(gin.Recovery(), middleware.RequestID(), middleware.Logger(), middleware.SecurityHeaders())
+	r.Use(gin.Recovery(), middleware.RequestID(), middleware.Logger(), middleware.SecurityHeaders(), locale.Middleware())
 	r.Use(middleware.MaxBodySize(cfg.MaxUploadBytes + 1024*1024))
 	r.Use(middleware.RateLimit(cfg.RateLimitPerMinute))
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.CORSOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", middleware.CSRFHeaderName(), "X-Request-ID"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept-Language", middleware.CSRFHeaderName(), "X-Request-ID"},
 		ExposeHeaders:    []string{"X-Request-ID"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,

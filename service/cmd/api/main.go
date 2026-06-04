@@ -14,6 +14,7 @@ import (
 	"github.com/stormaref/showcase/service/internal/config"
 	"github.com/stormaref/showcase/service/internal/domain/model"
 	"github.com/stormaref/showcase/service/internal/handler"
+	"github.com/stormaref/showcase/service/internal/migrate"
 	"github.com/stormaref/showcase/service/internal/repository"
 	"github.com/stormaref/showcase/service/internal/router"
 	"github.com/stormaref/showcase/service/internal/service"
@@ -44,11 +45,16 @@ func main() {
 	if err := db.AutoMigrate(
 		&model.Admin{},
 		&model.BlogPost{},
+		&model.BlogPostTranslation{},
 		&model.GalleryItem{},
+		&model.GalleryItemTranslation{},
 		&model.RefreshToken{},
 		&model.AuditLog{},
 	); err != nil {
 		log.Fatalf("migrate: %v", err)
+	}
+	if err := migrate.Run(db); err != nil {
+		log.Fatalf("data migrate: %v", err)
 	}
 
 	store, err := storage.NewMinIOStore(cfg)
