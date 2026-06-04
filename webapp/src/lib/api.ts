@@ -58,7 +58,6 @@ export type BlogPost = {
   meta_description: string;
   og_image_key?: string;
   og_image_url?: string;
-  image_url?: string;
   published_at?: string;
   created_at: string;
   updated_at?: string;

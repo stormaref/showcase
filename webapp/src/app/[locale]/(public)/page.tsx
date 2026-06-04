@@ -5,18 +5,21 @@ import { Link } from "@/i18n/navigation";
 import { DesignGrid } from "@/components/design-grid";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
 import { getBrandInfo, phoneTelHref } from "@/lib/brand-info";
-import { localeAlternates } from "@/lib/locale";
+import { buildPageMetadata } from "@/lib/metadata";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
-  return {
+  const brand = await getBrandInfo(locale);
+  return buildPageMetadata({
+    locale,
+    path: "/",
     title: t("homeTitle"),
     description: t("homeDescription"),
-    alternates: { languages: localeAlternates("/") },
-  };
+    siteName: brand.name,
+  });
 }
 
 export default async function HomePage({ params }: PageProps) {

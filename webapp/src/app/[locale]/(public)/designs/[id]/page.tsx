@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { DesignDetail } from "@/components/design-detail";
 import { apiFetch, type Design } from "@/lib/api";
 import { getBrandInfo } from "@/lib/brand-info";
-import { localeAlternates, siteUrl } from "@/lib/locale";
+import { buildPageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ id: string; locale: string }> };
 
@@ -17,21 +17,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       next: { revalidate: 60 },
     });
     const brand = await getBrandInfo(locale);
-    const path = `/designs/${id}`;
-    return {
+    const description = design.caption || design.alt_text;
+    return buildPageMetadata({
+      locale,
+      path: `/designs/${id}`,
       title: design.title,
-      description: design.caption || design.alt_text,
-      alternates: { languages: localeAlternates(path) },
-      openGraph: {
-        siteName: brand.name,
-        title: design.title,
-        description: design.caption || design.alt_text,
-        images: design.primary_image_url
-          ? [design.primary_image_url]
-          : undefined,
-        url: `${siteUrl()}/${locale}${path}`,
-      },
-    };
+      description,
+      siteName: brand.name,
+      images: design.primary_image_url ? [design.primary_image_url] : undefined,
+    });
   } catch {
     return { title: t("notFound") };
   }

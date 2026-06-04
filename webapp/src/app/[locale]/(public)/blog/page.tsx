@@ -2,15 +2,20 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, type BlogPost, type Paginated } from "@/lib/api";
-import { localeAlternates } from "@/lib/locale";
+import { getBrandInfo } from "@/lib/brand-info";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
   const t = await getTranslations("metadata");
-  return {
+  const brand = await getBrandInfo(locale);
+  return buildPageMetadata({
+    locale,
+    path: "/blog",
     title: t("blogTitle"),
     description: t("blogDescription"),
-    alternates: { languages: localeAlternates("/blog") },
-  };
+    siteName: brand.name,
+  });
 }
 
 export default async function BlogListPage() {

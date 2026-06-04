@@ -3,15 +3,20 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { DesignCatalog } from "@/components/design-catalog";
 import { apiFetch, type Design } from "@/lib/api";
-import { localeAlternates } from "@/lib/locale";
+import { getBrandInfo } from "@/lib/brand-info";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
   const t = await getTranslations("metadata");
-  return {
+  const brand = await getBrandInfo(locale);
+  return buildPageMetadata({
+    locale,
+    path: "/designs",
     title: t("designsTitle"),
     description: t("designsDescription"),
-    alternates: { languages: localeAlternates("/designs") },
-  };
+    siteName: brand.name,
+  });
 }
 
 export default async function DesignsPage() {

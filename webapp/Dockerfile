@@ -15,6 +15,9 @@ FROM base AS builder
 ARG NEXT_PUBLIC_API_URL=https://api.showcase.gooshvaria.ir
 ARG NEXT_PUBLIC_MEDIA_BASE_URL=https://media.showcase.gooshvaria.ir/showcase-media
 ARG NEXT_PUBLIC_SITE_URL=https://showcase.gooshvaria.ir
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_MEDIA_BASE_URL=$NEXT_PUBLIC_MEDIA_BASE_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1

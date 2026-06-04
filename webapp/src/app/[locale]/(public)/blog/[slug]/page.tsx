@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/markdown-content";
 import { apiFetch, type BlogPost } from "@/lib/api";
 import { getBrandInfo } from "@/lib/brand-info";
-import { localeAlternates, siteUrl } from "@/lib/locale";
+import { buildPageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ slug: string; locale: string }> };
 
@@ -17,19 +17,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       next: { revalidate: 60 },
     });
     const brand = await getBrandInfo(locale);
-    const path = `/blog/${slug}`;
-    return {
-      title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt,
-      alternates: { languages: localeAlternates(path) },
-      openGraph: {
-        siteName: brand.name,
-        title: post.meta_title || post.title,
-        description: post.meta_description || post.excerpt,
-        images: post.image_url ? [post.image_url] : undefined,
-        url: `${siteUrl()}/${locale}${path}`,
-      },
-    };
+    const title = post.meta_title || post.title;
+    const description = post.meta_description || post.excerpt;
+    return buildPageMetadata({
+      locale,
+      path: `/blog/${slug}`,
+      title,
+      description,
+      siteName: brand.name,
+      images: post.og_image_url ? [post.og_image_url] : undefined,
+      type: "article",
+      publishedTime: post.published_at,
+    });
   } catch {
     return { title: t("postNotFound") };
   }
