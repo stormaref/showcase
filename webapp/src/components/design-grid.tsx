@@ -52,11 +52,15 @@ export function DesignGrid({
     [selected],
   );
 
+  function openDesign(item: Design) {
+    setSlide(0);
+    setSelected(item);
+  }
+
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (selected) {
-      setSlide(0);
       dialog.showModal();
       document.body.style.overflow = "hidden";
     } else {
@@ -106,7 +110,7 @@ export function DesignGrid({
           <figure key={item.id} className={figureClass}>
             <button
               type="button"
-              onClick={() => setSelected(item)}
+              onClick={() => openDesign(item)}
               className="block w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
               aria-label={t("viewImage", { title: item.title })}
             >

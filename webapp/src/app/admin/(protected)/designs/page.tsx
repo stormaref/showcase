@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/admin-api";
-import type { Design, TileSize } from "@/lib/api";
+import type { Design } from "@/lib/api";
 
 export default function AdminDesignsPage() {
   const [items, setItems] = useState<Design[]>([]);

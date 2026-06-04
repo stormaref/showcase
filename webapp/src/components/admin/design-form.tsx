@@ -4,7 +4,7 @@ import { FormEvent, useRef, useState } from "react";
 import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
 import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
-import type { Design, DesignImage, DesignTranslation, TileSize } from "@/lib/api";
+import type { Design, DesignTranslation, TileSize } from "@/lib/api";
 import {
   type LocaleTab,
   designTranslationsFromRecord,
