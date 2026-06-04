@@ -5,16 +5,16 @@ import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/admin-api";
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState({ posts: 0, gallery: 0 });
+  const [stats, setStats] = useState({ posts: 0, designs: 0 });
 
   useEffect(() => {
     (async () => {
       try {
-        const [posts, gallery] = await Promise.all([
+        const [posts, designs] = await Promise.all([
           adminFetch<{ total: number }>("/api/v1/admin/posts?limit=1"),
-          adminFetch<{ items: unknown[] }>("/api/v1/admin/gallery"),
+          adminFetch<{ items: unknown[] }>("/api/v1/admin/designs"),
         ]);
-        setStats({ posts: posts.total, gallery: gallery.items.length });
+        setStats({ posts: posts.total, designs: designs.items.length });
       } catch {
         /* ignore */
       }
@@ -34,11 +34,11 @@ export default function AdminDashboardPage() {
           <p className="mt-1 text-sm text-gray-500">Blog posts</p>
         </Link>
         <Link
-          href="/admin/gallery"
+          href="/admin/designs"
           className="rounded-xl border border-gray-200 bg-white p-6 transition hover:border-gray-300"
         >
-          <p className="text-3xl font-semibold">{stats.gallery}</p>
-          <p className="mt-1 text-sm text-gray-500">Gallery items</p>
+          <p className="text-3xl font-semibold">{stats.designs}</p>
+          <p className="mt-1 text-sm text-gray-500">Designs</p>
         </Link>
       </div>
     </div>

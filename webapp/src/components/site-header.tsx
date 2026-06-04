@@ -8,7 +8,7 @@ export async function SiteHeader() {
 
   const links = [
     { href: "/" as const, label: t("home") },
-    { href: "/gallery" as const, label: t("gallery") },
+    { href: "/designs" as const, label: t("designs") },
     { href: "/blog" as const, label: t("blog") },
   ];
 

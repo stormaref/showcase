@@ -13,5 +13,8 @@
   { "id": "error.rate_limit", "translation": "خطای محدودیت نرخ" },
   { "id": "error.rate_limited", "translation": "درخواست‌های بیش از حد" },
   { "id": "error.file_required", "translation": "فایل الزامی است" },
-  { "id": "error.validation", "translation": "اعتبارسنجی ناموفق بود" }
+  { "id": "error.validation", "translation": "اعتبارسنجی ناموفق بود" },
+  { "id": "error.size_in_use", "translation": "این سایز در حال استفاده است و قابل تغییر یا حذف نیست" },
+  { "id": "error.size_not_found", "translation": "سایز یافت نشد" },
+  { "id": "error.design_not_found", "translation": "طرح یافت نشد" }
 ]

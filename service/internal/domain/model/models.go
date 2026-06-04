@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -75,29 +76,29 @@ func (t *BlogPostTranslation) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-type GalleryItem struct {
-	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	ObjectKey      string    `gorm:"size:500;not null" json:"object_key"`
-	ThumbObjectKey string    `gorm:"size:500" json:"thumb_object_key"`
-	SortOrder      int       `gorm:"index;default:0" json:"sort_order"`
-	IsPublished    bool      `gorm:"index;default:false" json:"is_published"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+type Design struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	SortOrder   int       `gorm:"index;default:0" json:"sort_order"`
+	IsPublished bool      `gorm:"index;default:false" json:"is_published"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 
-	Translations []GalleryItemTranslation `gorm:"foreignKey:ItemID" json:"translations,omitempty"`
+	Translations []DesignTranslation `gorm:"foreignKey:DesignID" json:"translations,omitempty"`
+	Sizes        []TileSize          `gorm:"many2many:design_sizes" json:"sizes,omitempty"`
+	Images       []DesignImage       `gorm:"foreignKey:DesignID" json:"images,omitempty"`
 }
 
-func (g *GalleryItem) BeforeCreate(tx *gorm.DB) error {
-	if g.ID == uuid.Nil {
-		g.ID = uuid.New()
+func (d *Design) BeforeCreate(tx *gorm.DB) error {
+	if d.ID == uuid.Nil {
+		d.ID = uuid.New()
 	}
 	return nil
 }
 
-type GalleryItemTranslation struct {
+type DesignTranslation struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	ItemID    uuid.UUID `gorm:"type:uuid;index:idx_item_locale,unique;not null" json:"item_id"`
-	Locale    string    `gorm:"size:5;index:idx_item_locale,unique;not null" json:"locale"`
+	DesignID  uuid.UUID `gorm:"type:uuid;index:idx_design_locale,unique;not null" json:"design_id"`
+	Locale    string    `gorm:"size:5;index:idx_design_locale,unique;not null" json:"locale"`
 	Title     string    `gorm:"size:255;not null" json:"title"`
 	Caption   string    `gorm:"type:text" json:"caption"`
 	AltText   string    `gorm:"size:500" json:"alt_text"`
@@ -105,9 +106,67 @@ type GalleryItemTranslation struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (t *GalleryItemTranslation) BeforeCreate(tx *gorm.DB) error {
+func (t *DesignTranslation) BeforeCreate(tx *gorm.DB) error {
 	if t.ID == uuid.Nil {
 		t.ID = uuid.New()
+	}
+	return nil
+}
+
+type TileSize struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	WidthMM   int       `gorm:"not null;uniqueIndex:idx_tile_size_dims" json:"width_mm"`
+	HeightMM  int       `gorm:"not null;uniqueIndex:idx_tile_size_dims" json:"height_mm"`
+	Label     string    `gorm:"size:100" json:"label"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (s *TileSize) BeforeCreate(tx *gorm.DB) error {
+	if s.ID == uuid.Nil {
+		s.ID = uuid.New()
+	}
+	return nil
+}
+
+func (s TileSize) DisplayLabel() string {
+	if s.Label != "" {
+		return s.Label
+	}
+	return FormatTileSizeLabel(s.WidthMM, s.HeightMM)
+}
+
+func FormatTileSizeLabel(widthMM, heightMM int) string {
+	w := widthMM / 10
+	h := heightMM / 10
+	if widthMM%10 != 0 || heightMM%10 != 0 {
+		return formatDim(widthMM) + "×" + formatDim(heightMM) + " mm"
+	}
+	return formatDim(w) + "×" + formatDim(h) + " cm"
+}
+
+func formatDim(v int) string {
+	return strconv.Itoa(v)
+}
+
+type DesignSize struct {
+	DesignID uuid.UUID `gorm:"type:uuid;primaryKey" json:"design_id"`
+	SizeID   uuid.UUID `gorm:"type:uuid;primaryKey" json:"size_id"`
+}
+
+type DesignImage struct {
+	ID             uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
+	DesignID       uuid.UUID  `gorm:"type:uuid;index;not null" json:"design_id"`
+	SizeID         *uuid.UUID `gorm:"type:uuid;index" json:"size_id"`
+	ObjectKey      string     `gorm:"size:500;not null" json:"object_key"`
+	ThumbObjectKey string     `gorm:"size:500" json:"thumb_object_key"`
+	SortOrder      int        `gorm:"default:0" json:"sort_order"`
+	CreatedAt      time.Time  `json:"created_at"`
+}
+
+func (i *DesignImage) BeforeCreate(tx *gorm.DB) error {
+	if i.ID == uuid.Nil {
+		i.ID = uuid.New()
 	}
 	return nil
 }
@@ -179,3 +238,12 @@ type LegacyGalleryItem struct {
 }
 
 func (LegacyGalleryItem) TableName() string { return "gallery_items" }
+
+// LegacyDesignWithKeys is used during migration when object_key columns still exist on designs.
+type LegacyDesignWithKeys struct {
+	ID             uuid.UUID
+	ObjectKey      string
+	ThumbObjectKey string
+}
+
+func (LegacyDesignWithKeys) TableName() string { return "designs" }

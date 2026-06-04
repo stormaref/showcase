@@ -66,25 +66,44 @@ export type BlogPost = {
   has_fa?: boolean;
 };
 
-export type GalleryTranslation = {
+export type DesignTranslation = {
   locale: string;
   title: string;
   caption: string;
   alt_text: string;
 };
 
-export type GalleryItem = {
+export type TileSize = {
+  id: string;
+  width_mm: number;
+  height_mm: number;
+  label: string;
+  in_use?: boolean;
+};
+
+export type DesignImage = {
+  id?: string;
+  size_id?: string | null;
+  object_key?: string;
+  thumb_object_key?: string;
+  image_url?: string;
+  thumb_url?: string;
+  sort_order: number;
+};
+
+export type Design = {
   id: string;
   title: string;
   caption: string;
   alt_text: string;
   locale?: string;
-  object_key: string;
-  image_url: string;
-  thumb_url: string;
+  sizes: TileSize[];
+  images: DesignImage[];
+  primary_image_url: string;
+  primary_thumb_url: string;
   sort_order: number;
   is_published: boolean;
-  translations?: Record<string, GalleryTranslation>;
+  translations?: Record<string, DesignTranslation>;
   has_fa?: boolean;
 };
 

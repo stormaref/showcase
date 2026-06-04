@@ -13,7 +13,8 @@ import { fetchCsrf, logout, refreshSession } from "@/lib/admin-api";
 const nav = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/posts", label: "Blog posts" },
-  { href: "/admin/gallery", label: "Gallery" },
+  { href: "/admin/designs", label: "Designs" },
+  { href: "/admin/sizes", label: "Tile sizes" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

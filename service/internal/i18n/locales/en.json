@@ -13,5 +13,8 @@
   { "id": "error.rate_limit", "translation": "Rate limit error" },
   { "id": "error.rate_limited", "translation": "Too many requests" },
   { "id": "error.file_required", "translation": "File required" },
-  { "id": "error.validation", "translation": "Validation failed" }
+  { "id": "error.validation", "translation": "Validation failed" },
+  { "id": "error.size_in_use", "translation": "This size is in use and cannot be modified or deleted" },
+  { "id": "error.size_not_found", "translation": "Size not found" },
+  { "id": "error.design_not_found", "translation": "Design not found" }
 ]

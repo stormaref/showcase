@@ -5,7 +5,7 @@ import { siteUrl } from "@/lib/locale";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const staticPaths = ["", "/gallery", "/blog"];
+  const staticPaths = ["", "/designs", "/blog"];
   const staticRoutes: MetadataRoute.Sitemap = [];
 
   for (const locale of routing.locales) {

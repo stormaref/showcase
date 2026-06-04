@@ -1,27 +1,27 @@
 {
   "metadata": {
     "siteTitle": "Art Ceramic",
-    "siteDescription": "Art Ceramic — handcrafted ceramics, custom tiles, and studio services.",
+    "siteDescription": "Art Ceramic — custom tile designs, patterns, and sizes for residential and commercial projects.",
     "titleTemplate": "%s | Art Ceramic",
     "homeTitle": "Welcome",
-    "homeDescription": "Art Ceramic — handcrafted ceramics, custom tiles, and studio services. Visit our gallery and blog.",
-    "galleryTitle": "Gallery",
-    "galleryDescription": "A curated gallery of ceramic work from Art Ceramic studio.",
+    "homeDescription": "Art Ceramic — explore our tile design catalog, available sizes, and project inspiration.",
+    "designsTitle": "Design",
+    "designsDescription": "Browse tile designs, patterns, and available sizes from Art Ceramic.",
     "blogTitle": "Blog",
     "blogDescription": "News, techniques, and updates from Art Ceramic.",
     "postNotFound": "Post not found"
   },
   "nav": {
     "home": "Home",
-    "gallery": "Gallery",
+    "designs": "Design",
     "blog": "Blog",
     "localeEn": "English",
     "localeFa": "فارسی"
   },
   "company": {
     "name": "Art Ceramic",
-    "tagline": "Handcrafted ceramics for home and space",
-    "about": "Art Ceramic is a studio dedicated to thoughtful design and traditional craftsmanship. From custom tiles to one-of-a-kind tableware, we shape clay with care for lasting beauty in everyday life.",
+    "tagline": "Custom tile designs for every space",
+    "about": "Art Ceramic is a tile design studio specializing in patterns, glazes, and formats for kitchens, bathrooms, and architectural surfaces. Each design is available in multiple sizes — browse the catalog to find the right look for your project.",
     "addressLine1": "42 Kiln Street",
     "addressLine2": "Pottery District",
     "addressLine3": "Portland, OR 97201",
@@ -29,19 +29,20 @@
     "email": "hello@artceramic.example"
   },
   "home": {
-    "eyebrow": "Ceramic studio",
-    "viewGallery": "View gallery",
+    "eyebrow": "Tile design studio",
+    "viewDesigns": "Browse designs",
     "readBlog": "Read blog",
     "aboutTitle": "About us",
     "servicesTitle": "Our services",
     "servicesSubtitle": "What we offer at the studio and for your projects.",
     "contactTitle": "Contact",
-    "galleryTitle": "Gallery",
+    "designsTitle": "Design",
+    "designsSubtitle": "Explore patterns and available tile sizes.",
     "viewAll": "View all",
     "latestPosts": "Latest posts",
     "services": {
-      "tilesTitle": "Custom ceramic tiles",
-      "tilesDesc": "Bespoke glazes and patterns for kitchens, bathrooms, and feature walls.",
+      "tilesTitle": "Custom tile designs",
+      "tilesDesc": "Original patterns and glazes for kitchens, bathrooms, and feature walls.",
       "potteryTitle": "Handmade pottery",
       "potteryDesc": "Tableware, vases, and decorative pieces thrown and finished by hand.",
       "glazingTitle": "Glazing & finishing",
@@ -49,17 +50,21 @@
       "restorationTitle": "Restoration & repair",
       "restorationDesc": "Careful repair of chipped, cracked, or worn ceramic and tile work.",
       "consultationTitle": "Design consultation",
-      "consultationDesc": "Material selection, color palettes, and layout guidance for your space.",
+      "consultationDesc": "Pattern selection, color palettes, and layout guidance for your space.",
       "workshopsTitle": "Workshops",
       "workshopsDesc": "Introductory and advanced classes in wheel throwing and hand-building."
     }
   },
-  "gallery": {
-    "title": "Gallery",
-    "subtitle": "Selected pieces from the Art Ceramic studio.",
-    "empty": "No gallery items published yet.",
+  "designs": {
+    "eyebrow": "Tile catalog",
+    "title": "Design",
+    "subtitle": "Browse our tile patterns. Each design is available in multiple sizes — open any design to view photos and dimensions.",
+    "empty": "No designs published yet.",
+    "availableSizes": "Available sizes",
     "close": "Close",
-    "viewImage": "View larger image: {title}"
+    "prev": "Previous image",
+    "next": "Next image",
+    "viewImage": "View design: {title}"
   },
   "blog": {
     "title": "Blog",

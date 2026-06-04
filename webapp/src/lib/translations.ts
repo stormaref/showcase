@@ -1,4 +1,4 @@
-import type { GalleryTranslation, PostTranslation } from "@/lib/api";
+import type { DesignTranslation, PostTranslation } from "@/lib/api";
 
 export type LocaleTab = "en" | "fa";
 
@@ -12,7 +12,7 @@ export const emptyPostTranslation = (): PostTranslation => ({
   meta_description: "",
 });
 
-export const emptyGalleryTranslation = (): GalleryTranslation => ({
+export const emptyDesignTranslation = (): DesignTranslation => ({
   locale: "en",
   title: "",
   caption: "",
@@ -28,11 +28,11 @@ export function postTranslationsFromRecord(
   };
 }
 
-export function galleryTranslationsFromRecord(
-  record?: Record<string, GalleryTranslation>,
-): Record<LocaleTab, GalleryTranslation> {
+export function designTranslationsFromRecord(
+  record?: Record<string, DesignTranslation>,
+): Record<LocaleTab, DesignTranslation> {
   return {
-    en: record?.en ?? { ...emptyGalleryTranslation(), locale: "en" },
-    fa: record?.fa ?? { ...emptyGalleryTranslation(), locale: "fa" },
+    en: record?.en ?? { ...emptyDesignTranslation(), locale: "en" },
+    fa: record?.fa ?? { ...emptyDesignTranslation(), locale: "fa" },
   };
 }

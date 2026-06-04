@@ -15,6 +15,7 @@ require (
 	github.com/ulule/limiter/v3 v3.11.2
 	github.com/yuin/goldmark v1.7.4
 	golang.org/x/crypto v0.31.0
+	golang.org/x/text v0.21.0
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
@@ -59,7 +60,6 @@ require (
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

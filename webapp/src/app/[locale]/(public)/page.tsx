@@ -2,8 +2,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing, type Locale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
-import { GalleryGrid } from "@/components/gallery-grid";
-import { apiFetch, type BlogPost, type GalleryItem, type Paginated } from "@/lib/api";
+import { DesignGrid } from "@/components/design-grid";
+import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
 import { localeAlternates } from "@/lib/locale";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -36,18 +36,18 @@ export default async function HomePage({ params }: PageProps) {
   ];
 
   let posts: BlogPost[] = [];
-  let gallery: GalleryItem[] = [];
+  let designs: Design[] = [];
   try {
     const postData = await apiFetch<Paginated<BlogPost>>(
       "/api/v1/public/posts?limit=3",
       { locale: locale as string, next: { revalidate: 60 } },
     );
     posts = postData.items;
-    const galleryData = await apiFetch<{ items: GalleryItem[] }>(
-      "/api/v1/public/gallery",
+    const designData = await apiFetch<{ items: Design[] }>(
+      "/api/v1/public/designs",
       { locale: locale as string, next: { revalidate: 60 } },
     );
-    gallery = galleryData.items.slice(0, 6);
+    designs = designData.items.slice(0, 6);
   } catch {
     /* API may be offline during dev */
   }
@@ -66,10 +66,10 @@ export default async function HomePage({ params }: PageProps) {
         </p>
         <div className="mt-10 flex justify-center gap-4">
           <Link
-            href="/gallery"
+            href="/designs"
             className="rounded-full bg-gray-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
           >
-            {t("viewGallery")}
+            {t("viewDesigns")}
           </Link>
           <Link
             href="/blog"
@@ -113,6 +113,29 @@ export default async function HomePage({ params }: PageProps) {
         </ul>
       </section>
 
+      {designs.length > 0 && (
+        <section className="border-t border-gray-100 bg-gray-50/50 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight">{t("designsTitle")}</h2>
+                <p className="mt-1 text-sm text-gray-500">{t("designsSubtitle")}</p>
+              </div>
+              <Link href="/designs" className="shrink-0 text-sm text-gray-500 hover:text-gray-900">
+                {t("viewAll")} →
+              </Link>
+            </div>
+            <DesignGrid
+              items={designs}
+              useThumb
+              showCaption={false}
+              compact
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            />
+          </div>
+        </section>
+      )}
+
       <section className="border-t border-gray-100 py-20">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-2xl font-semibold tracking-tight text-gray-900">
@@ -143,24 +166,6 @@ export default async function HomePage({ params }: PageProps) {
           </div>
         </div>
       </section>
-
-      {gallery.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 pb-20">
-          <div className="mb-8 flex items-end justify-between">
-            <h2 className="text-2xl font-semibold tracking-tight">{t("galleryTitle")}</h2>
-            <Link href="/gallery" className="text-sm text-gray-500 hover:text-gray-900">
-              {t("viewAll")} →
-            </Link>
-          </div>
-          <GalleryGrid
-            items={gallery}
-            useThumb
-            showCaption={false}
-            compact
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          />
-        </section>
-      )}
 
       {posts.length > 0 && (
         <section className="border-t border-gray-100 bg-gray-50/50 py-20">

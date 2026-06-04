@@ -15,7 +15,8 @@ type Handlers struct {
 	Health  *handler.HealthHandler
 	Auth    *handler.AuthHandler
 	Posts   *handler.PostHandler
-	Gallery *handler.GalleryHandler
+	Designs *handler.DesignHandler
+	Sizes   *handler.SizeHandler
 	Upload  *handler.UploadHandler
 	Audit   *handler.AuditHandler
 }
@@ -47,7 +48,7 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 		{
 			public.GET("/posts", h.Posts.ListPublic)
 			public.GET("/posts/:slug", h.Posts.GetPublic)
-			public.GET("/gallery", h.Gallery.ListPublic)
+			public.GET("/designs", h.Designs.ListPublic)
 		}
 
 		auth := v1.Group("/auth")
@@ -70,10 +71,15 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 			admin.POST("/posts", h.Posts.Create)
 			admin.PUT("/posts/:id", h.Posts.Update)
 			admin.DELETE("/posts/:id", h.Posts.Delete)
-			admin.GET("/gallery", h.Gallery.ListAdmin)
-			admin.POST("/gallery", h.Gallery.Create)
-			admin.PUT("/gallery/:id", h.Gallery.Update)
-			admin.DELETE("/gallery/:id", h.Gallery.Delete)
+			admin.GET("/designs", h.Designs.ListAdmin)
+			admin.GET("/designs/:id", h.Designs.GetAdmin)
+			admin.POST("/designs", h.Designs.Create)
+			admin.PUT("/designs/:id", h.Designs.Update)
+			admin.DELETE("/designs/:id", h.Designs.Delete)
+			admin.GET("/sizes", h.Sizes.List)
+			admin.POST("/sizes", h.Sizes.Create)
+			admin.PUT("/sizes/:id", h.Sizes.Update)
+			admin.DELETE("/sizes/:id", h.Sizes.Delete)
 			admin.POST("/uploads", h.Upload.Upload)
 			admin.GET("/audit-logs", h.Audit.List)
 		}

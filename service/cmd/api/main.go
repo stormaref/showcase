@@ -42,16 +42,26 @@ func main() {
 		log.Fatalf("database: %v", err)
 	}
 
+	if err := migrate.RunPre(db); err != nil {
+		log.Fatalf("migrate pre: %v", err)
+	}
+
 	if err := db.AutoMigrate(
 		&model.Admin{},
 		&model.BlogPost{},
 		&model.BlogPostTranslation{},
-		&model.GalleryItem{},
-		&model.GalleryItemTranslation{},
+		&model.Design{},
+		&model.DesignTranslation{},
+		&model.TileSize{},
+		&model.DesignSize{},
+		&model.DesignImage{},
 		&model.RefreshToken{},
 		&model.AuditLog{},
 	); err != nil {
 		log.Fatalf("migrate: %v", err)
+	}
+	if err := migrate.RunPost(db); err != nil {
+		log.Fatalf("migrate post: %v", err)
 	}
 	if err := migrate.Run(db); err != nil {
 		log.Fatalf("data migrate: %v", err)
@@ -69,13 +79,15 @@ func main() {
 	adminRepo := repository.NewAdminRepository(db)
 	tokenRepo := repository.NewTokenRepository(db)
 	postRepo := repository.NewPostRepository(db)
-	galleryRepo := repository.NewGalleryRepository(db)
+	designRepo := repository.NewDesignRepository(db)
+	sizeRepo := repository.NewSizeRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	auditSvc := service.NewAuditService(auditRepo)
 	authSvc := service.NewAuthService(cfg, adminRepo, tokenRepo, auditSvc)
 	postSvc := service.NewPostService(postRepo, store, auditSvc)
-	gallerySvc := service.NewGalleryService(galleryRepo, store, auditSvc)
+	designSvc := service.NewDesignService(designRepo, sizeRepo, store, auditSvc)
+	sizeSvc := service.NewSizeService(sizeRepo)
 	uploadSvc := service.NewUploadService(cfg, store)
 
 	if err := authSvc.BootstrapAdmin(ctx); err != nil {
@@ -86,7 +98,8 @@ func main() {
 		Health:  handler.NewHealthHandler(db, store),
 		Auth:    handler.NewAuthHandler(cfg, authSvc),
 		Posts:   handler.NewPostHandler(postSvc),
-		Gallery: handler.NewGalleryHandler(gallerySvc),
+		Designs: handler.NewDesignHandler(designSvc),
+		Sizes:   handler.NewSizeHandler(sizeSvc),
 		Upload:  handler.NewUploadHandler(uploadSvc),
 		Audit:   handler.NewAuditHandler(auditSvc),
 	}
