@@ -11,6 +11,7 @@ import (
 	"github.com/stormaref/showcase/service/internal/middleware"
 	"github.com/stormaref/showcase/service/internal/repository"
 	"github.com/stormaref/showcase/service/internal/service"
+	"gorm.io/gorm"
 )
 
 type DesignHandler struct {
@@ -29,6 +30,25 @@ func (h *DesignHandler) ListPublic(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"items": items, "locale": loc})
+}
+
+func (h *DesignHandler) GetPublic(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		httpx.JSON(c, http.StatusBadRequest, "validation", "error.invalid_id")
+		return
+	}
+	loc := locale.Get(c)
+	item, err := h.designs.GetPublic(c.Request.Context(), id, loc)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			httpx.JSON(c, http.StatusNotFound, "not_found", "error.design_not_found")
+			return
+		}
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
+		return
+	}
+	c.JSON(http.StatusOK, item)
 }
 
 func (h *DesignHandler) ListAdmin(c *gin.Context) {

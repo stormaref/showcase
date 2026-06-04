@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { DesignGrid } from "@/components/design-grid";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
+import { getBrandInfo, phoneTelHref } from "@/lib/brand-info";
 import { localeAlternates } from "@/lib/locale";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -24,7 +25,7 @@ export default async function HomePage({ params }: PageProps) {
     setRequestLocale(locale);
   }
   const t = await getTranslations("home");
-  const tc = await getTranslations("company");
+  const brand = await getBrandInfo(locale);
 
   const services = [
     { title: t("services.tilesTitle"), description: t("services.tilesDesc") },
@@ -59,10 +60,10 @@ export default async function HomePage({ params }: PageProps) {
           {t("eyebrow")}
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
-          {tc("name")}
+          {brand.name}
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-lg text-gray-500">
-          {tc("tagline")}
+          {brand.tagline}
         </p>
         <div className="mt-10 flex justify-center gap-4">
           <Link
@@ -86,7 +87,7 @@ export default async function HomePage({ params }: PageProps) {
             {t("aboutTitle")}
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-gray-600">
-            {tc("about")}
+            {brand.about}
           </p>
         </div>
       </section>
@@ -143,24 +144,24 @@ export default async function HomePage({ params }: PageProps) {
           </h2>
           <div className="mx-auto mt-10 flex max-w-md flex-col items-center gap-6 text-center text-gray-600">
             <address className="not-italic leading-relaxed">
-              <span className="block">{tc("addressLine1")}</span>
-              <span className="block">{tc("addressLine2")}</span>
-              <span className="block">{tc("addressLine3")}</span>
+              <span className="block">{brand.addressLine1}</span>
+              <span className="block">{brand.addressLine2}</span>
+              <span className="block">{brand.addressLine3}</span>
             </address>
             <p>
               <a
-                href="tel:+15551234567"
+                href={phoneTelHref(brand.phone)}
                 className="font-medium text-gray-900 hover:underline"
               >
-                {tc("phone")}
+                {brand.phone}
               </a>
             </p>
             <p>
               <a
-                href={`mailto:${tc("email")}`}
+                href={`mailto:${brand.email}`}
                 className="text-gray-500 hover:text-gray-900 hover:underline"
               >
-                {tc("email")}
+                {brand.email}
               </a>
             </p>
           </div>

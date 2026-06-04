@@ -1,15 +1,9 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
-import { Vazirmatn } from "next/font/google";
 import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
+import { sgkara } from "@/lib/fonts/sgkara";
 import "../globals.css";
-
-const vazirmatn = Vazirmatn({
-  subsets: ["arabic", "latin"],
-  variable: "--font-vazirmatn",
-  display: "swap",
-});
 
 type Props = {
   children: React.ReactNode;
@@ -40,10 +34,10 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const dir = locale === "fa" ? "rtl" : "ltr";
-  const fontClass = locale === "fa" ? vazirmatn.className : "font-sans";
+  const fontClass = locale === "fa" ? sgkara.className : "font-sans";
 
   return (
-    <html lang={locale} dir={dir} className="h-full antialiased">
+    <html lang={locale} dir={dir} className={`h-full antialiased ${sgkara.variable}`}>
       <body className={`min-h-full flex flex-col ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>

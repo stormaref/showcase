@@ -9,24 +9,17 @@
     "designsDescription": "Browse tile designs, patterns, and available sizes from Art Ceramic.",
     "blogTitle": "Blog",
     "blogDescription": "News, techniques, and updates from Art Ceramic.",
-    "postNotFound": "Post not found"
+    "postNotFound": "Post not found",
+    "designNotFound": "Design not found"
   },
   "nav": {
     "home": "Home",
     "designs": "Design",
     "blog": "Blog",
     "localeEn": "English",
-    "localeFa": "فارسی"
-  },
-  "company": {
-    "name": "Art Ceramic",
-    "tagline": "Custom tile designs for every space",
-    "about": "Art Ceramic is a tile design studio specializing in patterns, glazes, and formats for kitchens, bathrooms, and architectural surfaces. Each design is available in multiple sizes — browse the catalog to find the right look for your project.",
-    "addressLine1": "42 Kiln Street",
-    "addressLine2": "Pottery District",
-    "addressLine3": "Portland, OR 97201",
-    "phone": "+1 (555) 123-4567",
-    "email": "hello@artceramic.example"
+    "localeFa": "فارسی",
+    "changeLanguage": "Change language",
+    "supportedLanguages": "Supported languages"
   },
   "home": {
     "eyebrow": "Tile design studio",
@@ -58,13 +51,22 @@
   "designs": {
     "eyebrow": "Tile catalog",
     "title": "Design",
-    "subtitle": "Browse our tile patterns. Each design is available in multiple sizes — open any design to view photos and dimensions.",
+    "subtitle": "Browse our tile patterns. Each design is available in multiple sizes.",
     "empty": "No designs published yet.",
-    "availableSizes": "Available sizes",
-    "close": "Close",
-    "prev": "Previous image",
-    "next": "Next image",
-    "viewImage": "View design: {title}"
+    "filterBySize": "Filter by size",
+    "clearFilters": "Clear filters",
+    "noMatches": "No designs match the selected sizes."
+  },
+  "designDetail": {
+    "backToCatalog": "Back to catalog",
+    "showcase": "Showcase",
+    "availableIn": "Available sizes",
+    "noShowcaseImages": "No showcase images for this design.",
+    "noSizeImages": "No images for this size yet.",
+    "notFound": "Design not found",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "slide": "Slide"
   },
   "blog": {
     "title": "Blog",

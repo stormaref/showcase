@@ -9,6 +9,7 @@ import (
 	"github.com/stormaref/showcase/service/internal/domain/model"
 	"github.com/stormaref/showcase/service/internal/repository"
 	"github.com/stormaref/showcase/service/internal/storage"
+	"gorm.io/gorm"
 )
 
 type DesignService struct {
@@ -236,6 +237,26 @@ func (s *DesignService) ListPublic(ctx context.Context, locale string) ([]Design
 		out = append(out, s.enrich(&items[i], tr, resolved))
 	}
 	return out, nil
+}
+
+func (s *DesignService) GetPublic(ctx context.Context, id uuid.UUID, locale string) (*DesignResponse, error) {
+	design, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if !design.IsPublished {
+		return nil, gorm.ErrRecordNotFound
+	}
+	tr := pickDesignTranslation(design, locale)
+	if tr == nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+	resolved := locale
+	if tr.Locale != locale {
+		resolved = tr.Locale
+	}
+	resp := s.enrich(design, tr, resolved)
+	return &resp, nil
 }
 
 func (s *DesignService) ListAdmin(ctx context.Context) ([]DesignResponse, error) {

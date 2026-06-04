@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
-import { apiFetch, type BlogPost, type Paginated } from "@/lib/api";
+import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
 import { siteUrl } from "@/lib/locale";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -48,5 +48,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...staticRoutes, ...postRoutes];
+  const designRoutes: MetadataRoute.Sitemap = [];
+  for (const locale of routing.locales) {
+    try {
+      const data = await apiFetch<{ items: Design[] }>(
+        "/api/v1/public/designs",
+        { locale, next: { revalidate: 3600 } },
+      );
+      for (const d of data.items) {
+        designRoutes.push({
+          url: `${base}/${locale}/designs/${d.id}`,
+          changeFrequency: "weekly",
+          priority: 0.75,
+          alternates: {
+            languages: Object.fromEntries(
+              routing.locales.map((l) => [l, `${base}/${l}/designs/${d.id}`]),
+            ),
+          },
+        });
+      }
+    } catch {
+      /* API offline */
+    }
+  }
+
+  return [...staticRoutes, ...postRoutes, ...designRoutes];
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/markdown-content";
 import { apiFetch, type BlogPost } from "@/lib/api";
+import { getBrandInfo } from "@/lib/brand-info";
 import { localeAlternates, siteUrl } from "@/lib/locale";
 
 type Props = { params: Promise<{ slug: string; locale: string }> };
@@ -15,14 +16,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale,
       next: { revalidate: 60 },
     });
-    const tc = await getTranslations({ locale, namespace: "company" });
+    const brand = await getBrandInfo(locale);
     const path = `/blog/${slug}`;
     return {
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt,
       alternates: { languages: localeAlternates(path) },
       openGraph: {
-        siteName: tc("name"),
+        siteName: brand.name,
         title: post.meta_title || post.title,
         description: post.meta_description || post.excerpt,
         images: post.image_url ? [post.image_url] : undefined,

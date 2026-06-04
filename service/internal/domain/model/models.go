@@ -187,6 +187,28 @@ func (r *RefreshToken) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+type BrandInfoTranslation struct {
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Locale       string    `gorm:"size:5;uniqueIndex;not null" json:"locale"`
+	Name         string    `gorm:"size:255;not null" json:"name"`
+	Tagline      string    `gorm:"size:500" json:"tagline"`
+	About        string    `gorm:"type:text" json:"about"`
+	AddressLine1 string    `gorm:"size:255" json:"address_line_1"`
+	AddressLine2 string    `gorm:"size:255" json:"address_line_2"`
+	AddressLine3 string    `gorm:"size:255" json:"address_line_3"`
+	Phone        string    `gorm:"size:50" json:"phone"`
+	Email        string    `gorm:"size:255" json:"email"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+func (b *BrandInfoTranslation) BeforeCreate(tx *gorm.DB) error {
+	if b.ID == uuid.Nil {
+		b.ID = uuid.New()
+	}
+	return nil
+}
+
 type AuditLog struct {
 	ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	ActorID    uuid.UUID `gorm:"type:uuid;index" json:"actor_id"`

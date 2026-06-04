@@ -57,6 +57,7 @@ func main() {
 		&model.DesignImage{},
 		&model.RefreshToken{},
 		&model.AuditLog{},
+		&model.BrandInfoTranslation{},
 	); err != nil {
 		log.Fatalf("migrate: %v", err)
 	}
@@ -81,6 +82,7 @@ func main() {
 	postRepo := repository.NewPostRepository(db)
 	designRepo := repository.NewDesignRepository(db)
 	sizeRepo := repository.NewSizeRepository(db)
+	brandRepo := repository.NewBrandRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	auditSvc := service.NewAuditService(auditRepo)
@@ -88,10 +90,14 @@ func main() {
 	postSvc := service.NewPostService(postRepo, store, auditSvc)
 	designSvc := service.NewDesignService(designRepo, sizeRepo, store, auditSvc)
 	sizeSvc := service.NewSizeService(sizeRepo)
+	brandSvc := service.NewBrandService(brandRepo, auditSvc)
 	uploadSvc := service.NewUploadService(cfg, store)
 
 	if err := authSvc.BootstrapAdmin(ctx); err != nil {
 		log.Fatalf("bootstrap admin: %v", err)
+	}
+	if err := brandSvc.SeedDefaults(ctx); err != nil {
+		log.Fatalf("seed brand info: %v", err)
 	}
 
 	handlers := router.Handlers{
@@ -100,6 +106,7 @@ func main() {
 		Posts:   handler.NewPostHandler(postSvc),
 		Designs: handler.NewDesignHandler(designSvc),
 		Sizes:   handler.NewSizeHandler(sizeSvc),
+		Brand:   handler.NewBrandHandler(brandSvc),
 		Upload:  handler.NewUploadHandler(uploadSvc),
 		Audit:   handler.NewAuditHandler(auditSvc),
 	}

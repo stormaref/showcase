@@ -114,6 +114,20 @@ export type Paginated<T> = {
   limit: number;
 };
 
+export type BrandInfoResponse = {
+  locale: string;
+  name: string;
+  tagline: string;
+  about: string;
+  address_line_1: string;
+  address_line_2: string;
+  address_line_3: string;
+  phone: string;
+  email: string;
+};
+
+export type BrandInfoTranslations = Record<string, BrandInfoResponse>;
+
 export function mediaUrl(key?: string) {
   if (!key) return "";
   if (key.startsWith("http")) return key;

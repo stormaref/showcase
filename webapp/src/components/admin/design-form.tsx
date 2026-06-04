@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { Upload } from "lucide-react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
 import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
@@ -26,6 +27,9 @@ type DesignFormProps = {
   submitLabel: string;
 };
 
+const checkboxClass =
+  "size-4 shrink-0 rounded border-gray-300 accent-gray-900";
+
 function imagesFromDesign(design?: Design): PendingImage[] {
   if (!design) return [];
   return design.images.map((img) => ({
@@ -36,6 +40,41 @@ function imagesFromDesign(design?: Design): PendingImage[] {
     preview_url: img.image_url || "",
     thumb_url: img.thumb_url || img.image_url || "",
   }));
+}
+
+function FileUploadButton({
+  disabled,
+  onChange,
+  label = "Upload images",
+}: {
+  disabled?: boolean;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  label?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="mt-2">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        disabled={disabled}
+        onChange={onChange}
+        className="sr-only"
+      />
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => inputRef.current?.click()}
+        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+      >
+        <Upload className="size-4" aria-hidden />
+        {label}
+      </button>
+    </div>
+  );
 }
 
 export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignFormProps) {
@@ -52,8 +91,6 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
   const [uploadError, setUploadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
-  const showcaseInputRef = useRef<HTMLInputElement>(null);
-  const sizeInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const { uploadImage, isUploading, percent } = useUploadProgress();
 
   function updateTranslation(locale: LocaleTab, patch: Partial<DesignTranslation>) {
@@ -207,14 +244,18 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
             className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
           />
         </label>
-        <label className="flex items-end gap-2 pb-2 text-sm">
-          <input
-            type="checkbox"
-            checked={isPublished}
-            onChange={(e) => setIsPublished(e.target.checked)}
-          />
-          Published
-        </label>
+        <div className="block text-sm font-medium">
+          Status
+          <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 font-normal hover:bg-gray-50">
+            <input
+              type="checkbox"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className={checkboxClass}
+            />
+            Published
+          </label>
+        </div>
       </div>
 
       <fieldset className="rounded-xl border border-gray-200 p-4">
@@ -224,13 +265,17 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
             No sizes defined yet. Add tile sizes first.
           </p>
         ) : (
-          <div className="mt-2 flex flex-wrap gap-3">
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {sizes.map((size) => (
-              <label key={size.id} className="flex items-center gap-2 text-sm">
+              <label
+                key={size.id}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
+              >
                 <input
                   type="checkbox"
                   checked={selectedSizeIds.includes(size.id)}
                   onChange={() => toggleSize(size.id)}
+                  className={checkboxClass}
                 />
                 {size.label}
               </label>
@@ -244,17 +289,12 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
         <p className="text-xs text-gray-500">
           Room shots and marketing photos not tied to a specific size.
         </p>
-        <input
-          ref={showcaseInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
+        <FileUploadButton
           disabled={isUploading}
           onChange={(e) => {
             handleUpload(e.target.files, null);
             e.target.value = "";
           }}
-          className="mt-2 block w-full text-sm"
         />
         {renderImageGrid(
           showcaseImages,
@@ -270,19 +310,12 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
         return (
           <fieldset key={size.id} className="rounded-xl border border-gray-200 p-4">
             <legend className="px-1 text-sm font-medium">{size.label} images</legend>
-            <input
-              ref={(el) => {
-                sizeInputRefs.current[size.id] = el;
-              }}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
+            <FileUploadButton
               disabled={isUploading}
               onChange={(e) => {
                 handleUpload(e.target.files, size.id);
                 e.target.value = "";
               }}
-              className="mt-2 block w-full text-sm"
             />
             {renderImageGrid(sizeImages, sizeIndices)}
           </fieldset>

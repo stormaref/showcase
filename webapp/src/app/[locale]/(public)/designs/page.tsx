@@ -1,6 +1,7 @@
+import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import { DesignGrid } from "@/components/design-grid";
+import { DesignCatalog } from "@/components/design-catalog";
 import { apiFetch, type Design } from "@/lib/api";
 import { localeAlternates } from "@/lib/locale";
 
@@ -42,7 +43,9 @@ export default async function DesignsPage() {
       {items.length === 0 ? (
         <p className="mt-16 text-gray-400">{t("empty")}</p>
       ) : (
-        <DesignGrid items={items} />
+        <Suspense fallback={<div className="mt-12 h-64 animate-pulse rounded-xl bg-gray-100" />}>
+          <DesignCatalog items={items} />
+        </Suspense>
       )}
     </div>
   );

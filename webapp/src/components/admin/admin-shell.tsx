@@ -15,6 +15,7 @@ const nav = [
   { href: "/admin/posts", label: "Blog posts" },
   { href: "/admin/designs", label: "Designs" },
   { href: "/admin/sizes", label: "Tile sizes" },
+  { href: "/admin/brand", label: "Brand info" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

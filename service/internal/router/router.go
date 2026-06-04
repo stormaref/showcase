@@ -17,6 +17,7 @@ type Handlers struct {
 	Posts   *handler.PostHandler
 	Designs *handler.DesignHandler
 	Sizes   *handler.SizeHandler
+	Brand   *handler.BrandHandler
 	Upload  *handler.UploadHandler
 	Audit   *handler.AuditHandler
 }
@@ -49,6 +50,8 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 			public.GET("/posts", h.Posts.ListPublic)
 			public.GET("/posts/:slug", h.Posts.GetPublic)
 			public.GET("/designs", h.Designs.ListPublic)
+			public.GET("/designs/:id", h.Designs.GetPublic)
+			public.GET("/brand-info", h.Brand.GetPublic)
 		}
 
 		auth := v1.Group("/auth")
@@ -80,6 +83,8 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 			admin.POST("/sizes", h.Sizes.Create)
 			admin.PUT("/sizes/:id", h.Sizes.Update)
 			admin.DELETE("/sizes/:id", h.Sizes.Delete)
+			admin.GET("/brand-info", h.Brand.GetAdmin)
+			admin.PUT("/brand-info", h.Brand.Update)
 			admin.POST("/uploads", h.Upload.Upload)
 			admin.GET("/audit-logs", h.Audit.List)
 		}
