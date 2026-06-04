@@ -52,7 +52,6 @@ showcase/
 Package mirrors (optional, configured in repo):
 
 - Go: `GOPROXY=https://go.iranserver.com/repository/go/`
-- npm: `registry=https://npm.iranserver.com/repository/npm/` (see `.npmrc`)
 
 ## Quick start
 
