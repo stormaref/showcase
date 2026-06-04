@@ -72,6 +72,7 @@ type DesignResponse struct {
 	SortOrder        int                 `json:"sort_order"`
 	IsPublished      bool                `json:"is_published"`
 	HasFA            bool                `json:"has_fa,omitempty"`
+	ImageCount       int                 `json:"image_count,omitempty"`
 	CreatedAt        string              `json:"created_at,omitempty"`
 }
 
@@ -156,6 +157,15 @@ func (s *DesignService) primaryImage(images []model.DesignImage) (string, string
 	return resp.ImageURL, resp.ThumbURL
 }
 
+func hasDesignTranslation(translations []model.DesignTranslation, locale string) bool {
+	for _, tr := range translations {
+		if tr.Locale == locale && tr.Title != "" {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation, resolvedLocale string) DesignResponse {
 	images := make([]DesignImageResponse, len(design.Images))
 	for i := range design.Images {
@@ -166,11 +176,41 @@ func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation
 		ID:              design.ID,
 		Sizes:           s.sizeResponses(design.Sizes),
 		Images:          images,
+		ImageCount:      len(design.Images),
 		PrimaryImageURL: primaryURL,
 		PrimaryThumbURL: primaryThumb,
 		SortOrder:       design.SortOrder,
 		IsPublished:     design.IsPublished,
 		Locale:          resolvedLocale,
+	}
+	if tr != nil {
+		resp.Title = tr.Title
+		resp.Caption = tr.Caption
+		resp.AltText = tr.AltText
+	}
+	return resp
+}
+
+func (s *DesignService) enrichList(
+	design *model.Design,
+	tr *model.DesignTranslation,
+	resolvedLocale string,
+	primary *model.DesignImage,
+	imageCount int64,
+) DesignResponse {
+	resp := DesignResponse{
+		ID:          design.ID,
+		Sizes:       s.sizeResponses(design.Sizes),
+		Images:      nil,
+		ImageCount:  int(imageCount),
+		SortOrder:   design.SortOrder,
+		IsPublished: design.IsPublished,
+		Locale:      resolvedLocale,
+	}
+	if primary != nil {
+		imgResp := s.imageResponse(primary)
+		resp.PrimaryImageURL = imgResp.ImageURL
+		resp.PrimaryThumbURL = imgResp.ThumbURL
 	}
 	if tr != nil {
 		resp.Title = tr.Title
@@ -224,6 +264,14 @@ func (s *DesignService) ListPublic(ctx context.Context, locale string) ([]Design
 	if err != nil {
 		return nil, err
 	}
+	ids := make([]uuid.UUID, len(items))
+	for i := range items {
+		ids[i] = items[i].ID
+	}
+	primaryImages, err := s.repo.PrimaryImagesByDesignIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]DesignResponse, 0, len(items))
 	for i := range items {
 		tr := pickDesignTranslation(&items[i], locale)
@@ -234,18 +282,20 @@ func (s *DesignService) ListPublic(ctx context.Context, locale string) ([]Design
 		if tr.Locale != locale {
 			resolved = tr.Locale
 		}
-		out = append(out, s.enrich(&items[i], tr, resolved))
+		var primary *model.DesignImage
+		if img, ok := primaryImages[items[i].ID]; ok {
+			imgCopy := img
+			primary = &imgCopy
+		}
+		out = append(out, s.enrichList(&items[i], tr, resolved, primary, 0))
 	}
 	return out, nil
 }
 
 func (s *DesignService) GetPublic(ctx context.Context, id uuid.UUID, locale string) (*DesignResponse, error) {
-	design, err := s.repo.FindByID(ctx, id)
+	design, err := s.repo.FindPublishedByID(ctx, id, locale)
 	if err != nil {
 		return nil, err
-	}
-	if !design.IsPublished {
-		return nil, gorm.ErrRecordNotFound
 	}
 	tr := pickDesignTranslation(design, locale)
 	if tr == nil {
@@ -264,12 +314,28 @@ func (s *DesignService) ListAdmin(ctx context.Context) ([]DesignResponse, error)
 	if err != nil {
 		return nil, err
 	}
+	ids := make([]uuid.UUID, len(items))
+	for i := range items {
+		ids[i] = items[i].ID
+	}
+	imageCounts, err := s.repo.CountImagesByDesignIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	primaryImages, err := s.repo.PrimaryImagesByDesignIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]DesignResponse, len(items))
 	for i := range items {
 		tr := pickDesignTranslation(&items[i], model.LocaleEN)
-		resp := s.enrich(&items[i], tr, model.LocaleEN)
-		ok, _ := s.repo.HasTranslation(ctx, items[i].ID, model.LocaleFA)
-		resp.HasFA = ok
+		var primary *model.DesignImage
+		if img, ok := primaryImages[items[i].ID]; ok {
+			imgCopy := img
+			primary = &imgCopy
+		}
+		resp := s.enrichList(&items[i], tr, model.LocaleEN, primary, imageCounts[items[i].ID])
+		resp.HasFA = hasDesignTranslation(items[i].Translations, model.LocaleFA)
 		out[i] = resp
 	}
 	return out, nil
@@ -285,8 +351,7 @@ func (s *DesignService) GetAdmin(ctx context.Context, id uuid.UUID) (*AdminDesig
 		DesignResponse: s.enrich(design, tr, model.LocaleEN),
 		Translations:   s.translationsMap(design),
 	}
-	ok, _ := s.repo.HasTranslation(ctx, design.ID, model.LocaleFA)
-	resp.HasFA = ok
+	resp.HasFA = hasDesignTranslation(design.Translations, model.LocaleFA)
 	return &resp, nil
 }
 
@@ -313,9 +378,6 @@ func (s *DesignService) upsertTranslations(ctx context.Context, designID uuid.UU
 }
 
 func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, in DesignInput) error {
-	if err := s.repo.ReplaceSizes(ctx, designID, in.SizeIDs); err != nil {
-		return err
-	}
 	images := make([]model.DesignImage, len(in.Images))
 	for i, imgIn := range in.Images {
 		images[i] = model.DesignImage{
@@ -325,7 +387,7 @@ func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, 
 			SortOrder:      imgIn.SortOrder,
 		}
 	}
-	return s.repo.ReplaceImages(ctx, designID, images)
+	return s.repo.ReplaceRelations(ctx, designID, in.SizeIDs, images)
 }
 
 func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in DesignInput) (*AdminDesignResponse, error) {
@@ -357,11 +419,14 @@ func (s *DesignService) Update(ctx context.Context, actorID, id uuid.UUID, in De
 	if err := s.validateInput(ctx, in); err != nil {
 		return nil, err
 	}
-	design, err := s.repo.FindByID(ctx, id)
+	oldImages, err := s.repo.ListImages(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	oldImages := design.Images
+	design, err := s.repo.FindMetaByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	design.SortOrder = in.SortOrder
 	design.IsPublished = in.IsPublished
 	if err := s.repo.Update(ctx, design); err != nil {
@@ -401,11 +466,11 @@ func (s *DesignService) deleteOrphanImages(ctx context.Context, old []model.Desi
 }
 
 func (s *DesignService) Delete(ctx context.Context, actorID, id uuid.UUID) error {
-	design, err := s.repo.FindByID(ctx, id)
+	images, err := s.repo.ListImages(ctx, id)
 	if err != nil {
 		return err
 	}
-	for _, img := range design.Images {
+	for _, img := range images {
 		_ = s.store.Delete(ctx, img.ObjectKey)
 		if img.ThumbObjectKey != "" {
 			_ = s.store.Delete(ctx, img.ThumbObjectKey)

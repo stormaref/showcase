@@ -126,9 +126,13 @@ func (s *PostService) translationsMap(post *model.BlogPost) map[string]PostTrans
 	return out
 }
 
-func (s *PostService) hasFA(ctx context.Context, postID uuid.UUID) bool {
-	ok, _ := s.repo.HasTranslation(ctx, postID, model.LocaleFA)
-	return ok
+func hasPostTranslation(translations []model.BlogPostTranslation, locale string) bool {
+	for _, tr := range translations {
+		if tr.Locale == locale && tr.Title != "" {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *PostService) ListPublic(ctx context.Context, locale string, page, limit int) ([]PostResponse, int64, error) {
@@ -185,7 +189,7 @@ func (s *PostService) ListAdmin(ctx context.Context, page, limit int) ([]PostRes
 	for i := range posts {
 		tr := pickTranslation(&posts[i], model.LocaleEN)
 		resp := s.buildResponse(&posts[i], tr, model.LocaleEN)
-		resp.HasFA = s.hasFA(ctx, posts[i].ID)
+		resp.HasFA = hasPostTranslation(posts[i].Translations, model.LocaleFA)
 		out[i] = resp
 	}
 	return out, total, nil
@@ -201,7 +205,7 @@ func (s *PostService) GetAdmin(ctx context.Context, id uuid.UUID) (*AdminPostRes
 		PostResponse: s.buildResponse(post, tr, model.LocaleEN),
 		Translations: s.translationsMap(post),
 	}
-	resp.HasFA = s.hasFA(ctx, post.ID)
+	resp.HasFA = hasPostTranslation(post.Translations, model.LocaleFA)
 	return &resp, nil
 }
 

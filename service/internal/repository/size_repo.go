@@ -71,20 +71,17 @@ func (r *SizeRepository) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (r *SizeRepository) IsReferenced(ctx context.Context, id uuid.UUID) (bool, error) {
-	var designCount int64
-	if err := r.db.WithContext(ctx).Model(&model.DesignSize{}).
-		Where("size_id = ?", id).Count(&designCount).Error; err != nil {
+	var count int64
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT (
+			(SELECT COUNT(*) FROM design_sizes WHERE size_id = ?) +
+			(SELECT COUNT(*) FROM design_images WHERE size_id = ?)
+		) AS total
+	`, id, id).Scan(&count).Error
+	if err != nil {
 		return false, err
 	}
-	if designCount > 0 {
-		return true, nil
-	}
-	var imageCount int64
-	if err := r.db.WithContext(ctx).Model(&model.DesignImage{}).
-		Where("size_id = ?", id).Count(&imageCount).Error; err != nil {
-		return false, err
-	}
-	return imageCount > 0, nil
+	return count > 0, nil
 }
 
 func (r *SizeRepository) ExistsAll(ctx context.Context, ids []uuid.UUID) (bool, error) {

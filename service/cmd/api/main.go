@@ -46,6 +46,10 @@ func main() {
 		log.Fatalf("migrate pre: %v", err)
 	}
 
+	if err := db.SetupJoinTable(&model.Design{}, "Sizes", &model.DesignSize{}); err != nil {
+		log.Fatalf("setup join table: %v", err)
+	}
+
 	if err := db.AutoMigrate(
 		&model.Admin{},
 		&model.BlogPost{},

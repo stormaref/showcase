@@ -69,7 +69,8 @@ export default function AdminDesignsPage() {
               </p>
               <p className="mt-1 text-xs text-gray-400">
                 {item.sizes.length} size{item.sizes.length !== 1 ? "s" : ""} ·{" "}
-                {item.images.length} image{item.images.length !== 1 ? "s" : ""}
+                {(item.image_count ?? item.images?.length ?? 0)} image
+                {(item.image_count ?? item.images?.length ?? 0) !== 1 ? "s" : ""}
               </p>
               <div className="mt-3 flex gap-3">
                 <Link

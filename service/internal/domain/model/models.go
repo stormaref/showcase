@@ -38,10 +38,10 @@ func (a *Admin) BeforeCreate(tx *gorm.DB) error {
 
 type BlogPost struct {
 	ID          uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
-	Status      PostStatus `gorm:"size:20;index;not null;default:draft" json:"status"`
+	Status      PostStatus `gorm:"size:20;index:idx_posts_status_published,priority:1;not null;default:draft" json:"status"`
 	OGImageKey  string     `gorm:"size:500" json:"og_image_key"`
 	AuthorID    uuid.UUID  `gorm:"type:uuid;index" json:"author_id"`
-	PublishedAt *time.Time `json:"published_at"`
+	PublishedAt *time.Time `gorm:"index:idx_posts_status_published,priority:2" json:"published_at"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 
@@ -78,13 +78,13 @@ func (t *BlogPostTranslation) BeforeCreate(tx *gorm.DB) error {
 
 type Design struct {
 	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	SortOrder   int       `gorm:"index;default:0" json:"sort_order"`
-	IsPublished bool      `gorm:"index;default:false" json:"is_published"`
-	CreatedAt   time.Time `json:"created_at"`
+	SortOrder   int       `gorm:"index:idx_designs_published_sort,priority:2;default:0" json:"sort_order"`
+	IsPublished bool      `gorm:"index:idx_designs_published_sort,priority:1;default:false" json:"is_published"`
+	CreatedAt   time.Time `gorm:"index:idx_designs_published_sort,priority:3" json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 
 	Translations []DesignTranslation `gorm:"foreignKey:DesignID" json:"translations,omitempty"`
-	Sizes        []TileSize          `gorm:"many2many:design_sizes" json:"sizes,omitempty"`
+	Sizes        []TileSize          `gorm:"many2many:design_sizes;joinReferences:size_id" json:"sizes,omitempty"`
 	Images       []DesignImage       `gorm:"foreignKey:DesignID" json:"images,omitempty"`
 }
 
@@ -151,17 +151,17 @@ func formatDim(v int) string {
 
 type DesignSize struct {
 	DesignID uuid.UUID `gorm:"type:uuid;primaryKey" json:"design_id"`
-	SizeID   uuid.UUID `gorm:"type:uuid;primaryKey" json:"size_id"`
+	SizeID   uuid.UUID `gorm:"type:uuid;primaryKey;index:idx_design_sizes_size_id" json:"size_id"`
 }
 
 type DesignImage struct {
 	ID             uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
-	DesignID       uuid.UUID  `gorm:"type:uuid;index;not null" json:"design_id"`
+	DesignID       uuid.UUID  `gorm:"type:uuid;index:idx_design_images_design_sort,priority:1;not null" json:"design_id"`
 	SizeID         *uuid.UUID `gorm:"type:uuid;index" json:"size_id"`
 	ObjectKey      string     `gorm:"size:500;not null" json:"object_key"`
 	ThumbObjectKey string     `gorm:"size:500" json:"thumb_object_key"`
-	SortOrder      int        `gorm:"default:0" json:"sort_order"`
-	CreatedAt      time.Time  `json:"created_at"`
+	SortOrder      int        `gorm:"default:0;index:idx_design_images_design_sort,priority:2" json:"sort_order"`
+	CreatedAt      time.Time  `gorm:"index:idx_design_images_design_sort,priority:3" json:"created_at"`
 }
 
 func (i *DesignImage) BeforeCreate(tx *gorm.DB) error {

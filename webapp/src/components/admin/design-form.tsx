@@ -42,6 +42,15 @@ function imagesFromDesign(design?: Design): PendingImage[] {
   }));
 }
 
+function selectedSizeIdsFromDesign(design?: Design): string[] {
+  if (!design) return [];
+  const fromSizes = design.sizes.map((s) => s.id);
+  const fromImages = design.images
+    .map((img) => img.size_id)
+    .filter((id): id is string => Boolean(id));
+  return [...new Set([...fromSizes, ...fromImages])];
+}
+
 function FileUploadButton({
   disabled,
   onChange,
@@ -82,8 +91,8 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
   const [translations, setTranslations] = useState(() =>
     designTranslationsFromRecord(initial?.translations),
   );
-  const [selectedSizeIds, setSelectedSizeIds] = useState<string[]>(
-    () => initial?.sizes.map((s) => s.id) ?? [],
+  const [selectedSizeIds, setSelectedSizeIds] = useState<string[]>(() =>
+    selectedSizeIdsFromDesign(initial),
   );
   const [images, setImages] = useState<PendingImage[]>(() => imagesFromDesign(initial));
   const [sortOrder, setSortOrder] = useState(initial?.sort_order ?? 0);

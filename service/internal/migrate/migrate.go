@@ -18,6 +18,9 @@ func RunPost(db *gorm.DB) error {
 	if err := migrateDesignImages(db); err != nil {
 		return err
 	}
+	if err := migrateDesignSizesJoinColumn(db); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -70,27 +73,38 @@ func migrateLegacyGalleryTitles(db *gorm.DB) error {
 		Find(&legacy).Error; err != nil {
 		return err
 	}
-	for _, row := range legacy {
-		design := model.Design{
-			ID:          row.ID,
-			SortOrder:   row.SortOrder,
-			IsPublished: row.IsPublished,
-			CreatedAt:   row.CreatedAt,
-			UpdatedAt:   row.UpdatedAt,
+	if len(legacy) == 0 {
+		return dropLegacyDesignColumns(db)
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		designs := make([]model.Design, len(legacy))
+		translations := make([]model.DesignTranslation, len(legacy))
+		for i, row := range legacy {
+			designs[i] = model.Design{
+				ID:          row.ID,
+				SortOrder:   row.SortOrder,
+				IsPublished: row.IsPublished,
+				CreatedAt:   row.CreatedAt,
+				UpdatedAt:   row.UpdatedAt,
+			}
+			translations[i] = model.DesignTranslation{
+				DesignID: row.ID,
+				Locale:   model.LocaleEN,
+				Title:    row.Title,
+				Caption:  row.Caption,
+				AltText:  row.AltText,
+			}
 		}
-		if err := db.Save(&design).Error; err != nil {
+		if err := tx.Save(&designs).Error; err != nil {
 			return err
 		}
-		tr := model.DesignTranslation{
-			DesignID: row.ID,
-			Locale:   model.LocaleEN,
-			Title:    row.Title,
-			Caption:  row.Caption,
-			AltText:  row.AltText,
-		}
-		if err := db.Create(&tr).Error; err != nil {
+		if err := tx.CreateInBatches(translations, 100).Error; err != nil {
 			return err
 		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 	slog.Info("migrated design title columns to translation tables", "count", len(legacy))
 	return dropLegacyDesignColumns(db)
@@ -109,6 +123,33 @@ func dropLegacyDesignColumns(db *gorm.DB) error {
 	return nil
 }
 
+func migrateDesignSizesJoinColumn(db *gorm.DB) error {
+	m := db.Migrator()
+	if !m.HasTable("design_sizes") {
+		return nil
+	}
+	if m.HasColumn("design_sizes", "tile_size_id") {
+		if m.HasColumn("design_sizes", "size_id") {
+			if err := db.Exec(`
+				UPDATE design_sizes
+				SET size_id = tile_size_id
+				WHERE size_id IS NULL AND tile_size_id IS NOT NULL
+			`).Error; err != nil {
+				return err
+			}
+		} else if err := m.RenameColumn("design_sizes", "tile_size_id", "size_id"); err != nil {
+			return err
+		}
+		if m.HasColumn("design_sizes", "tile_size_id") {
+			if err := m.DropColumn("design_sizes", "tile_size_id"); err != nil {
+				return err
+			}
+			slog.Info("dropped orphaned design_sizes.tile_size_id column")
+		}
+	}
+	return nil
+}
+
 func migrateDesignImages(db *gorm.DB) error {
 	m := db.Migrator()
 	if !m.HasTable("designs") || !m.HasColumn("designs", "object_key") {
@@ -118,29 +159,26 @@ func migrateDesignImages(db *gorm.DB) error {
 	var rows []model.LegacyDesignWithKeys
 	if err := db.Model(&model.LegacyDesignWithKeys{}).
 		Where("object_key <> ''").
+		Where("NOT EXISTS (?)",
+			db.Model(&model.DesignImage{}).Select("1").Where("design_images.design_id = designs.id"),
+		).
 		Find(&rows).Error; err != nil {
 		return err
 	}
 
-	for _, row := range rows {
-		var existing int64
-		if err := db.Model(&model.DesignImage{}).Where("design_id = ?", row.ID).Count(&existing).Error; err != nil {
-			return err
-		}
-		if existing > 0 {
-			continue
-		}
-		img := model.DesignImage{
-			DesignID:       row.ID,
-			ObjectKey:      row.ObjectKey,
-			ThumbObjectKey: row.ThumbObjectKey,
-			SortOrder:      0,
-		}
-		if err := db.Create(&img).Error; err != nil {
-			return err
-		}
-	}
 	if len(rows) > 0 {
+		images := make([]model.DesignImage, len(rows))
+		for i, row := range rows {
+			images[i] = model.DesignImage{
+				DesignID:       row.ID,
+				ObjectKey:      row.ObjectKey,
+				ThumbObjectKey: row.ThumbObjectKey,
+				SortOrder:      0,
+			}
+		}
+		if err := db.CreateInBatches(images, 100).Error; err != nil {
+			return err
+		}
 		slog.Info("migrated design object keys to design_images", "count", len(rows))
 	}
 
@@ -171,32 +209,43 @@ func migrateBlogPosts(db *gorm.DB) error {
 	if err := db.Model(&model.LegacyBlogPost{}).Find(&legacy).Error; err != nil {
 		return err
 	}
-	for _, row := range legacy {
-		post := model.BlogPost{
-			ID:          row.ID,
-			Status:      row.Status,
-			OGImageKey:  row.OGImageKey,
-			AuthorID:    row.AuthorID,
-			PublishedAt: row.PublishedAt,
-			CreatedAt:   row.CreatedAt,
-			UpdatedAt:   row.UpdatedAt,
+	if len(legacy) == 0 {
+		return dropLegacyBlogColumns(db)
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		posts := make([]model.BlogPost, len(legacy))
+		translations := make([]model.BlogPostTranslation, len(legacy))
+		for i, row := range legacy {
+			posts[i] = model.BlogPost{
+				ID:          row.ID,
+				Status:      row.Status,
+				OGImageKey:  row.OGImageKey,
+				AuthorID:    row.AuthorID,
+				PublishedAt: row.PublishedAt,
+				CreatedAt:   row.CreatedAt,
+				UpdatedAt:   row.UpdatedAt,
+			}
+			translations[i] = model.BlogPostTranslation{
+				PostID:          row.ID,
+				Locale:          model.LocaleEN,
+				Slug:            row.Slug,
+				Title:           row.Title,
+				Excerpt:         row.Excerpt,
+				ContentMD:       row.ContentMD,
+				MetaTitle:       row.MetaTitle,
+				MetaDescription: row.MetaDescription,
+			}
 		}
-		if err := db.Save(&post).Error; err != nil {
+		if err := tx.Save(&posts).Error; err != nil {
 			return err
 		}
-		tr := model.BlogPostTranslation{
-			PostID:          row.ID,
-			Locale:          model.LocaleEN,
-			Slug:            row.Slug,
-			Title:           row.Title,
-			Excerpt:         row.Excerpt,
-			ContentMD:       row.ContentMD,
-			MetaTitle:       row.MetaTitle,
-			MetaDescription: row.MetaDescription,
-		}
-		if err := db.Create(&tr).Error; err != nil {
+		if err := tx.CreateInBatches(translations, 100).Error; err != nil {
 			return err
 		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 	slog.Info("migrated blog posts to translation tables", "count", len(legacy))
 	return dropLegacyBlogColumns(db)
