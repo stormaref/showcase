@@ -1,41 +1,41 @@
-import type { TileSize } from "@/lib/api";
+import type { DesignType } from "@/lib/api";
 
-type DesignSizeFilterProps = {
-  sizes: TileSize[];
+type DesignTypeFilterProps = {
+  types: DesignType[];
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
   onClear: () => void;
   labels: {
-    filterBySize: string;
+    filterByType: string;
     clearFilters: string;
   };
 };
 
-export function DesignSizeFilter({
-  sizes,
+export function DesignTypeFilter({
+  types,
   selectedIds,
   onToggle,
   onClear,
   labels,
-}: DesignSizeFilterProps) {
-  if (sizes.length === 0) return null;
+}: DesignTypeFilterProps) {
+  if (types.length === 0) return null;
 
   return (
     <fieldset className="rounded-xl border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium text-gray-900">
-          {labels.filterBySize}
+          {labels.filterByType}
         </legend>
         <ul className="mt-3 space-y-2">
-          {sizes.map((size) => (
-            <li key={size.id}>
+          {types.map((type) => (
+            <li key={type.id}>
               <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
                 <input
                   type="checkbox"
-                  checked={selectedIds.has(size.id)}
-                  onChange={() => onToggle(size.id)}
+                  checked={selectedIds.has(type.id)}
+                  onChange={() => onToggle(type.id)}
                   className="rounded border-gray-300"
                 />
-                {size.label}
+                {type.name}
               </label>
             </li>
           ))}

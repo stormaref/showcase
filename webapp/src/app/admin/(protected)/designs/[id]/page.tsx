@@ -5,21 +5,24 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DesignForm } from "@/components/admin/design-form";
 import { adminFetch } from "@/lib/admin-api";
-import type { Design, TileSize } from "@/lib/api";
+import type { AdminDesignType, Design, TileSize } from "@/lib/api";
 
 export default function EditDesignPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [design, setDesign] = useState<Design | null>(null);
   const [sizes, setSizes] = useState<TileSize[]>([]);
+  const [types, setTypes] = useState<AdminDesignType[]>([]);
 
   useEffect(() => {
     Promise.all([
       adminFetch<Design>(`/api/v1/admin/designs/${id}`),
       adminFetch<{ items: TileSize[] }>("/api/v1/admin/sizes"),
-    ]).then(([d, s]) => {
+      adminFetch<{ items: AdminDesignType[] }>("/api/v1/admin/types"),
+    ]).then(([d, s, t]) => {
       setDesign(d);
       setSizes(s.items);
+      setTypes(t.items);
     });
   }, [id]);
 
@@ -44,6 +47,7 @@ export default function EditDesignPage() {
       <div className="mt-8">
         <DesignForm
           sizes={sizes}
+          types={types}
           initial={design}
           onSubmit={handleSubmit}
           submitLabel="Save changes"

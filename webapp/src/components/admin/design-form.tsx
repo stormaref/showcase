@@ -5,7 +5,12 @@ import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
 import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
-import type { Design, DesignTranslation, TileSize } from "@/lib/api";
+import type {
+  AdminDesignType,
+  Design,
+  DesignTranslation,
+  TileSize,
+} from "@/lib/api";
 import {
   type LocaleTab,
   designTranslationsFromRecord,
@@ -15,6 +20,7 @@ export type PendingImage = {
   object_key: string;
   thumb_object_key: string;
   size_id: string | null;
+  type_id: string | null;
   sort_order: number;
   preview_url: string;
   thumb_url: string;
@@ -22,6 +28,7 @@ export type PendingImage = {
 
 type DesignFormProps = {
   sizes: TileSize[];
+  types: AdminDesignType[];
   initial?: Design;
   onSubmit: (payload: Record<string, unknown>) => Promise<void>;
   submitLabel: string;
@@ -30,12 +37,17 @@ type DesignFormProps = {
 const checkboxClass =
   "size-4 shrink-0 rounded border-gray-300 accent-gray-900";
 
+function typeLabel(t: AdminDesignType): string {
+  return t.translations?.en?.name ?? t.name;
+}
+
 function imagesFromDesign(design?: Design): PendingImage[] {
   if (!design) return [];
   return design.images.map((img) => ({
     object_key: img.object_key || "",
     thumb_object_key: img.thumb_object_key || "",
     size_id: img.size_id ?? null,
+    type_id: img.type_id ?? null,
     sort_order: img.sort_order,
     preview_url: img.image_url || "",
     thumb_url: img.thumb_url || img.image_url || "",
@@ -49,6 +61,15 @@ function selectedSizeIdsFromDesign(design?: Design): string[] {
     .map((img) => img.size_id)
     .filter((id): id is string => Boolean(id));
   return [...new Set([...fromSizes, ...fromImages])];
+}
+
+function selectedTypeIdsFromDesign(design?: Design): string[] {
+  if (!design) return [];
+  const fromTypes = (design.types ?? []).map((t) => t.id);
+  const fromImages = design.images
+    .map((img) => img.type_id)
+    .filter((id): id is string => Boolean(id));
+  return [...new Set([...fromTypes, ...fromImages])];
 }
 
 function FileUploadButton({
@@ -86,13 +107,22 @@ function FileUploadButton({
   );
 }
 
-export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignFormProps) {
+export function DesignForm({
+  sizes,
+  types,
+  initial,
+  onSubmit,
+  submitLabel,
+}: DesignFormProps) {
   const [tab, setTab] = useState<LocaleTab>("en");
   const [translations, setTranslations] = useState(() =>
     designTranslationsFromRecord(initial?.translations),
   );
   const [selectedSizeIds, setSelectedSizeIds] = useState<string[]>(() =>
     selectedSizeIdsFromDesign(initial),
+  );
+  const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>(() =>
+    selectedTypeIdsFromDesign(initial),
   );
   const [images, setImages] = useState<PendingImage[]>(() => imagesFromDesign(initial));
   const [sortOrder, setSortOrder] = useState(initial?.sort_order ?? 0);
@@ -119,10 +149,26 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
     });
   }
 
-  async function handleUpload(files: FileList | null, sizeId: string | null) {
+  function toggleType(id: string) {
+    setSelectedTypeIds((prev) => {
+      if (prev.includes(id)) {
+        setImages((imgs) => imgs.filter((img) => img.type_id !== id));
+        return prev.filter((t) => t !== id);
+      }
+      return [...prev, id];
+    });
+  }
+
+  async function handleUpload(
+    files: FileList | null,
+    sizeId: string | null,
+    typeId: string | null,
+  ) {
     if (!files?.length) return;
     setUploadError("");
-    const existing = images.filter((img) => img.size_id === sizeId).length;
+    const existing = images.filter(
+      (img) => img.size_id === sizeId && img.type_id === typeId,
+    ).length;
     for (let i = 0; i < files.length; i++) {
       try {
         const data = await uploadImage(files[i]);
@@ -132,6 +178,7 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
             object_key: data.object_key,
             thumb_object_key: data.thumb_object_key,
             size_id: sizeId,
+            type_id: typeId,
             sort_order: existing + i,
             preview_url: data.url,
             thumb_url: data.thumb_url,
@@ -153,11 +200,13 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
       sort_order: sortOrder,
       is_published: isPublished,
       size_ids: selectedSizeIds,
+      type_ids: selectedTypeIds,
       translations: { en: translations.en },
       images: images.map((img) => ({
         object_key: img.object_key,
         thumb_object_key: img.thumb_object_key,
         size_id: img.size_id,
+        type_id: img.type_id,
         sort_order: img.sort_order,
       })),
     };
@@ -185,8 +234,9 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
   }
 
   const t = translations[tab];
-  const showcaseImages = images.filter((img) => !img.size_id);
+  const showcaseImages = images.filter((img) => !img.size_id && !img.type_id);
   const selectedSizes = sizes.filter((s) => selectedSizeIds.includes(s.id));
+  const selectedTypes = types.filter((tp) => selectedTypeIds.includes(tp.id));
 
   function renderImageGrid(list: PendingImage[], globalIndices: number[]) {
     if (list.length === 0) return null;
@@ -214,7 +264,7 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
   }
 
   const showcaseIndices = images
-    .map((img, i) => (!img.size_id ? i : -1))
+    .map((img, i) => (!img.size_id && !img.type_id ? i : -1))
     .filter((i) => i >= 0);
 
   return (
@@ -294,42 +344,76 @@ export function DesignForm({ sizes, initial, onSubmit, submitLabel }: DesignForm
       </fieldset>
 
       <fieldset className="rounded-xl border border-gray-200 p-4">
+        <legend className="px-1 text-sm font-medium">Available types</legend>
+        {types.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No types defined yet. Add design types first.
+          </p>
+        ) : (
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {types.map((tp) => (
+              <label
+                key={tp.id}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedTypeIds.includes(tp.id)}
+                  onChange={() => toggleType(tp.id)}
+                  className={checkboxClass}
+                />
+                {typeLabel(tp)}
+              </label>
+            ))}
+          </div>
+        )}
+      </fieldset>
+
+      <fieldset className="rounded-xl border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Showcase images</legend>
         <p className="text-xs text-gray-500">
-          Room shots and marketing photos not tied to a specific size.
+          Room shots and marketing photos not tied to a specific size or type.
         </p>
         <FileUploadButton
           disabled={isUploading}
           onChange={(e) => {
-            handleUpload(e.target.files, null);
+            handleUpload(e.target.files, null, null);
             e.target.value = "";
           }}
         />
-        {renderImageGrid(
-          showcaseImages,
-          showcaseIndices,
-        )}
+        {renderImageGrid(showcaseImages, showcaseIndices)}
       </fieldset>
 
-      {selectedSizes.map((size) => {
-        const sizeImages = images.filter((img) => img.size_id === size.id);
-        const sizeIndices = images
-          .map((img, i) => (img.size_id === size.id ? i : -1))
-          .filter((i) => i >= 0);
-        return (
-          <fieldset key={size.id} className="rounded-xl border border-gray-200 p-4">
-            <legend className="px-1 text-sm font-medium">{size.label} images</legend>
-            <FileUploadButton
-              disabled={isUploading}
-              onChange={(e) => {
-                handleUpload(e.target.files, size.id);
-                e.target.value = "";
-              }}
-            />
-            {renderImageGrid(sizeImages, sizeIndices)}
-          </fieldset>
-        );
-      })}
+      {selectedTypes.flatMap((tp) =>
+        selectedSizes.map((size) => {
+          const comboImages = images.filter(
+            (img) => img.size_id === size.id && img.type_id === tp.id,
+          );
+          const comboIndices = images
+            .map((img, i) =>
+              img.size_id === size.id && img.type_id === tp.id ? i : -1,
+            )
+            .filter((i) => i >= 0);
+          return (
+            <fieldset
+              key={`${tp.id}-${size.id}`}
+              className="rounded-xl border border-gray-200 p-4"
+            >
+              <legend className="px-1 text-sm font-medium">
+                {typeLabel(tp)} — {size.label}
+              </legend>
+              <FileUploadButton
+                disabled={isUploading}
+                onChange={(e) => {
+                  handleUpload(e.target.files, size.id, tp.id);
+                  e.target.value = "";
+                }}
+              />
+              {renderImageGrid(comboImages, comboIndices)}
+            </fieldset>
+          );
+        }),
+      )}
 
       {isUploading && percent !== null && (
         <UploadProgressBar percent={percent} label="Uploading image…" />

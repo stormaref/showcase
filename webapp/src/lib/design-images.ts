@@ -12,7 +12,36 @@ export function imageSrc(img: DesignImage, preferThumb = false) {
 }
 
 export function showcaseImages(images: DesignImage[]) {
-  return images.filter((img) => !img.size_id).sort(bySortOrder);
+  return images
+    .filter((img) => !img.size_id && !img.type_id)
+    .sort(bySortOrder);
+}
+
+export function imagesBySizeAndType(
+  images: DesignImage[],
+  sizeId: string,
+  typeId: string,
+) {
+  return images
+    .filter((img) => img.size_id === sizeId && img.type_id === typeId)
+    .sort(bySortOrder);
+}
+
+/** Legacy size-only images (no type_id) for fallback display. */
+export function legacySizeImages(images: DesignImage[], sizeId: string) {
+  return images
+    .filter((img) => img.size_id === sizeId && !img.type_id)
+    .sort(bySortOrder);
+}
+
+export function imagesForSizeAndType(
+  images: DesignImage[],
+  sizeId: string,
+  typeId: string,
+) {
+  const combo = imagesBySizeAndType(images, sizeId, typeId);
+  if (combo.length > 0) return combo;
+  return legacySizeImages(images, sizeId);
 }
 
 export function imagesBySizeId(images: DesignImage[]) {

@@ -85,6 +85,7 @@ type Design struct {
 
 	Translations []DesignTranslation `gorm:"foreignKey:DesignID" json:"translations,omitempty"`
 	Sizes        []TileSize          `gorm:"many2many:design_sizes;joinReferences:size_id" json:"sizes,omitempty"`
+	Types        []DesignType        `gorm:"many2many:design_types;joinReferences:type_id" json:"types,omitempty"`
 	Images       []DesignImage       `gorm:"foreignKey:DesignID" json:"images,omitempty"`
 }
 
@@ -154,10 +155,50 @@ type DesignSize struct {
 	SizeID   uuid.UUID `gorm:"type:uuid;primaryKey;index:idx_design_sizes_size_id" json:"size_id"`
 }
 
+type DesignType struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	SortOrder int       `gorm:"default:0;index" json:"sort_order"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	Translations []DesignTypeTranslation `gorm:"foreignKey:TypeID" json:"translations,omitempty"`
+}
+
+func (t *DesignType) BeforeCreate(tx *gorm.DB) error {
+	if t.ID == uuid.Nil {
+		t.ID = uuid.New()
+	}
+	return nil
+}
+
+type DesignTypeTranslation struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	TypeID    uuid.UUID `gorm:"type:uuid;index:idx_design_type_locale,unique;not null" json:"type_id"`
+	Locale    string    `gorm:"size:5;index:idx_design_type_locale,unique;not null" json:"locale"`
+	Name      string    `gorm:"size:255;not null" json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (t *DesignTypeTranslation) BeforeCreate(tx *gorm.DB) error {
+	if t.ID == uuid.Nil {
+		t.ID = uuid.New()
+	}
+	return nil
+}
+
+type DesignDesignType struct {
+	DesignID uuid.UUID `gorm:"type:uuid;primaryKey" json:"design_id"`
+	TypeID   uuid.UUID `gorm:"type:uuid;primaryKey;index:idx_design_types_type_id" json:"type_id"`
+}
+
+func (DesignDesignType) TableName() string { return "design_types" }
+
 type DesignImage struct {
 	ID             uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
 	DesignID       uuid.UUID  `gorm:"type:uuid;index:idx_design_images_design_sort,priority:1;not null" json:"design_id"`
 	SizeID         *uuid.UUID `gorm:"type:uuid;index" json:"size_id"`
+	TypeID         *uuid.UUID `gorm:"type:uuid;index" json:"type_id"`
 	ObjectKey      string     `gorm:"size:500;not null" json:"object_key"`
 	ThumbObjectKey string     `gorm:"size:500" json:"thumb_object_key"`
 	SortOrder      int        `gorm:"default:0;index:idx_design_images_design_sort,priority:2" json:"sort_order"`

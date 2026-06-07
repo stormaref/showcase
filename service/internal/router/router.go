@@ -17,6 +17,7 @@ type Handlers struct {
 	Posts   *handler.PostHandler
 	Designs *handler.DesignHandler
 	Sizes   *handler.SizeHandler
+	Types   *handler.TypeHandler
 	Brand   *handler.BrandHandler
 	Upload  *handler.UploadHandler
 	Audit   *handler.AuditHandler
@@ -83,6 +84,10 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 			admin.POST("/sizes", h.Sizes.Create)
 			admin.PUT("/sizes/:id", h.Sizes.Update)
 			admin.DELETE("/sizes/:id", h.Sizes.Delete)
+			admin.GET("/types", h.Types.List)
+			admin.POST("/types", h.Types.Create)
+			admin.PUT("/types/:id", h.Types.Update)
+			admin.DELETE("/types/:id", h.Types.Delete)
 			admin.GET("/brand-info", h.Brand.GetAdmin)
 			admin.PUT("/brand-info", h.Brand.Update)
 			admin.POST("/uploads", h.Upload.Upload)

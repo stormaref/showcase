@@ -49,6 +49,9 @@ func main() {
 	if err := db.SetupJoinTable(&model.Design{}, "Sizes", &model.DesignSize{}); err != nil {
 		log.Fatalf("setup join table: %v", err)
 	}
+	if err := db.SetupJoinTable(&model.Design{}, "Types", &model.DesignDesignType{}); err != nil {
+		log.Fatalf("setup join table types: %v", err)
+	}
 
 	if err := db.AutoMigrate(
 		&model.Admin{},
@@ -58,6 +61,9 @@ func main() {
 		&model.DesignTranslation{},
 		&model.TileSize{},
 		&model.DesignSize{},
+		&model.DesignType{},
+		&model.DesignTypeTranslation{},
+		&model.DesignDesignType{},
 		&model.DesignImage{},
 		&model.RefreshToken{},
 		&model.AuditLog{},
@@ -86,14 +92,16 @@ func main() {
 	postRepo := repository.NewPostRepository(db)
 	designRepo := repository.NewDesignRepository(db)
 	sizeRepo := repository.NewSizeRepository(db)
+	typeRepo := repository.NewTypeRepository(db)
 	brandRepo := repository.NewBrandRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	auditSvc := service.NewAuditService(auditRepo)
 	authSvc := service.NewAuthService(cfg, adminRepo, tokenRepo, auditSvc)
 	postSvc := service.NewPostService(postRepo, store, auditSvc)
-	designSvc := service.NewDesignService(designRepo, sizeRepo, store, auditSvc)
+	designSvc := service.NewDesignService(designRepo, sizeRepo, typeRepo, store, auditSvc)
 	sizeSvc := service.NewSizeService(sizeRepo)
+	typeSvc := service.NewTypeService(typeRepo)
 	brandSvc := service.NewBrandService(brandRepo, auditSvc)
 	uploadSvc := service.NewUploadService(cfg, store)
 
@@ -110,6 +118,7 @@ func main() {
 		Posts:   handler.NewPostHandler(postSvc),
 		Designs: handler.NewDesignHandler(designSvc),
 		Sizes:   handler.NewSizeHandler(sizeSvc),
+		Types:   handler.NewTypeHandler(typeSvc),
 		Brand:   handler.NewBrandHandler(brandSvc),
 		Upload:  handler.NewUploadHandler(uploadSvc),
 		Audit:   handler.NewAuditHandler(auditSvc),

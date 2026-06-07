@@ -80,9 +80,21 @@ export type TileSize = {
   in_use?: boolean;
 };
 
+export type DesignType = {
+  id: string;
+  name: string;
+  sort_order?: number;
+};
+
+export type AdminDesignType = DesignType & {
+  in_use?: boolean;
+  translations?: Record<string, { name: string }>;
+};
+
 export type DesignImage = {
   id?: string;
   size_id?: string | null;
+  type_id?: string | null;
   object_key?: string;
   thumb_object_key?: string;
   image_url?: string;
@@ -97,6 +109,7 @@ export type Design = {
   alt_text: string;
   locale?: string;
   sizes: TileSize[];
+  types: DesignType[];
   images: DesignImage[];
   primary_image_url: string;
   primary_thumb_url: string;

@@ -5,13 +5,16 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DesignGrid } from "@/components/design-grid";
 import { DesignSizeFilter } from "@/components/design-size-filter";
+import { DesignTypeFilter } from "@/components/design-type-filter";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Design } from "@/lib/api";
 import {
-  buildSizeQuery,
+  buildFilterQuery,
   collectSizesFromDesigns,
-  filterDesignsBySize,
+  collectTypesFromDesigns,
+  filterDesigns,
   parseSizeParam,
+  parseTypeParam,
 } from "@/lib/design-filter";
 
 type DesignCatalogProps = {
@@ -25,53 +28,92 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   const router = useRouter();
 
   const availableSizes = useMemo(() => collectSizesFromDesigns(items), [items]);
-  const validIds = useMemo(
+  const availableTypes = useMemo(() => collectTypesFromDesigns(items), [items]);
+  const validSizeIds = useMemo(
     () => new Set(availableSizes.map((s) => s.id)),
     [availableSizes],
   );
+  const validTypeIds = useMemo(
+    () => new Set(availableTypes.map((tp) => tp.id)),
+    [availableTypes],
+  );
 
-  const selectedIds = useMemo(
-    () => parseSizeParam(searchParams, validIds),
-    [searchParams, validIds],
+  const selectedSizeIds = useMemo(
+    () => parseSizeParam(searchParams, validSizeIds),
+    [searchParams, validSizeIds],
+  );
+  const selectedTypeIds = useMemo(
+    () => parseTypeParam(searchParams, validTypeIds),
+    [searchParams, validTypeIds],
   );
 
   const filteredItems = useMemo(
-    () => filterDesignsBySize(items, selectedIds),
-    [items, selectedIds],
+    () => filterDesigns(items, selectedSizeIds, selectedTypeIds),
+    [items, selectedSizeIds, selectedTypeIds],
   );
 
-  function updateSelection(next: Set<string>) {
-    const query = buildSizeQuery(next);
+  function updateFilters(sizes: Set<string>, types: Set<string>) {
+    const query = buildFilterQuery(sizes, types);
     const href = query ? `${pathname}?${query}` : pathname;
     router.replace(href, { scroll: false });
   }
 
   function toggleSize(id: string) {
-    const next = new Set(selectedIds);
+    const next = new Set(selectedSizeIds);
     if (next.has(id)) {
       next.delete(id);
     } else {
       next.add(id);
     }
-    updateSelection(next);
+    updateFilters(next, selectedTypeIds);
   }
 
-  function clearFilters() {
-    updateSelection(new Set());
+  function toggleType(id: string) {
+    const next = new Set(selectedTypeIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    updateFilters(selectedSizeIds, next);
   }
+
+  function clearSizeFilters() {
+    updateFilters(new Set(), selectedTypeIds);
+  }
+
+  function clearTypeFilters() {
+    updateFilters(selectedSizeIds, new Set());
+  }
+
+  const filterLabels = {
+    clearFilters: t("clearFilters"),
+  };
 
   return (
     <div className="mt-12 flex flex-col gap-8 lg:flex-row">
-      <DesignSizeFilter
-        sizes={availableSizes}
-        selectedIds={selectedIds}
-        onToggle={toggleSize}
-        onClear={clearFilters}
-        labels={{
-          filterBySize: t("filterBySize"),
-          clearFilters: t("clearFilters"),
-        }}
-      />
+      <div className="flex flex-col gap-6 lg:w-56 lg:shrink-0">
+        <DesignSizeFilter
+          sizes={availableSizes}
+          selectedIds={selectedSizeIds}
+          onToggle={toggleSize}
+          onClear={clearSizeFilters}
+          labels={{
+            filterBySize: t("filterBySize"),
+            ...filterLabels,
+          }}
+        />
+        <DesignTypeFilter
+          types={availableTypes}
+          selectedIds={selectedTypeIds}
+          onToggle={toggleType}
+          onClear={clearTypeFilters}
+          labels={{
+            filterByType: t("filterByType"),
+            ...filterLabels,
+          }}
+        />
+      </div>
       <div className="min-w-0 flex-1">
         {filteredItems.length === 0 ? (
           <p className="text-gray-400">{t("noMatches")}</p>

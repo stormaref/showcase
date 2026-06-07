@@ -4,7 +4,7 @@ import { ImageCarousel } from "@/components/image-carousel";
 import type { Design } from "@/lib/api";
 import {
   carouselSlides,
-  imagesBySizeId,
+  imagesForSizeAndType,
   showcaseImages,
 } from "@/lib/design-images";
 
@@ -15,9 +15,9 @@ type DesignDetailProps = {
 export async function DesignDetail({ design }: DesignDetailProps) {
   const t = await getTranslations("designDetail");
   const showcase = showcaseImages(design.images);
-  const bySize = imagesBySizeId(design.images);
   const alt = design.alt_text || design.title;
   const showcaseSlides = carouselSlides(showcase, alt);
+  const types = design.types ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
@@ -55,52 +55,61 @@ export async function DesignDetail({ design }: DesignDetailProps) {
         {design.caption && (
           <p className="mt-3 text-lg text-gray-500">{design.caption}</p>
         )}
-        {/* Reserved for future design metadata (SKU, material, etc.) */}
-        <dl className="mt-6 hidden" aria-hidden />
       </header>
 
-      {design.sizes.length > 0 && (
+      {types.length > 0 && design.sizes.length > 0 && (
         <section className="mt-16 border-t border-gray-100 pt-16">
           <h2 className="text-sm font-medium uppercase tracking-widest text-gray-400">
             {t("availableIn")}
           </h2>
           <div className="mt-10 space-y-16">
-            {design.sizes.map((size) => {
-              const sizeImgs = bySize.get(size.id) ?? [];
-              const slides = carouselSlides(sizeImgs, alt);
-              return (
-                <article
-                  key={size.id}
-                  className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm md:p-8"
-                >
-                  <header className="mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      {size.label}
-                    </h3>
-                    <p className="mt-1 text-sm font-medium text-gray-600">
-                      {design.title}
-                    </p>
-                    {design.caption && (
-                      <p className="mt-2 text-sm text-gray-500">{design.caption}</p>
-                    )}
-                  </header>
-                  {slides.length > 0 ? (
-                    <div className="overflow-hidden rounded-lg">
-                      <ImageCarousel
-                        images={slides}
-                        labels={{
-                          previous: t("previousImage"),
-                          next: t("nextImage"),
-                          slide: t("slide"),
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <p className="text-sm text-gray-400">{t("noSizeImages")}</p>
-                  )}
-                </article>
-              );
-            })}
+            {types.map((type) => (
+              <div key={type.id}>
+                <h3 className="text-lg font-semibold text-gray-900">{type.name}</h3>
+                <div className="mt-8 space-y-12">
+                  {design.sizes.map((size) => {
+                    const sizeImgs = imagesForSizeAndType(
+                      design.images,
+                      size.id,
+                      type.id,
+                    );
+                    const slides = carouselSlides(sizeImgs, alt);
+                    return (
+                      <article
+                        key={`${type.id}-${size.id}`}
+                        className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm md:p-8"
+                      >
+                        <header className="mb-6">
+                          <h4 className="text-xl font-semibold text-gray-900">
+                            {size.label}
+                          </h4>
+                          <p className="mt-1 text-sm font-medium text-gray-600">
+                            {design.title}
+                          </p>
+                          {design.caption && (
+                            <p className="mt-2 text-sm text-gray-500">{design.caption}</p>
+                          )}
+                        </header>
+                        {slides.length > 0 ? (
+                          <div className="overflow-hidden rounded-lg">
+                            <ImageCarousel
+                              images={slides}
+                              labels={{
+                                previous: t("previousImage"),
+                                next: t("nextImage"),
+                                slide: t("slide"),
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-400">{t("noVariantImages")}</p>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}

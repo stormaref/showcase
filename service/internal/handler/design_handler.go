@@ -206,3 +206,82 @@ func (h *SizeHandler) Delete(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+
+type TypeHandler struct {
+	types *service.TypeService
+}
+
+func NewTypeHandler(types *service.TypeService) *TypeHandler {
+	return &TypeHandler{types: types}
+}
+
+func (h *TypeHandler) List(c *gin.Context) {
+	items, err := h.types.List(c.Request.Context())
+	if err != nil {
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
+func (h *TypeHandler) Create(c *gin.Context) {
+	var in service.TypeInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	item, err := h.types.Create(c.Request.Context(), in)
+	if err != nil {
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	c.JSON(http.StatusCreated, item)
+}
+
+func (h *TypeHandler) Update(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		httpx.JSON(c, http.StatusBadRequest, "validation", "error.invalid_id")
+		return
+	}
+	var in service.TypeInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	item, err := h.types.Update(c.Request.Context(), id, in)
+	if err != nil {
+		if errors.Is(err, service.ErrTypeInUse) {
+			httpx.JSON(c, http.StatusConflict, "type_in_use", "error.type_in_use")
+			return
+		}
+		if errors.Is(err, repository.ErrTypeNotFound) {
+			httpx.JSON(c, http.StatusNotFound, "not_found", "error.type_not_found")
+			return
+		}
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, item)
+}
+
+func (h *TypeHandler) Delete(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		httpx.JSON(c, http.StatusBadRequest, "validation", "error.invalid_id")
+		return
+	}
+	if err := h.types.Delete(c.Request.Context(), id); err != nil {
+		if errors.Is(err, service.ErrTypeInUse) {
+			httpx.JSON(c, http.StatusConflict, "type_in_use", "error.type_in_use")
+			return
+		}
+		if errors.Is(err, repository.ErrTypeNotFound) {
+			httpx.JSON(c, http.StatusNotFound, "not_found", "error.type_not_found")
+			return
+		}
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
+		return
+	}
+	c.Status(http.StatusNoContent)
+}

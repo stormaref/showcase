@@ -54,8 +54,9 @@
     "subtitle": "Browse our tile patterns. Each design is available in multiple sizes.",
     "empty": "No designs published yet.",
     "filterBySize": "Filter by size",
+    "filterByType": "Filter by type",
     "clearFilters": "Clear filters",
-    "noMatches": "No designs match the selected sizes."
+    "noMatches": "No designs match the selected filters."
   },
   "designDetail": {
     "backToCatalog": "Back to catalog",
@@ -63,6 +64,7 @@
     "availableIn": "Available sizes",
     "noShowcaseImages": "No showcase images for this design.",
     "noSizeImages": "No images for this size yet.",
+    "noVariantImages": "No images for this size and type yet.",
     "notFound": "Design not found",
     "previousImage": "Previous image",
     "nextImage": "Next image",

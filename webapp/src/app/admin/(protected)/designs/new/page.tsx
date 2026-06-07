@@ -5,16 +5,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DesignForm } from "@/components/admin/design-form";
 import { adminFetch } from "@/lib/admin-api";
-import type { TileSize } from "@/lib/api";
+import type { AdminDesignType, TileSize } from "@/lib/api";
 
 export default function NewDesignPage() {
   const router = useRouter();
   const [sizes, setSizes] = useState<TileSize[]>([]);
+  const [types, setTypes] = useState<AdminDesignType[]>([]);
 
   useEffect(() => {
-    adminFetch<{ items: TileSize[] }>("/api/v1/admin/sizes").then((d) =>
-      setSizes(d.items),
-    );
+    Promise.all([
+      adminFetch<{ items: TileSize[] }>("/api/v1/admin/sizes"),
+      adminFetch<{ items: AdminDesignType[] }>("/api/v1/admin/types"),
+    ]).then(([s, t]) => {
+      setSizes(s.items);
+      setTypes(t.items);
+    });
   }, []);
 
   async function handleSubmit(payload: Record<string, unknown>) {
@@ -32,7 +37,7 @@ export default function NewDesignPage() {
       </Link>
       <h1 className="mt-4 text-2xl font-semibold tracking-tight">New design</h1>
       <div className="mt-8">
-        <DesignForm sizes={sizes} onSubmit={handleSubmit} submitLabel="Create design" />
+        <DesignForm sizes={sizes} types={types} onSubmit={handleSubmit} submitLabel="Create design" />
       </div>
     </div>
   );

@@ -42,6 +42,22 @@ export function DesignGrid({
     );
   }
 
+  function TypeChips({ types }: { types: Design["types"] }) {
+    if (!types?.length) return null;
+    return (
+      <div className="mt-1 flex flex-wrap gap-1">
+        {types.map((tp) => (
+          <span
+            key={tp.id}
+            className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+          >
+            {tp.name}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
   const figcaptionClass = compact
     ? "p-4 text-sm font-medium text-gray-800"
     : "p-5";
@@ -67,6 +83,7 @@ export function DesignGrid({
                   <span className="font-medium text-gray-800 group-hover:text-gray-900">
                     {item.title}
                   </span>
+                  <TypeChips types={item.types} />
                   <SizeChips sizes={item.sizes} />
                 </>
               ) : (
@@ -74,6 +91,7 @@ export function DesignGrid({
                   <h2 className="font-medium text-gray-900 group-hover:underline">
                     {item.title}
                   </h2>
+                  <TypeChips types={item.types} />
                   <SizeChips sizes={item.sizes} />
                   {showCaption && item.caption && (
                     <p className="mt-1 text-sm text-gray-500">{item.caption}</p>

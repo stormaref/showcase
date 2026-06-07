@@ -15,6 +15,7 @@ import (
 type DesignService struct {
 	repo     *repository.DesignRepository
 	sizeRepo *repository.SizeRepository
+	typeRepo *repository.TypeRepository
 	store    storage.ObjectStore
 	audit    *AuditService
 }
@@ -22,10 +23,11 @@ type DesignService struct {
 func NewDesignService(
 	repo *repository.DesignRepository,
 	sizeRepo *repository.SizeRepository,
+	typeRepo *repository.TypeRepository,
 	store storage.ObjectStore,
 	audit *AuditService,
 ) *DesignService {
-	return &DesignService{repo: repo, sizeRepo: sizeRepo, store: store, audit: audit}
+	return &DesignService{repo: repo, sizeRepo: sizeRepo, typeRepo: typeRepo, store: store, audit: audit}
 }
 
 type DesignTranslationInput struct {
@@ -38,6 +40,7 @@ type DesignImageInput struct {
 	ObjectKey      string     `json:"object_key"`
 	ThumbObjectKey string     `json:"thumb_object_key"`
 	SizeID         *uuid.UUID `json:"size_id"`
+	TypeID         *uuid.UUID `json:"type_id"`
 	SortOrder      int        `json:"sort_order"`
 }
 
@@ -45,6 +48,7 @@ type DesignInput struct {
 	SortOrder    int                                `json:"sort_order"`
 	IsPublished  bool                               `json:"is_published"`
 	SizeIDs      []uuid.UUID                        `json:"size_ids"`
+	TypeIDs      []uuid.UUID                        `json:"type_ids"`
 	Images       []DesignImageInput                 `json:"images"`
 	Translations map[string]DesignTranslationInput  `json:"translations"`
 }
@@ -52,6 +56,7 @@ type DesignInput struct {
 type DesignImageResponse struct {
 	ID             uuid.UUID  `json:"id"`
 	SizeID         *uuid.UUID `json:"size_id"`
+	TypeID         *uuid.UUID `json:"type_id"`
 	ObjectKey      string     `json:"object_key,omitempty"`
 	ThumbObjectKey string     `json:"thumb_object_key,omitempty"`
 	ImageURL       string     `json:"image_url"`
@@ -66,6 +71,7 @@ type DesignResponse struct {
 	AltText          string              `json:"alt_text"`
 	Locale           string              `json:"locale,omitempty"`
 	Sizes            []SizeResponse      `json:"sizes"`
+	Types            []TypeResponse      `json:"types"`
 	Images           []DesignImageResponse `json:"images"`
 	PrimaryImageURL  string              `json:"primary_image_url"`
 	PrimaryThumbURL  string              `json:"primary_thumb_url"`
@@ -104,6 +110,7 @@ func (s *DesignService) imageResponse(img *model.DesignImage) DesignImageRespons
 	resp := DesignImageResponse{
 		ID:             img.ID,
 		SizeID:         img.SizeID,
+		TypeID:         img.TypeID,
 		ObjectKey:      img.ObjectKey,
 		ThumbObjectKey: img.ThumbObjectKey,
 		SortOrder:      img.SortOrder,
@@ -136,14 +143,18 @@ func (s *DesignService) sizeResponses(sizes []model.TileSize) []SizeResponse {
 	return out
 }
 
+func isShowcaseImage(img model.DesignImage) bool {
+	return img.SizeID == nil && img.TypeID == nil
+}
+
 func (s *DesignService) primaryImage(images []model.DesignImage) (string, string) {
 	if len(images) == 0 {
 		return "", ""
 	}
 	sorted := append([]model.DesignImage(nil), images...)
 	sort.Slice(sorted, func(i, j int) bool {
-		aShowcase := sorted[i].SizeID == nil
-		bShowcase := sorted[j].SizeID == nil
+		aShowcase := isShowcaseImage(sorted[i])
+		bShowcase := isShowcaseImage(sorted[j])
 		if aShowcase != bShowcase {
 			return aShowcase
 		}
@@ -175,6 +186,7 @@ func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation
 	resp := DesignResponse{
 		ID:              design.ID,
 		Sizes:           s.sizeResponses(design.Sizes),
+		Types:           typeResponses(design.Types, resolvedLocale),
 		Images:          images,
 		ImageCount:      len(design.Images),
 		PrimaryImageURL: primaryURL,
@@ -201,6 +213,7 @@ func (s *DesignService) enrichList(
 	resp := DesignResponse{
 		ID:          design.ID,
 		Sizes:       s.sizeResponses(design.Sizes),
+		Types:       typeResponses(design.Types, resolvedLocale),
 		Images:      nil,
 		ImageCount:  int(imageCount),
 		SortOrder:   design.SortOrder,
@@ -242,17 +255,44 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error
 			return errors.New("one or more size IDs are invalid")
 		}
 	}
+	if len(in.TypeIDs) > 0 {
+		ok, err := s.typeRepo.ExistsAll(ctx, in.TypeIDs)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("one or more type IDs are invalid")
+		}
+	}
 	sizeSet := make(map[uuid.UUID]struct{}, len(in.SizeIDs))
 	for _, id := range in.SizeIDs {
 		sizeSet[id] = struct{}{}
+	}
+	typeSet := make(map[uuid.UUID]struct{}, len(in.TypeIDs))
+	for _, id := range in.TypeIDs {
+		typeSet[id] = struct{}{}
 	}
 	for _, img := range in.Images {
 		if img.ObjectKey == "" {
 			return errors.New("image object_key is required")
 		}
-		if img.SizeID != nil {
+		hasSize := img.SizeID != nil
+		hasType := img.TypeID != nil
+		if hasSize && !hasType {
 			if _, ok := sizeSet[*img.SizeID]; !ok {
 				return errors.New("image references a size not assigned to this design")
+			}
+			continue
+		}
+		if hasSize != hasType {
+			return errors.New("variant images must specify both size and type")
+		}
+		if hasSize {
+			if _, ok := sizeSet[*img.SizeID]; !ok {
+				return errors.New("image references a size not assigned to this design")
+			}
+			if _, ok := typeSet[*img.TypeID]; !ok {
+				return errors.New("image references a type not assigned to this design")
 			}
 		}
 	}
@@ -384,10 +424,11 @@ func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, 
 			ObjectKey:      imgIn.ObjectKey,
 			ThumbObjectKey: imgIn.ThumbObjectKey,
 			SizeID:         imgIn.SizeID,
+			TypeID:         imgIn.TypeID,
 			SortOrder:      imgIn.SortOrder,
 		}
 	}
-	return s.repo.ReplaceRelations(ctx, designID, in.SizeIDs, images)
+	return s.repo.ReplaceRelations(ctx, designID, in.SizeIDs, in.TypeIDs, images)
 }
 
 func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in DesignInput) (*AdminDesignResponse, error) {
