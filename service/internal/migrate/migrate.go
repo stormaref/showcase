@@ -8,7 +8,10 @@ import (
 )
 
 func RunPre(db *gorm.DB) error {
-	return renameGalleryToDesigns(db)
+	if err := renameGalleryToDesigns(db); err != nil {
+		return err
+	}
+	return migrateDesignTypesTable(db)
 }
 
 func RunPost(db *gorm.DB) error {
@@ -147,6 +150,27 @@ func migrateDesignSizesJoinColumn(db *gorm.DB) error {
 			slog.Info("dropped orphaned design_sizes.tile_size_id column")
 		}
 	}
+	return nil
+}
+
+// migrateDesignTypesTable fixes a naming conflict where the DesignType catalog
+// was migrated into design_types instead of the design↔type join table.
+func migrateDesignTypesTable(db *gorm.DB) error {
+	m := db.Migrator()
+	if !m.HasTable("design_types") {
+		return nil
+	}
+	// Join table has design_id; catalog table has id.
+	if m.HasColumn("design_types", "design_id") || !m.HasColumn("design_types", "id") {
+		return nil
+	}
+	if m.HasTable("tile_types") {
+		return nil
+	}
+	if err := m.RenameTable("design_types", "tile_types"); err != nil {
+		return err
+	}
+	slog.Info("renamed design_types catalog table to tile_types")
 	return nil
 }
 

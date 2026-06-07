@@ -171,6 +171,8 @@ func (t *DesignType) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func (DesignType) TableName() string { return "tile_types" }
+
 type DesignTypeTranslation struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	TypeID    uuid.UUID `gorm:"type:uuid;index:idx_design_type_locale,unique;not null" json:"type_id"`
