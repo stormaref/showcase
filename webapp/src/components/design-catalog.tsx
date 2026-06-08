@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { DesignFinishFilter } from "@/components/design-finish-filter";
 import { DesignGrid } from "@/components/design-grid";
 import { DesignSizeFilter } from "@/components/design-size-filter";
 import { DesignTypeFilter } from "@/components/design-type-filter";
@@ -10,9 +11,11 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Design } from "@/lib/api";
 import {
   buildFilterQuery,
+  collectFinishesFromDesigns,
   collectSizesFromDesigns,
   collectTypesFromDesigns,
   filterDesigns,
+  parseFinishParam,
   parseSizeParam,
   parseTypeParam,
 } from "@/lib/design-filter";
@@ -29,6 +32,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
 
   const availableSizes = useMemo(() => collectSizesFromDesigns(items), [items]);
   const availableTypes = useMemo(() => collectTypesFromDesigns(items), [items]);
+  const availableFinishes = useMemo(() => collectFinishesFromDesigns(items), [items]);
   const validSizeIds = useMemo(
     () => new Set(availableSizes.map((s) => s.id)),
     [availableSizes],
@@ -36,6 +40,10 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   const validTypeIds = useMemo(
     () => new Set(availableTypes.map((tp) => tp.id)),
     [availableTypes],
+  );
+  const validFinishIds = useMemo(
+    () => new Set(availableFinishes.map((f) => f.id)),
+    [availableFinishes],
   );
 
   const selectedSizeIds = useMemo(
@@ -46,14 +54,18 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     () => parseTypeParam(searchParams, validTypeIds),
     [searchParams, validTypeIds],
   );
-
-  const filteredItems = useMemo(
-    () => filterDesigns(items, selectedSizeIds, selectedTypeIds),
-    [items, selectedSizeIds, selectedTypeIds],
+  const selectedFinishIds = useMemo(
+    () => parseFinishParam(searchParams, validFinishIds),
+    [searchParams, validFinishIds],
   );
 
-  function updateFilters(sizes: Set<string>, types: Set<string>) {
-    const query = buildFilterQuery(sizes, types);
+  const filteredItems = useMemo(
+    () => filterDesigns(items, selectedSizeIds, selectedTypeIds, selectedFinishIds),
+    [items, selectedSizeIds, selectedTypeIds, selectedFinishIds],
+  );
+
+  function updateFilters(sizes: Set<string>, types: Set<string>, finishes: Set<string>) {
+    const query = buildFilterQuery(sizes, types, finishes);
     const href = query ? `${pathname}?${query}` : pathname;
     router.replace(href, { scroll: false });
   }
@@ -65,7 +77,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     } else {
       next.add(id);
     }
-    updateFilters(next, selectedTypeIds);
+    updateFilters(next, selectedTypeIds, selectedFinishIds);
   }
 
   function toggleType(id: string) {
@@ -75,15 +87,29 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     } else {
       next.add(id);
     }
-    updateFilters(selectedSizeIds, next);
+    updateFilters(selectedSizeIds, next, selectedFinishIds);
+  }
+
+  function toggleFinish(id: string) {
+    const next = new Set(selectedFinishIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    updateFilters(selectedSizeIds, selectedTypeIds, next);
   }
 
   function clearSizeFilters() {
-    updateFilters(new Set(), selectedTypeIds);
+    updateFilters(new Set(), selectedTypeIds, selectedFinishIds);
   }
 
   function clearTypeFilters() {
-    updateFilters(selectedSizeIds, new Set());
+    updateFilters(selectedSizeIds, new Set(), selectedFinishIds);
+  }
+
+  function clearFinishFilters() {
+    updateFilters(selectedSizeIds, selectedTypeIds, new Set());
   }
 
   const filterLabels = {
@@ -110,6 +136,16 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
           onClear={clearTypeFilters}
           labels={{
             filterByType: t("filterByType"),
+            ...filterLabels,
+          }}
+        />
+        <DesignFinishFilter
+          finishes={availableFinishes}
+          selectedIds={selectedFinishIds}
+          onToggle={toggleFinish}
+          onClear={clearFinishFilters}
+          labels={{
+            filterByFinish: t("filterByFinish"),
             ...filterLabels,
           }}
         />

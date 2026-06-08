@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DesignForm } from "@/components/admin/design-form";
 import { adminFetch } from "@/lib/admin-api";
-import type { AdminDesignType, Design, TileSize } from "@/lib/api";
+import type { AdminDesignType, AdminSurfaceFinish, Design, TileSize } from "@/lib/api";
 
 export default function EditDesignPage() {
   const { id } = useParams<{ id: string }>();
@@ -13,16 +13,19 @@ export default function EditDesignPage() {
   const [design, setDesign] = useState<Design | null>(null);
   const [sizes, setSizes] = useState<TileSize[]>([]);
   const [types, setTypes] = useState<AdminDesignType[]>([]);
+  const [finishes, setFinishes] = useState<AdminSurfaceFinish[]>([]);
 
   useEffect(() => {
     Promise.all([
       adminFetch<Design>(`/api/v1/admin/designs/${id}`),
       adminFetch<{ items: TileSize[] }>("/api/v1/admin/sizes"),
       adminFetch<{ items: AdminDesignType[] }>("/api/v1/admin/types"),
-    ]).then(([d, s, t]) => {
+      adminFetch<{ items: AdminSurfaceFinish[] }>("/api/v1/admin/finishes"),
+    ]).then(([d, s, t, f]) => {
       setDesign(d);
       setSizes(s.items);
       setTypes(t.items);
+      setFinishes(f.items);
     });
   }, [id]);
 
@@ -48,6 +51,7 @@ export default function EditDesignPage() {
         <DesignForm
           sizes={sizes}
           types={types}
+          finishes={finishes}
           initial={design}
           onSubmit={handleSubmit}
           submitLabel="Save changes"

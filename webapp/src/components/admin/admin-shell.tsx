@@ -15,7 +15,8 @@ const nav = [
   { href: "/admin/posts", label: "Blog posts" },
   { href: "/admin/designs", label: "Designs" },
   { href: "/admin/sizes", label: "Tile sizes" },
-  { href: "/admin/types", label: "Design types" },
+  { href: "/admin/types", label: "Tile categories" },
+  { href: "/admin/finishes", label: "Surface finishes" },
   { href: "/admin/brand", label: "Brand info" },
 ];
 

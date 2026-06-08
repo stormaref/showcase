@@ -86,6 +86,7 @@ type Design struct {
 	Translations []DesignTranslation `gorm:"foreignKey:DesignID" json:"translations,omitempty"`
 	Sizes        []TileSize          `gorm:"many2many:design_sizes;joinReferences:size_id" json:"sizes,omitempty"`
 	Types        []DesignType        `gorm:"many2many:design_types;joinReferences:type_id" json:"types,omitempty"`
+	Finishes     []SurfaceFinish     `gorm:"many2many:design_finishes;joinReferences:finish_id" json:"finishes,omitempty"`
 	Images       []DesignImage       `gorm:"foreignKey:DesignID" json:"images,omitempty"`
 }
 
@@ -195,6 +196,47 @@ type DesignDesignType struct {
 }
 
 func (DesignDesignType) TableName() string { return "design_types" }
+
+type SurfaceFinish struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	SortOrder int       `gorm:"default:0;index" json:"sort_order"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	Translations []SurfaceFinishTranslation `gorm:"foreignKey:FinishID" json:"translations,omitempty"`
+}
+
+func (f *SurfaceFinish) BeforeCreate(tx *gorm.DB) error {
+	if f.ID == uuid.Nil {
+		f.ID = uuid.New()
+	}
+	return nil
+}
+
+func (SurfaceFinish) TableName() string { return "tile_finishes" }
+
+type SurfaceFinishTranslation struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	FinishID  uuid.UUID `gorm:"type:uuid;index:idx_surface_finish_locale,unique;not null" json:"finish_id"`
+	Locale    string    `gorm:"size:5;index:idx_surface_finish_locale,unique;not null" json:"locale"`
+	Name      string    `gorm:"size:255;not null" json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (t *SurfaceFinishTranslation) BeforeCreate(tx *gorm.DB) error {
+	if t.ID == uuid.Nil {
+		t.ID = uuid.New()
+	}
+	return nil
+}
+
+type DesignSurfaceFinish struct {
+	DesignID uuid.UUID `gorm:"type:uuid;primaryKey" json:"design_id"`
+	FinishID uuid.UUID `gorm:"type:uuid;primaryKey;index:idx_design_finishes_finish_id" json:"finish_id"`
+}
+
+func (DesignSurfaceFinish) TableName() string { return "design_finishes" }
 
 type DesignImage struct {
 	ID             uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`

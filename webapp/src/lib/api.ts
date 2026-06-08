@@ -91,6 +91,17 @@ export type AdminDesignType = DesignType & {
   translations?: Record<string, { name: string }>;
 };
 
+export type SurfaceFinish = {
+  id: string;
+  name: string;
+  sort_order?: number;
+};
+
+export type AdminSurfaceFinish = SurfaceFinish & {
+  in_use?: boolean;
+  translations?: Record<string, { name: string }>;
+};
+
 export type DesignImage = {
   id?: string;
   size_id?: string | null;
@@ -110,6 +121,7 @@ export type Design = {
   locale?: string;
   sizes: TileSize[];
   types: DesignType[];
+  finishes?: SurfaceFinish[];
   images: DesignImage[];
   primary_image_url: string;
   primary_thumb_url: string;

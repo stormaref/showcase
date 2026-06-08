@@ -285,3 +285,82 @@ func (h *TypeHandler) Delete(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+
+type FinishHandler struct {
+	finishes *service.FinishService
+}
+
+func NewFinishHandler(finishes *service.FinishService) *FinishHandler {
+	return &FinishHandler{finishes: finishes}
+}
+
+func (h *FinishHandler) List(c *gin.Context) {
+	items, err := h.finishes.List(c.Request.Context())
+	if err != nil {
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
+func (h *FinishHandler) Create(c *gin.Context) {
+	var in service.FinishInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	item, err := h.finishes.Create(c.Request.Context(), in)
+	if err != nil {
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	c.JSON(http.StatusCreated, item)
+}
+
+func (h *FinishHandler) Update(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		httpx.JSON(c, http.StatusBadRequest, "validation", "error.invalid_id")
+		return
+	}
+	var in service.FinishInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	item, err := h.finishes.Update(c.Request.Context(), id, in)
+	if err != nil {
+		if errors.Is(err, service.ErrFinishInUse) {
+			httpx.JSON(c, http.StatusConflict, "finish_in_use", "error.finish_in_use")
+			return
+		}
+		if errors.Is(err, repository.ErrFinishNotFound) {
+			httpx.JSON(c, http.StatusNotFound, "not_found", "error.finish_not_found")
+			return
+		}
+		httpx.ValidationError(c, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, item)
+}
+
+func (h *FinishHandler) Delete(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		httpx.JSON(c, http.StatusBadRequest, "validation", "error.invalid_id")
+		return
+	}
+	if err := h.finishes.Delete(c.Request.Context(), id); err != nil {
+		if errors.Is(err, service.ErrFinishInUse) {
+			httpx.JSON(c, http.StatusConflict, "finish_in_use", "error.finish_in_use")
+			return
+		}
+		if errors.Is(err, repository.ErrFinishNotFound) {
+			httpx.JSON(c, http.StatusNotFound, "not_found", "error.finish_not_found")
+			return
+		}
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
+		return
+	}
+	c.Status(http.StatusNoContent)
+}

@@ -18,6 +18,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
   const alt = design.alt_text || design.title;
   const showcaseSlides = carouselSlides(showcase, alt);
   const types = design.types ?? [];
+  const finishes = design.finishes ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
@@ -54,6 +55,18 @@ export async function DesignDetail({ design }: DesignDetailProps) {
         </h1>
         {design.caption && (
           <p className="mt-3 text-lg text-gray-500">{design.caption}</p>
+        )}
+        {finishes.length > 0 && (
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {finishes.map((finish) => (
+              <li
+                key={finish.id}
+                className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-600"
+              >
+                {finish.name}
+              </li>
+            ))}
+          </ul>
         )}
       </header>
 

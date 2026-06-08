@@ -54,7 +54,8 @@
     "subtitle": "Browse our tile patterns. Each design is available in multiple sizes.",
     "empty": "No designs published yet.",
     "filterBySize": "Filter by size",
-    "filterByType": "Filter by type",
+    "filterByType": "Filter by category",
+    "filterByFinish": "Filter by finish",
     "clearFilters": "Clear filters",
     "noMatches": "No designs match the selected filters."
   },

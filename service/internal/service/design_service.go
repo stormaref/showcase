@@ -13,21 +13,23 @@ import (
 )
 
 type DesignService struct {
-	repo     *repository.DesignRepository
-	sizeRepo *repository.SizeRepository
-	typeRepo *repository.TypeRepository
-	store    storage.ObjectStore
-	audit    *AuditService
+	repo       *repository.DesignRepository
+	sizeRepo   *repository.SizeRepository
+	typeRepo   *repository.TypeRepository
+	finishRepo *repository.FinishRepository
+	store      storage.ObjectStore
+	audit      *AuditService
 }
 
 func NewDesignService(
 	repo *repository.DesignRepository,
 	sizeRepo *repository.SizeRepository,
 	typeRepo *repository.TypeRepository,
+	finishRepo *repository.FinishRepository,
 	store storage.ObjectStore,
 	audit *AuditService,
 ) *DesignService {
-	return &DesignService{repo: repo, sizeRepo: sizeRepo, typeRepo: typeRepo, store: store, audit: audit}
+	return &DesignService{repo: repo, sizeRepo: sizeRepo, typeRepo: typeRepo, finishRepo: finishRepo, store: store, audit: audit}
 }
 
 type DesignTranslationInput struct {
@@ -49,6 +51,7 @@ type DesignInput struct {
 	IsPublished  bool                               `json:"is_published"`
 	SizeIDs      []uuid.UUID                        `json:"size_ids"`
 	TypeIDs      []uuid.UUID                        `json:"type_ids"`
+	FinishIDs    []uuid.UUID                        `json:"finish_ids"`
 	Images       []DesignImageInput                 `json:"images"`
 	Translations map[string]DesignTranslationInput  `json:"translations"`
 }
@@ -72,6 +75,7 @@ type DesignResponse struct {
 	Locale           string              `json:"locale,omitempty"`
 	Sizes            []SizeResponse      `json:"sizes"`
 	Types            []TypeResponse      `json:"types"`
+	Finishes         []FinishResponse    `json:"finishes"`
 	Images           []DesignImageResponse `json:"images"`
 	PrimaryImageURL  string              `json:"primary_image_url"`
 	PrimaryThumbURL  string              `json:"primary_thumb_url"`
@@ -187,6 +191,7 @@ func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation
 		ID:              design.ID,
 		Sizes:           s.sizeResponses(design.Sizes),
 		Types:           typeResponses(design.Types, resolvedLocale),
+		Finishes:        finishResponses(design.Finishes, resolvedLocale),
 		Images:          images,
 		ImageCount:      len(design.Images),
 		PrimaryImageURL: primaryURL,
@@ -214,6 +219,7 @@ func (s *DesignService) enrichList(
 		ID:          design.ID,
 		Sizes:       s.sizeResponses(design.Sizes),
 		Types:       typeResponses(design.Types, resolvedLocale),
+		Finishes:    finishResponses(design.Finishes, resolvedLocale),
 		Images:      nil,
 		ImageCount:  int(imageCount),
 		SortOrder:   design.SortOrder,
@@ -262,6 +268,15 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error
 		}
 		if !ok {
 			return errors.New("one or more type IDs are invalid")
+		}
+	}
+	if len(in.FinishIDs) > 0 {
+		ok, err := s.finishRepo.ExistsAll(ctx, in.FinishIDs)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("one or more finish IDs are invalid")
 		}
 	}
 	sizeSet := make(map[uuid.UUID]struct{}, len(in.SizeIDs))
@@ -428,7 +443,7 @@ func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, 
 			SortOrder:      imgIn.SortOrder,
 		}
 	}
-	return s.repo.ReplaceRelations(ctx, designID, in.SizeIDs, in.TypeIDs, images)
+	return s.repo.ReplaceRelations(ctx, designID, in.SizeIDs, in.TypeIDs, in.FinishIDs, images)
 }
 
 func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in DesignInput) (*AdminDesignResponse, error) {

@@ -1,7 +1,8 @@
-import type { Design, DesignType, TileSize } from "@/lib/api";
+import type { Design, DesignType, SurfaceFinish, TileSize } from "@/lib/api";
 
 export const SIZE_PARAM = "size";
 export const TYPE_PARAM = "type";
+export const FINISH_PARAM = "finish";
 
 export function parseSizeParam(
   searchParams: URLSearchParams,
@@ -29,18 +30,36 @@ export function parseTypeParam(
   return new Set(ids.filter((id) => validIds.has(id)));
 }
 
+export function parseFinishParam(
+  searchParams: URLSearchParams,
+  validIds?: Set<string>,
+): Set<string> {
+  const raw = searchParams.get(FINISH_PARAM);
+  if (!raw) return new Set();
+
+  const ids = raw.split(",").map((id) => id.trim()).filter(Boolean);
+  if (!validIds) return new Set(ids);
+
+  return new Set(ids.filter((id) => validIds.has(id)));
+}
+
 export function buildFilterQuery(
   selectedSizes: Iterable<string>,
   selectedTypes: Iterable<string>,
+  selectedFinishes: Iterable<string> = [],
 ): string {
   const parts: string[] = [];
   const sizeIds = [...selectedSizes];
   const typeIds = [...selectedTypes];
+  const finishIds = [...selectedFinishes];
   if (sizeIds.length > 0) {
     parts.push(`${SIZE_PARAM}=${sizeIds.join(",")}`);
   }
   if (typeIds.length > 0) {
     parts.push(`${TYPE_PARAM}=${typeIds.join(",")}`);
+  }
+  if (finishIds.length > 0) {
+    parts.push(`${FINISH_PARAM}=${finishIds.join(",")}`);
   }
   return parts.join("&");
 }
@@ -74,6 +93,18 @@ export function collectTypesFromDesigns(items: Design[]): DesignType[] {
   );
 }
 
+export function collectFinishesFromDesigns(items: Design[]): SurfaceFinish[] {
+  const map = new Map<string, SurfaceFinish>();
+  for (const item of items) {
+    for (const finish of item.finishes ?? []) {
+      map.set(finish.id, finish);
+    }
+  }
+  return [...map.values()].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name),
+  );
+}
+
 export function filterDesignsBySize(
   items: Design[],
   selectedIds: Set<string>,
@@ -94,12 +125,24 @@ export function filterDesignsByType(
   );
 }
 
+export function filterDesignsByFinish(
+  items: Design[],
+  selectedIds: Set<string>,
+): Design[] {
+  if (selectedIds.size === 0) return items;
+  return items.filter((item) =>
+    (item.finishes ?? []).some((finish) => selectedIds.has(finish.id)),
+  );
+}
+
 export function filterDesigns(
   items: Design[],
   selectedSizes: Set<string>,
   selectedTypes: Set<string>,
+  selectedFinishes: Set<string> = new Set(),
 ): Design[] {
   let result = filterDesignsBySize(items, selectedSizes);
   result = filterDesignsByType(result, selectedTypes);
+  result = filterDesignsByFinish(result, selectedFinishes);
   return result;
 }

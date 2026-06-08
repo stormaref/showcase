@@ -52,6 +52,9 @@ func main() {
 	if err := db.SetupJoinTable(&model.Design{}, "Types", &model.DesignDesignType{}); err != nil {
 		log.Fatalf("setup join table types: %v", err)
 	}
+	if err := db.SetupJoinTable(&model.Design{}, "Finishes", &model.DesignSurfaceFinish{}); err != nil {
+		log.Fatalf("setup join table finishes: %v", err)
+	}
 
 	if err := db.AutoMigrate(
 		&model.Admin{},
@@ -64,6 +67,9 @@ func main() {
 		&model.DesignType{},
 		&model.DesignTypeTranslation{},
 		&model.DesignDesignType{},
+		&model.SurfaceFinish{},
+		&model.SurfaceFinishTranslation{},
+		&model.DesignSurfaceFinish{},
 		&model.DesignImage{},
 		&model.RefreshToken{},
 		&model.AuditLog{},
@@ -93,15 +99,17 @@ func main() {
 	designRepo := repository.NewDesignRepository(db)
 	sizeRepo := repository.NewSizeRepository(db)
 	typeRepo := repository.NewTypeRepository(db)
+	finishRepo := repository.NewFinishRepository(db)
 	brandRepo := repository.NewBrandRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	auditSvc := service.NewAuditService(auditRepo)
 	authSvc := service.NewAuthService(cfg, adminRepo, tokenRepo, auditSvc)
 	postSvc := service.NewPostService(postRepo, store, auditSvc)
-	designSvc := service.NewDesignService(designRepo, sizeRepo, typeRepo, store, auditSvc)
+	designSvc := service.NewDesignService(designRepo, sizeRepo, typeRepo, finishRepo, store, auditSvc)
 	sizeSvc := service.NewSizeService(sizeRepo)
 	typeSvc := service.NewTypeService(typeRepo)
+	finishSvc := service.NewFinishService(finishRepo)
 	brandSvc := service.NewBrandService(brandRepo, auditSvc)
 	uploadSvc := service.NewUploadService(cfg, store)
 
@@ -118,8 +126,9 @@ func main() {
 		Posts:   handler.NewPostHandler(postSvc),
 		Designs: handler.NewDesignHandler(designSvc),
 		Sizes:   handler.NewSizeHandler(sizeSvc),
-		Types:   handler.NewTypeHandler(typeSvc),
-		Brand:   handler.NewBrandHandler(brandSvc),
+		Types:    handler.NewTypeHandler(typeSvc),
+		Finishes: handler.NewFinishHandler(finishSvc),
+		Brand:    handler.NewBrandHandler(brandSvc),
 		Upload:  handler.NewUploadHandler(uploadSvc),
 		Audit:   handler.NewAuditHandler(auditSvc),
 	}

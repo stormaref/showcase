@@ -2,26 +2,26 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { adminFetch } from "@/lib/admin-api";
-import type { AdminDesignType } from "@/lib/api";
+import type { AdminSurfaceFinish } from "@/lib/api";
 
-type TypeForm = {
+type FinishForm = {
   name_en: string;
   name_fa: string;
   sort_order: string;
 };
 
-const emptyForm = (): TypeForm => ({ name_en: "", name_fa: "", sort_order: "0" });
+const emptyForm = (): FinishForm => ({ name_en: "", name_fa: "", sort_order: "0" });
 
-export default function AdminTypesPage() {
-  const [types, setTypes] = useState<AdminDesignType[]>([]);
-  const [form, setForm] = useState<TypeForm>(emptyForm());
+export default function AdminFinishesPage() {
+  const [finishes, setFinishes] = useState<AdminSurfaceFinish[]>([]);
+  const [form, setForm] = useState<FinishForm>(emptyForm());
   const [editId, setEditId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   function load() {
-    adminFetch<{ items: AdminDesignType[] }>("/api/v1/admin/types").then((d) =>
-      setTypes(d.items),
+    adminFetch<{ items: AdminSurfaceFinish[] }>("/api/v1/admin/finishes").then((d) =>
+      setFinishes(d.items),
     );
   }
 
@@ -29,12 +29,12 @@ export default function AdminTypesPage() {
     load();
   }, []);
 
-  function startEdit(t: AdminDesignType) {
-    setEditId(t.id);
+  function startEdit(f: AdminSurfaceFinish) {
+    setEditId(f.id);
     setForm({
-      name_en: t.translations?.en?.name ?? t.name ?? "",
-      name_fa: t.translations?.fa?.name ?? "",
-      sort_order: String(t.sort_order ?? 0),
+      name_en: f.translations?.en?.name ?? f.name ?? "",
+      name_fa: f.translations?.fa?.name ?? "",
+      sort_order: String(f.sort_order ?? 0),
     });
     setError("");
     formRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,12 +62,12 @@ export default function AdminTypesPage() {
     };
     try {
       if (editId) {
-        await adminFetch(`/api/v1/admin/types/${editId}`, {
+        await adminFetch(`/api/v1/admin/finishes/${editId}`, {
           method: "PUT",
           body: JSON.stringify(body),
         });
       } else {
-        await adminFetch("/api/v1/admin/types", {
+        await adminFetch("/api/v1/admin/finishes", {
           method: "POST",
           body: JSON.stringify(body),
         });
@@ -80,10 +80,10 @@ export default function AdminTypesPage() {
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this category?")) return;
+    if (!confirm("Delete this surface finish?")) return;
     setError("");
     try {
-      await adminFetch(`/api/v1/admin/types/${id}`, { method: "DELETE" });
+      await adminFetch(`/api/v1/admin/finishes/${id}`, { method: "DELETE" });
       if (editId === id) cancelEdit();
       load();
     } catch (err) {
@@ -93,9 +93,9 @@ export default function AdminTypesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Tile categories</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Surface finishes</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Manage tile categories (e.g. wall, ceramic, porcelain). Categories in use cannot be deleted.
+        Manage surface finish tags (e.g. polished, matte). Finishes in use cannot be deleted.
       </p>
 
       <form
@@ -104,7 +104,7 @@ export default function AdminTypesPage() {
         className="mt-8 max-w-lg space-y-4 rounded-xl border border-gray-200 bg-white p-6"
       >
         <h2 className="text-sm font-medium text-gray-900">
-          {editId ? "Edit category" : "Add category"}
+          {editId ? "Edit finish" : "Add finish"}
         </h2>
         <label className="block text-sm font-medium">
           English name
@@ -139,7 +139,7 @@ export default function AdminTypesPage() {
             type="submit"
             className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white"
           >
-            {editId ? "Save changes" : "Add category"}
+            {editId ? "Save changes" : "Add finish"}
           </button>
           {editId && (
             <button
@@ -165,17 +165,17 @@ export default function AdminTypesPage() {
             </tr>
           </thead>
           <tbody>
-            {types.map((t) => (
-              <tr key={t.id} className="border-b border-gray-50">
+            {finishes.map((f) => (
+              <tr key={f.id} className="border-b border-gray-50">
                 <td className="px-4 py-3 font-medium">
-                  {t.translations?.en?.name ?? t.name}
+                  {f.translations?.en?.name ?? f.name}
                 </td>
                 <td className="px-4 py-3 text-gray-500" dir="rtl">
-                  {t.translations?.fa?.name || "—"}
+                  {f.translations?.fa?.name || "—"}
                 </td>
-                <td className="px-4 py-3 text-gray-500">{t.sort_order ?? 0}</td>
+                <td className="px-4 py-3 text-gray-500">{f.sort_order ?? 0}</td>
                 <td className="px-4 py-3">
-                  {t.in_use ? (
+                  {f.in_use ? (
                     <span className="text-xs text-amber-700">In use</span>
                   ) : (
                     <span className="text-xs text-gray-400">Available</span>
@@ -184,14 +184,14 @@ export default function AdminTypesPage() {
                 <td className="px-4 py-3 text-end">
                   <button
                     type="button"
-                    onClick={() => startEdit(t)}
+                    onClick={() => startEdit(f)}
                     className="me-3 text-xs text-gray-700 hover:underline"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
-                    onClick={() => remove(t.id)}
+                    onClick={() => remove(f.id)}
                     className="text-xs text-red-600 hover:underline"
                   >
                     Delete
@@ -199,10 +199,10 @@ export default function AdminTypesPage() {
                 </td>
               </tr>
             ))}
-            {types.length === 0 && (
+            {finishes.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
-                  No categories yet. Add your first tile category above.
+                  No finishes yet. Add your first surface finish above.
                 </td>
               </tr>
             )}

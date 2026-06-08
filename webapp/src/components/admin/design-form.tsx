@@ -7,6 +7,7 @@ import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
 import type {
   AdminDesignType,
+  AdminSurfaceFinish,
   Design,
   DesignTranslation,
   TileSize,
@@ -29,6 +30,7 @@ export type PendingImage = {
 type DesignFormProps = {
   sizes: TileSize[];
   types: AdminDesignType[];
+  finishes: AdminSurfaceFinish[];
   initial?: Design;
   onSubmit: (payload: Record<string, unknown>) => Promise<void>;
   submitLabel: string;
@@ -39,6 +41,10 @@ const checkboxClass =
 
 function typeLabel(t: AdminDesignType): string {
   return t.translations?.en?.name ?? t.name;
+}
+
+function finishLabel(f: AdminSurfaceFinish): string {
+  return f.translations?.en?.name ?? f.name;
 }
 
 function imagesFromDesign(design?: Design): PendingImage[] {
@@ -107,9 +113,15 @@ function FileUploadButton({
   );
 }
 
+function selectedFinishIdsFromDesign(design?: Design): string[] {
+  if (!design) return [];
+  return (design.finishes ?? []).map((f) => f.id);
+}
+
 export function DesignForm({
   sizes,
   types,
+  finishes,
   initial,
   onSubmit,
   submitLabel,
@@ -123,6 +135,9 @@ export function DesignForm({
   );
   const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>(() =>
     selectedTypeIdsFromDesign(initial),
+  );
+  const [selectedFinishIds, setSelectedFinishIds] = useState<string[]>(() =>
+    selectedFinishIdsFromDesign(initial),
   );
   const [images, setImages] = useState<PendingImage[]>(() => imagesFromDesign(initial));
   const [sortOrder, setSortOrder] = useState(initial?.sort_order ?? 0);
@@ -157,6 +172,12 @@ export function DesignForm({
       }
       return [...prev, id];
     });
+  }
+
+  function toggleFinish(id: string) {
+    setSelectedFinishIds((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+    );
   }
 
   async function handleUpload(
@@ -201,6 +222,7 @@ export function DesignForm({
       is_published: isPublished,
       size_ids: selectedSizeIds,
       type_ids: selectedTypeIds,
+      finish_ids: selectedFinishIds,
       translations: { en: translations.en },
       images: images.map((img) => ({
         object_key: img.object_key,
@@ -344,10 +366,10 @@ export function DesignForm({
       </fieldset>
 
       <fieldset className="rounded-xl border border-gray-200 p-4">
-        <legend className="px-1 text-sm font-medium">Available types</legend>
+        <legend className="px-1 text-sm font-medium">Tile categories</legend>
         {types.length === 0 ? (
           <p className="text-sm text-gray-500">
-            No types defined yet. Add design types first.
+            No categories defined yet. Add tile categories first.
           </p>
         ) : (
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -363,6 +385,32 @@ export function DesignForm({
                   className={checkboxClass}
                 />
                 {typeLabel(tp)}
+              </label>
+            ))}
+          </div>
+        )}
+      </fieldset>
+
+      <fieldset className="rounded-xl border border-gray-200 p-4">
+        <legend className="px-1 text-sm font-medium">Surface finishes</legend>
+        {finishes.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No finishes defined yet. Add surface finishes first.
+          </p>
+        ) : (
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {finishes.map((f) => (
+              <label
+                key={f.id}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedFinishIds.includes(f.id)}
+                  onChange={() => toggleFinish(f.id)}
+                  className={checkboxClass}
+                />
+                {finishLabel(f)}
               </label>
             ))}
           </div>

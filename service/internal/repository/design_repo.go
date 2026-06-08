@@ -23,8 +23,23 @@ func translationLocales(locale string) []string {
 	return []string{locale, model.LocaleEN}
 }
 
+func (r *DesignRepository) preloadFinishes(q *gorm.DB, locale string) *gorm.DB {
+	return q.Preload("Finishes", func(db *gorm.DB) *gorm.DB {
+		return db.Order("sort_order ASC, created_at ASC")
+	}).
+		Preload("Finishes.Translations", "locale IN ?", translationLocales(locale))
+}
+
+func (r *DesignRepository) preloadFinishesAll(q *gorm.DB) *gorm.DB {
+	return q.Preload("Finishes", func(db *gorm.DB) *gorm.DB {
+		return db.Order("sort_order ASC, created_at ASC")
+	}).
+		Preload("Finishes.Translations")
+}
+
 func (r *DesignRepository) preloadForList(q *gorm.DB, locale string) *gorm.DB {
-	return q.Preload("Translations", "locale IN ?", translationLocales(locale)).
+	return r.preloadFinishes(q, locale).
+		Preload("Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
 			return db.Order("sort_order ASC, created_at ASC")
@@ -33,7 +48,8 @@ func (r *DesignRepository) preloadForList(q *gorm.DB, locale string) *gorm.DB {
 }
 
 func (r *DesignRepository) preloadForAdminList(q *gorm.DB) *gorm.DB {
-	return q.Preload("Translations").
+	return r.preloadFinishesAll(q).
+		Preload("Translations").
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
 			return db.Order("sort_order ASC, created_at ASC")
@@ -42,7 +58,8 @@ func (r *DesignRepository) preloadForAdminList(q *gorm.DB) *gorm.DB {
 }
 
 func (r *DesignRepository) preloadFull(q *gorm.DB, locale string) *gorm.DB {
-	return q.Preload("Translations", "locale IN ?", translationLocales(locale)).
+	return r.preloadFinishes(q, locale).
+		Preload("Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
 			return db.Order("sort_order ASC, created_at ASC")
@@ -72,7 +89,7 @@ func (r *DesignRepository) ListAll(ctx context.Context) ([]model.Design, error) 
 
 func (r *DesignRepository) FindByID(ctx context.Context, id uuid.UUID) (*model.Design, error) {
 	var item model.Design
-	err := r.db.WithContext(ctx).
+	err := r.preloadFinishesAll(r.db.WithContext(ctx)).
 		Preload("Translations").
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -126,6 +143,9 @@ func (r *DesignRepository) Delete(ctx context.Context, id uuid.UUID) error {
 			return err
 		}
 		if err := tx.Where("design_id = ?", id).Delete(&model.DesignDesignType{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("design_id = ?", id).Delete(&model.DesignSurfaceFinish{}).Error; err != nil {
 			return err
 		}
 		if err := tx.Where("design_id = ?", id).Delete(&model.DesignTranslation{}).Error; err != nil {
@@ -209,6 +229,7 @@ func (r *DesignRepository) ReplaceRelations(
 	designID uuid.UUID,
 	sizeIDs []uuid.UUID,
 	typeIDs []uuid.UUID,
+	finishIDs []uuid.UUID,
 	images []model.DesignImage,
 ) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -231,6 +252,18 @@ func (r *DesignRepository) ReplaceRelations(
 			rows := make([]model.DesignDesignType, len(typeIDs))
 			for i, tid := range typeIDs {
 				rows[i] = model.DesignDesignType{DesignID: designID, TypeID: tid}
+			}
+			if err := tx.CreateInBatches(rows, 100).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Where("design_id = ?", designID).Delete(&model.DesignSurfaceFinish{}).Error; err != nil {
+			return err
+		}
+		if len(finishIDs) > 0 {
+			rows := make([]model.DesignSurfaceFinish, len(finishIDs))
+			for i, fid := range finishIDs {
+				rows[i] = model.DesignSurfaceFinish{DesignID: designID, FinishID: fid}
 			}
 			if err := tx.CreateInBatches(rows, 100).Error; err != nil {
 				return err
