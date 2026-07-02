@@ -37,7 +37,7 @@ export default async function DesignsPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
       <header className="max-w-2xl">
-        <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
+        <p className="text-sm font-medium uppercase tracking-widest text-clay">
           {t("eyebrow")}
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-gray-900">

@@ -39,7 +39,7 @@ export function BrandGrid({ brands, visitLabel, className }: BrandGridProps) {
               href={brand.website_url}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 text-sm text-gray-500 transition hover:text-gray-900"
+              className="mt-4 text-sm font-medium text-clay transition hover:text-clay-dark"
             >
               {visitLabel} →
             </a>

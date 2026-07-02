@@ -51,13 +51,13 @@ export async function DesignDetail({ design }: DesignDetailProps) {
 
       <header className="mt-10 max-w-2xl">
         {design.brand && (
-          <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
+          <p className="text-sm font-medium uppercase tracking-widest text-clay">
             {design.brand.website_url ? (
               <a
                 href={design.brand.website_url}
                 target="_blank"
                 rel="noreferrer"
-                className="transition hover:text-gray-600"
+                className="transition hover:text-clay-dark"
               >
                 {design.brand.name}
               </a>
@@ -88,7 +88,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
 
       {types.length > 0 && design.sizes.length > 0 && (
         <section className="mt-16 border-t border-gray-100 pt-16">
-          <h2 className="text-sm font-medium uppercase tracking-widest text-gray-400">
+          <h2 className="text-sm font-medium uppercase tracking-widest text-clay">
             {t("availableIn")}
           </h2>
           <div className="mt-10 space-y-16">

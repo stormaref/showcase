@@ -16,9 +16,12 @@ export async function SiteHeader() {
   ];
 
   return (
-    <header className="border-b border-gray-100">
+    <header className="sticky top-0 z-40 border-b border-gray-100 bg-cream/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="text-lg font-semibold tracking-tight text-cocoa transition hover:text-clay"
+        >
           {brand.name}
         </Link>
         <div className="flex items-center gap-8">
@@ -27,7 +30,7 @@ export async function SiteHeader() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="transition hover:text-gray-900"
+                className="transition hover:text-clay"
               >
                 {l.label}
               </Link>

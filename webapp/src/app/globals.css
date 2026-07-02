@@ -1,17 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --accent: #111111;
+@theme {
+  /* Warm ceramic accent */
+  --color-clay: #b4552d;
+  --color-clay-dark: #9a4626;
+  --color-clay-soft: #e8d3c4;
+
+  /* Named warm surfaces */
+  --color-cream: #faf6f0;
+  --color-sand: #f3eadf;
+  --color-cocoa: #2b2622;
+
+  /* Remap the neutral scale to warm greige so every gray-* surface
+     across the site reads warm instead of cold. */
+  --color-gray-50: #f7f1e9;
+  --color-gray-100: #ece2d5;
+  --color-gray-200: #e0d5c4;
+  --color-gray-300: #cdbfa9;
+  --color-gray-400: #b0a189;
+  --color-gray-500: #8a7c6a;
+  --color-gray-600: #6c6153;
+  --color-gray-700: #514840;
+  --color-gray-800: #3b342d;
+  --color-gray-900: #2b2622;
+
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
+:root {
+  --background: #faf6f0;
+  --foreground: #2b2622;
 }
 
 body {
@@ -19,6 +37,11 @@ body {
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-clay);
+  color: #fff;
 }
 
 .prose-showcase {
@@ -36,10 +59,11 @@ body {
 
 .prose-showcase p {
   margin-bottom: 1em;
-  color: #374151;
+  color: #514840;
 }
 
 .prose-showcase a {
+  color: var(--color-clay);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -50,8 +74,8 @@ body {
 }
 
 .prose-showcase pre {
-  background: #f9fafb;
-  border: 1px solid var(--border);
+  background: #f3eadf;
+  border: 1px solid var(--color-gray-100);
   border-radius: 0.5rem;
   padding: 1rem;
   overflow-x: auto;

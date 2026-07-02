@@ -11,7 +11,7 @@ export async function SiteFooter() {
       <div className="mx-auto max-w-6xl px-6 py-10 text-center text-sm text-gray-500">
         <p>
           {brand.addressLine1}, {brand.addressLine3} ·{" "}
-          <a href={phoneTelHref(brand.phone)} className="hover:text-gray-900">
+          <a href={phoneTelHref(brand.phone)} className="transition hover:text-clay">
             {brand.phone}
           </a>
         </p>

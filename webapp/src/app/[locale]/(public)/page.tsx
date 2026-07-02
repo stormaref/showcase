@@ -62,7 +62,7 @@ export default async function HomePage({ params }: PageProps) {
   return (
     <>
       <section className="mx-auto max-w-6xl px-6 py-24 text-center">
-        <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
+        <p className="text-sm font-medium uppercase tracking-widest text-clay">
           {t("eyebrow")}
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
@@ -74,13 +74,13 @@ export default async function HomePage({ params }: PageProps) {
         <div className="mt-10 flex justify-center gap-4">
           <Link
             href="/designs"
-            className="rounded-full bg-gray-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
+            className="rounded-full bg-clay px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-clay-dark"
           >
             {t("viewDesigns")}
           </Link>
           <Link
             href="/blog"
-            className="rounded-full border border-gray-200 px-6 py-3 text-sm font-medium text-gray-700 transition hover:border-gray-300"
+            className="rounded-full border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 transition hover:border-clay hover:text-clay"
           >
             {t("readBlog")}
           </Link>
@@ -146,7 +146,7 @@ export default async function HomePage({ params }: PageProps) {
                 <h2 className="text-2xl font-semibold tracking-tight">{t("designsTitle")}</h2>
                 <p className="mt-1 text-sm text-gray-500">{t("designsSubtitle")}</p>
               </div>
-              <Link href="/designs" className="shrink-0 text-sm text-gray-500 hover:text-gray-900">
+              <Link href="/designs" className="shrink-0 text-sm text-gray-500 transition hover:text-clay">
                 {t("viewAll")} →
               </Link>
             </div>
@@ -175,7 +175,7 @@ export default async function HomePage({ params }: PageProps) {
             <p>
               <a
                 href={phoneTelHref(brand.phone)}
-                className="font-medium text-gray-900 hover:underline"
+                className="font-medium text-clay hover:underline"
               >
                 {brand.phone}
               </a>
@@ -183,7 +183,7 @@ export default async function HomePage({ params }: PageProps) {
             <p>
               <a
                 href={`mailto:${brand.email}`}
-                className="text-gray-500 hover:text-gray-900 hover:underline"
+                className="text-gray-500 transition hover:text-clay hover:underline"
               >
                 {brand.email}
               </a>
@@ -197,7 +197,7 @@ export default async function HomePage({ params }: PageProps) {
           <div className="mx-auto max-w-6xl px-6">
             <div className="mb-8 flex items-end justify-between">
               <h2 className="text-2xl font-semibold tracking-tight">{t("latestPosts")}</h2>
-              <Link href="/blog" className="text-sm text-gray-500 hover:text-gray-900">
+              <Link href="/blog" className="text-sm text-gray-500 transition hover:text-clay">
                 {t("viewAll")} →
               </Link>
             </div>
