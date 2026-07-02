@@ -3,194 +3,246 @@ package service
 import (
 	"context"
 	"errors"
-	"net/mail"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/stormaref/showcase/service/internal/domain/model"
 	"github.com/stormaref/showcase/service/internal/repository"
+	"github.com/stormaref/showcase/service/internal/storage"
 )
+
+var ErrBrandInUse = errors.New("brand in use")
 
 type BrandService struct {
 	repo  *repository.BrandRepository
+	store storage.ObjectStore
 	audit *AuditService
 }
 
-func NewBrandService(repo *repository.BrandRepository, audit *AuditService) *BrandService {
-	return &BrandService{repo: repo, audit: audit}
+func NewBrandService(repo *repository.BrandRepository, store storage.ObjectStore, audit *AuditService) *BrandService {
+	return &BrandService{repo: repo, store: store, audit: audit}
+}
+
+type BrandTranslationInput struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type BrandInput struct {
-	Name         string `json:"name"`
-	Tagline      string `json:"tagline"`
-	About        string `json:"about"`
-	AddressLine1 string `json:"address_line_1"`
-	AddressLine2 string `json:"address_line_2"`
-	AddressLine3 string `json:"address_line_3"`
-	Phone        string `json:"phone"`
-	Email        string `json:"email"`
+	LogoObjectKey string                           `json:"logo_object_key"`
+	WebsiteURL    string                           `json:"website_url"`
+	SortOrder     int                              `json:"sort_order"`
+	IsPublished   bool                             `json:"is_published"`
+	Translations  map[string]BrandTranslationInput `json:"translations"`
 }
 
 type BrandResponse struct {
-	Locale       string `json:"locale"`
-	Name         string `json:"name"`
-	Tagline      string `json:"tagline"`
-	About        string `json:"about"`
-	AddressLine1 string `json:"address_line_1"`
-	AddressLine2 string `json:"address_line_2"`
-	AddressLine3 string `json:"address_line_3"`
-	Phone        string `json:"phone"`
-	Email        string `json:"email"`
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	LogoURL     string    `json:"logo_url,omitempty"`
+	WebsiteURL  string    `json:"website_url,omitempty"`
+	SortOrder   int       `json:"sort_order"`
+	IsPublished bool      `json:"is_published"`
+	InUse       bool      `json:"in_use,omitempty"`
 }
 
-type BrandUpdateInput struct {
-	Translations map[string]BrandInput `json:"translations"`
+type AdminBrandResponse struct {
+	BrandResponse
+	LogoObjectKey string                           `json:"logo_object_key"`
+	Translations  map[string]BrandTranslationInput `json:"translations"`
 }
 
-func (s *BrandService) toResponse(row *model.BrandInfoTranslation) BrandResponse {
-	return BrandResponse{
-		Locale:       row.Locale,
-		Name:         row.Name,
-		Tagline:      row.Tagline,
-		About:        row.About,
-		AddressLine1: row.AddressLine1,
-		AddressLine2: row.AddressLine2,
-		AddressLine3: row.AddressLine3,
-		Phone:        row.Phone,
-		Email:        row.Email,
-	}
-}
-
-func (s *BrandService) GetAll(ctx context.Context) (map[string]BrandResponse, error) {
-	rows, err := s.repo.List(ctx)
-	if err != nil {
-		return nil, err
-	}
-	out := make(map[string]BrandResponse, len(rows))
-	for i := range rows {
-		out[rows[i].Locale] = s.toResponse(&rows[i])
-	}
-	return out, nil
-}
-
-func (s *BrandService) GetPublic(ctx context.Context, locale string) (*BrandResponse, error) {
-	row, err := s.repo.FindByLocale(ctx, locale)
-	if err != nil {
-		if errors.Is(err, repository.ErrBrandNotFound) && locale != model.LocaleEN {
-			return s.GetPublic(ctx, model.LocaleEN)
+func pickBrandTranslation(b *model.Brand, locale string) *model.BrandTranslation {
+	for i := range b.Translations {
+		if b.Translations[i].Locale == locale {
+			return &b.Translations[i]
 		}
-		return nil, err
 	}
-	resp := s.toResponse(row)
-	return &resp, nil
+	if locale != model.LocaleEN {
+		for i := range b.Translations {
+			if b.Translations[i].Locale == model.LocaleEN {
+				return &b.Translations[i]
+			}
+		}
+	}
+	if len(b.Translations) > 0 {
+		return &b.Translations[0]
+	}
+	return nil
 }
 
-func validateBrandInput(locale string, in BrandInput) error {
-	if locale == model.LocaleEN {
+func (s *BrandService) logoURL(b *model.Brand) string {
+	if b.LogoObjectKey == "" {
+		return ""
+	}
+	return s.store.PublicURL(b.LogoObjectKey)
+}
+
+func (s *BrandService) translationsMap(b *model.Brand) map[string]BrandTranslationInput {
+	out := make(map[string]BrandTranslationInput)
+	for _, tr := range b.Translations {
+		out[tr.Locale] = BrandTranslationInput{Name: tr.Name, Description: tr.Description}
+	}
+	return out
+}
+
+func (s *BrandService) toResponse(b *model.Brand, locale string) BrandResponse {
+	resp := BrandResponse{
+		ID:          b.ID,
+		LogoURL:     s.logoURL(b),
+		WebsiteURL:  b.WebsiteURL,
+		SortOrder:   b.SortOrder,
+		IsPublished: b.IsPublished,
+	}
+	if tr := pickBrandTranslation(b, locale); tr != nil {
+		resp.Name = tr.Name
+		resp.Description = tr.Description
+	}
+	return resp
+}
+
+func (s *BrandService) toAdminResponse(b *model.Brand, inUse bool) AdminBrandResponse {
+	base := s.toResponse(b, model.LocaleEN)
+	base.InUse = inUse
+	return AdminBrandResponse{
+		BrandResponse: base,
+		LogoObjectKey: b.LogoObjectKey,
+		Translations:  s.translationsMap(b),
+	}
+}
+
+func (s *BrandService) validateInput(in BrandInput) error {
+	en, ok := in.Translations[model.LocaleEN]
+	if !ok || strings.TrimSpace(en.Name) == "" {
+		return errors.New("english name is required")
+	}
+	return nil
+}
+
+func (s *BrandService) upsertTranslations(ctx context.Context, brandID uuid.UUID, translations map[string]BrandTranslationInput) error {
+	for loc, in := range translations {
 		if strings.TrimSpace(in.Name) == "" {
-			return errors.New("english name is required")
+			continue
 		}
-		if strings.TrimSpace(in.Email) == "" {
-			return errors.New("english email is required")
+		if loc != model.LocaleEN && loc != model.LocaleFA {
+			continue
 		}
-	}
-	email := strings.TrimSpace(in.Email)
-	if email != "" {
-		if _, err := mail.ParseAddress(email); err != nil {
-			return errors.New("invalid email address")
+		tr := &model.BrandTranslation{
+			BrandID:     brandID,
+			Locale:      loc,
+			Name:        strings.TrimSpace(in.Name),
+			Description: strings.TrimSpace(in.Description),
+		}
+		if err := s.repo.UpsertTranslation(ctx, tr); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func inputToModel(locale string, in BrandInput) *model.BrandInfoTranslation {
-	return &model.BrandInfoTranslation{
-		Locale:       locale,
-		Name:         strings.TrimSpace(in.Name),
-		Tagline:      strings.TrimSpace(in.Tagline),
-		About:        strings.TrimSpace(in.About),
-		AddressLine1: strings.TrimSpace(in.AddressLine1),
-		AddressLine2: strings.TrimSpace(in.AddressLine2),
-		AddressLine3: strings.TrimSpace(in.AddressLine3),
-		Phone:        strings.TrimSpace(in.Phone),
-		Email:        strings.TrimSpace(in.Email),
-	}
-}
-
-func isEmptyBrandInput(in BrandInput) bool {
-	return strings.TrimSpace(in.Name) == "" &&
-		strings.TrimSpace(in.Tagline) == "" &&
-		strings.TrimSpace(in.About) == "" &&
-		strings.TrimSpace(in.AddressLine1) == "" &&
-		strings.TrimSpace(in.AddressLine2) == "" &&
-		strings.TrimSpace(in.AddressLine3) == "" &&
-		strings.TrimSpace(in.Phone) == "" &&
-		strings.TrimSpace(in.Email) == ""
-}
-
-func (s *BrandService) Update(ctx context.Context, actorID uuid.UUID, in BrandUpdateInput) (map[string]BrandResponse, error) {
-	en, ok := in.Translations[model.LocaleEN]
-	if !ok {
-		return nil, errors.New("english translation is required")
-	}
-	if err := validateBrandInput(model.LocaleEN, en); err != nil {
+func (s *BrandService) ListPublic(ctx context.Context, locale string) ([]BrandResponse, error) {
+	brands, err := s.repo.ListPublished(ctx)
+	if err != nil {
 		return nil, err
 	}
-	if err := s.repo.Upsert(ctx, inputToModel(model.LocaleEN, en)); err != nil {
-		return nil, err
+	out := make([]BrandResponse, 0, len(brands))
+	for i := range brands {
+		resp := s.toResponse(&brands[i], locale)
+		resp.InUse = false
+		out = append(out, resp)
 	}
-
-	if fa, ok := in.Translations[model.LocaleFA]; ok {
-		if err := validateBrandInput(model.LocaleFA, fa); err != nil {
-			return nil, err
-		}
-		if !isEmptyBrandInput(fa) {
-			if err := s.repo.Upsert(ctx, inputToModel(model.LocaleFA, fa)); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	s.audit.Log(ctx, actorID, "brand_info.update", "brand_info", uuid.Nil, nil)
-	return s.GetAll(ctx)
+	return out, nil
 }
 
-func (s *BrandService) SeedDefaults(ctx context.Context) error {
-	count, err := s.repo.Count(ctx)
+func (s *BrandService) List(ctx context.Context) ([]AdminBrandResponse, error) {
+	brands, err := s.repo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AdminBrandResponse, len(brands))
+	for i := range brands {
+		inUse, _ := s.repo.IsReferenced(ctx, brands[i].ID)
+		out[i] = s.toAdminResponse(&brands[i], inUse)
+	}
+	return out, nil
+}
+
+func (s *BrandService) Get(ctx context.Context, id uuid.UUID) (*AdminBrandResponse, error) {
+	b, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	inUse, _ := s.repo.IsReferenced(ctx, id)
+	resp := s.toAdminResponse(b, inUse)
+	return &resp, nil
+}
+
+func (s *BrandService) Create(ctx context.Context, actorID uuid.UUID, in BrandInput) (*AdminBrandResponse, error) {
+	if err := s.validateInput(in); err != nil {
+		return nil, err
+	}
+	b := &model.Brand{
+		LogoObjectKey: strings.TrimSpace(in.LogoObjectKey),
+		WebsiteURL:    strings.TrimSpace(in.WebsiteURL),
+		SortOrder:     in.SortOrder,
+		IsPublished:   in.IsPublished,
+	}
+	if err := s.repo.Create(ctx, b); err != nil {
+		return nil, err
+	}
+	if err := s.upsertTranslations(ctx, b.ID, in.Translations); err != nil {
+		return nil, err
+	}
+	s.audit.Log(ctx, actorID, "brand.create", "brand", b.ID, nil)
+	return s.Get(ctx, b.ID)
+}
+
+func (s *BrandService) Update(ctx context.Context, actorID, id uuid.UUID, in BrandInput) (*AdminBrandResponse, error) {
+	if err := s.validateInput(in); err != nil {
+		return nil, err
+	}
+	b, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	oldLogo := b.LogoObjectKey
+	newLogo := strings.TrimSpace(in.LogoObjectKey)
+	b.LogoObjectKey = newLogo
+	b.WebsiteURL = strings.TrimSpace(in.WebsiteURL)
+	b.SortOrder = in.SortOrder
+	b.IsPublished = in.IsPublished
+	if err := s.repo.Update(ctx, b); err != nil {
+		return nil, err
+	}
+	if err := s.upsertTranslations(ctx, b.ID, in.Translations); err != nil {
+		return nil, err
+	}
+	if oldLogo != "" && oldLogo != newLogo {
+		_ = s.store.Delete(ctx, oldLogo)
+	}
+	s.audit.Log(ctx, actorID, "brand.update", "brand", b.ID, nil)
+	return s.Get(ctx, id)
+}
+
+func (s *BrandService) Delete(ctx context.Context, actorID, id uuid.UUID) error {
+	inUse, err := s.repo.IsReferenced(ctx, id)
 	if err != nil {
 		return err
 	}
-	if count > 0 {
-		return nil
+	if inUse {
+		return ErrBrandInUse
 	}
-	defaults := []model.BrandInfoTranslation{
-		{
-			Locale:       model.LocaleEN,
-			Name:         "Art Ceramic",
-			Tagline:      "Custom tile designs for every space",
-			About:        "Art Ceramic is a tile design studio specializing in patterns, glazes, and formats for kitchens, bathrooms, and architectural surfaces. Each design is available in multiple sizes — browse the catalog to find the right look for your project.",
-			AddressLine1: "42 Kiln Street",
-			AddressLine2: "Pottery District",
-			AddressLine3: "Portland, OR 97201",
-			Phone:        "+1 (555) 123-4567",
-			Email:        "hello@artceramic.example",
-		},
-		{
-			Locale:       model.LocaleFA,
-			Name:         "آرت سرامیک",
-			Tagline:      "طرح‌های کاشی سفارشی برای هر فضا",
-			About:        "آرت سرامیک استودیوی طراحی کاشی است که در نقش‌ها، لعاب‌ها و ابعاد مختلف برای آشپزخانه، حمام و سطوح معماری تخصص دارد. هر طرح در چند سایز موجود است — کاتالوگ را مرور کنید تا طرح مناسب پروژه خود را پیدا کنید.",
-			AddressLine1: "خیابان کوره ۴۲",
-			AddressLine2: "محله سفالگری",
-			AddressLine3: "پورتلند، OR 97201",
-			Phone:        "+1 (555) 123-4567",
-			Email:        "hello@artceramic.example",
-		},
+	b, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
 	}
-	for i := range defaults {
-		if err := s.repo.Upsert(ctx, &defaults[i]); err != nil {
-			return err
-		}
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
 	}
+	if b.LogoObjectKey != "" {
+		_ = s.store.Delete(ctx, b.LogoObjectKey)
+	}
+	s.audit.Log(ctx, actorID, "brand.delete", "brand", id, nil)
 	return nil
 }

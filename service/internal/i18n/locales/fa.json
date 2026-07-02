@@ -16,5 +16,7 @@
   { "id": "error.validation", "translation": "اعتبارسنجی ناموفق بود" },
   { "id": "error.size_in_use", "translation": "این سایز در حال استفاده است و قابل تغییر یا حذف نیست" },
   { "id": "error.size_not_found", "translation": "سایز یافت نشد" },
-  { "id": "error.design_not_found", "translation": "طرح یافت نشد" }
+  { "id": "error.design_not_found", "translation": "طرح یافت نشد" },
+  { "id": "error.brand_not_found", "translation": "برند یافت نشد" },
+  { "id": "error.brand_in_use", "translation": "این برند به طرح‌ها اختصاص داده شده و قابل حذف نیست" }
 ]

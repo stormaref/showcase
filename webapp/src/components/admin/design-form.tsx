@@ -6,6 +6,7 @@ import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
 import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
 import type {
+  AdminBrand,
   AdminDesignType,
   AdminSurfaceFinish,
   Design,
@@ -31,6 +32,7 @@ type DesignFormProps = {
   sizes: TileSize[];
   types: AdminDesignType[];
   finishes: AdminSurfaceFinish[];
+  brands: AdminBrand[];
   initial?: Design;
   onSubmit: (payload: Record<string, unknown>) => Promise<void>;
   submitLabel: string;
@@ -118,10 +120,15 @@ function selectedFinishIdsFromDesign(design?: Design): string[] {
   return (design.finishes ?? []).map((f) => f.id);
 }
 
+function brandLabel(b: AdminBrand): string {
+  return b.translations?.en?.name ?? b.name;
+}
+
 export function DesignForm({
   sizes,
   types,
   finishes,
+  brands,
   initial,
   onSubmit,
   submitLabel,
@@ -142,6 +149,7 @@ export function DesignForm({
   const [images, setImages] = useState<PendingImage[]>(() => imagesFromDesign(initial));
   const [sortOrder, setSortOrder] = useState(initial?.sort_order ?? 0);
   const [isPublished, setIsPublished] = useState(initial?.is_published ?? true);
+  const [brandId, setBrandId] = useState<string>(initial?.brand_id ?? "");
   const [uploadError, setUploadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
@@ -220,6 +228,7 @@ export function DesignForm({
     const payload: Record<string, unknown> = {
       sort_order: sortOrder,
       is_published: isPublished,
+      brand_id: brandId || null,
       size_ids: selectedSizeIds,
       type_ids: selectedTypeIds,
       finish_ids: selectedFinishIds,
@@ -338,6 +347,22 @@ export function DesignForm({
           </label>
         </div>
       </div>
+
+      <label className="block text-sm font-medium">
+        Brand
+        <select
+          value={brandId}
+          onChange={(e) => setBrandId(e.target.value)}
+          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm"
+        >
+          <option value="">No brand</option>
+          {brands.map((b) => (
+            <option key={b.id} value={b.id}>
+              {brandLabel(b)}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <fieldset className="rounded-xl border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Available sizes</legend>

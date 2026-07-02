@@ -50,6 +50,22 @@ export async function DesignDetail({ design }: DesignDetailProps) {
       </section>
 
       <header className="mt-10 max-w-2xl">
+        {design.brand && (
+          <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
+            {design.brand.website_url ? (
+              <a
+                href={design.brand.website_url}
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-gray-600"
+              >
+                {design.brand.name}
+              </a>
+            ) : (
+              design.brand.name
+            )}
+          </p>
+        )}
         <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
           {design.title}
         </h1>

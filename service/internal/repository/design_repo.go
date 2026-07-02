@@ -39,6 +39,8 @@ func (r *DesignRepository) preloadFinishesAll(q *gorm.DB) *gorm.DB {
 
 func (r *DesignRepository) preloadForList(q *gorm.DB, locale string) *gorm.DB {
 	return r.preloadFinishes(q, locale).
+		Preload("Brand").
+		Preload("Brand.Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -49,6 +51,8 @@ func (r *DesignRepository) preloadForList(q *gorm.DB, locale string) *gorm.DB {
 
 func (r *DesignRepository) preloadForAdminList(q *gorm.DB) *gorm.DB {
 	return r.preloadFinishesAll(q).
+		Preload("Brand").
+		Preload("Brand.Translations").
 		Preload("Translations").
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -59,6 +63,8 @@ func (r *DesignRepository) preloadForAdminList(q *gorm.DB) *gorm.DB {
 
 func (r *DesignRepository) preloadFull(q *gorm.DB, locale string) *gorm.DB {
 	return r.preloadFinishes(q, locale).
+		Preload("Brand").
+		Preload("Brand.Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -90,6 +96,8 @@ func (r *DesignRepository) ListAll(ctx context.Context) ([]model.Design, error) 
 func (r *DesignRepository) FindByID(ctx context.Context, id uuid.UUID) (*model.Design, error) {
 	var item model.Design
 	err := r.preloadFinishesAll(r.db.WithContext(ctx)).
+		Preload("Brand").
+		Preload("Brand.Translations").
 		Preload("Translations").
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {

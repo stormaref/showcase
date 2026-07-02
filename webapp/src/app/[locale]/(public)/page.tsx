@@ -3,8 +3,10 @@ import { routing, type Locale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { DesignGrid } from "@/components/design-grid";
+import { BrandGrid } from "@/components/brand-grid";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
 import { getBrandInfo, phoneTelHref } from "@/lib/brand-info";
+import { getBrands } from "@/lib/brands";
 import { buildPageMetadata } from "@/lib/metadata";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -29,6 +31,7 @@ export default async function HomePage({ params }: PageProps) {
   }
   const t = await getTranslations("home");
   const brand = await getBrandInfo(locale);
+  const brands = await getBrands(locale);
 
   const services = [
     { title: t("services.tilesTitle"), description: t("services.tilesDesc") },
@@ -94,6 +97,24 @@ export default async function HomePage({ params }: PageProps) {
           </p>
         </div>
       </section>
+
+      {brands.length > 0 && (
+        <section className="border-t border-gray-100 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-center text-2xl font-semibold tracking-tight text-gray-900">
+              {t("brandsTitle")}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-center text-gray-500">
+              {t("brandsSubtitle")}
+            </p>
+            <BrandGrid
+              brands={brands}
+              visitLabel={t("brandsVisit")}
+              className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            />
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-center text-2xl font-semibold tracking-tight text-gray-900">

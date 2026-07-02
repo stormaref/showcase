@@ -7,6 +7,8 @@
     "homeDescription": "آرت سرامیک — کاتالوگ طرح‌های کاشی، سایزهای موجود و الهام پروژه را ببینید.",
     "designsTitle": "طرح",
     "designsDescription": "طرح‌ها، نقش‌ها و سایزهای کاشی آرت سرامیک را مرور کنید.",
+    "brandsTitle": "برندها",
+    "brandsDescription": "خانواده برندهای متعلق به آرت سرامیک.",
     "blogTitle": "وبلاگ",
     "blogDescription": "اخبار، تکنیک‌ها و به‌روزرسانی‌های آرت سرامیک.",
     "postNotFound": "مطلب یافت نشد",
@@ -15,6 +17,7 @@
   "nav": {
     "home": "خانه",
     "designs": "طرح",
+    "brands": "برندها",
     "blog": "وبلاگ",
     "localeEn": "English",
     "localeFa": "فارسی",
@@ -26,6 +29,9 @@
     "viewDesigns": "مرور طرح‌ها",
     "readBlog": "خواندن وبلاگ",
     "aboutTitle": "درباره ما",
+    "brandsTitle": "برندهای ما",
+    "brandsSubtitle": "خانواده برندهایی که پشت کار ما هستند.",
+    "brandsVisit": "مشاهده",
     "servicesTitle": "خدمات ما",
     "servicesSubtitle": "آنچه در استودیو و برای پروژه‌های شما ارائه می‌دهیم.",
     "contactTitle": "تماس",
@@ -58,6 +64,13 @@
     "filterByFinish": "فیلتر بر اساس پرداخت سطح",
     "clearFilters": "پاک کردن فیلترها",
     "noMatches": "هیچ طرحی با فیلترهای انتخاب‌شده مطابقت ندارد."
+  },
+  "brands": {
+    "eyebrow": "برندهای ما",
+    "title": "برندها",
+    "subtitle": "خانواده برندهای متعلق به شرکت.",
+    "empty": "هنوز برندی منتشر نشده است.",
+    "visit": "مشاهده"
   },
   "designDetail": {
     "backToCatalog": "بازگشت به کاتالوگ",
