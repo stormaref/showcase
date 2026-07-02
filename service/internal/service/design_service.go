@@ -17,6 +17,7 @@ type DesignService struct {
 	sizeRepo   *repository.SizeRepository
 	typeRepo   *repository.TypeRepository
 	finishRepo *repository.FinishRepository
+	brandRepo  *repository.BrandRepository
 	store      storage.ObjectStore
 	audit      *AuditService
 }
@@ -26,10 +27,11 @@ func NewDesignService(
 	sizeRepo *repository.SizeRepository,
 	typeRepo *repository.TypeRepository,
 	finishRepo *repository.FinishRepository,
+	brandRepo *repository.BrandRepository,
 	store storage.ObjectStore,
 	audit *AuditService,
 ) *DesignService {
-	return &DesignService{repo: repo, sizeRepo: sizeRepo, typeRepo: typeRepo, finishRepo: finishRepo, store: store, audit: audit}
+	return &DesignService{repo: repo, sizeRepo: sizeRepo, typeRepo: typeRepo, finishRepo: finishRepo, brandRepo: brandRepo, store: store, audit: audit}
 }
 
 type DesignTranslationInput struct {
@@ -47,13 +49,14 @@ type DesignImageInput struct {
 }
 
 type DesignInput struct {
-	SortOrder    int                                `json:"sort_order"`
-	IsPublished  bool                               `json:"is_published"`
-	SizeIDs      []uuid.UUID                        `json:"size_ids"`
-	TypeIDs      []uuid.UUID                        `json:"type_ids"`
-	FinishIDs    []uuid.UUID                        `json:"finish_ids"`
-	Images       []DesignImageInput                 `json:"images"`
-	Translations map[string]DesignTranslationInput  `json:"translations"`
+	SortOrder    int                               `json:"sort_order"`
+	IsPublished  bool                              `json:"is_published"`
+	BrandID      *uuid.UUID                        `json:"brand_id"`
+	SizeIDs      []uuid.UUID                       `json:"size_ids"`
+	TypeIDs      []uuid.UUID                       `json:"type_ids"`
+	FinishIDs    []uuid.UUID                       `json:"finish_ids"`
+	Images       []DesignImageInput                `json:"images"`
+	Translations map[string]DesignTranslationInput `json:"translations"`
 }
 
 type DesignImageResponse struct {
@@ -67,23 +70,32 @@ type DesignImageResponse struct {
 	SortOrder      int        `json:"sort_order"`
 }
 
+type DesignBrandRef struct {
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	LogoURL    string    `json:"logo_url,omitempty"`
+	WebsiteURL string    `json:"website_url,omitempty"`
+}
+
 type DesignResponse struct {
-	ID               uuid.UUID           `json:"id"`
-	Title            string              `json:"title"`
-	Caption          string              `json:"caption"`
-	AltText          string              `json:"alt_text"`
-	Locale           string              `json:"locale,omitempty"`
-	Sizes            []SizeResponse      `json:"sizes"`
-	Types            []TypeResponse      `json:"types"`
-	Finishes         []FinishResponse    `json:"finishes"`
-	Images           []DesignImageResponse `json:"images"`
-	PrimaryImageURL  string              `json:"primary_image_url"`
-	PrimaryThumbURL  string              `json:"primary_thumb_url"`
-	SortOrder        int                 `json:"sort_order"`
-	IsPublished      bool                `json:"is_published"`
-	HasFA            bool                `json:"has_fa,omitempty"`
-	ImageCount       int                 `json:"image_count,omitempty"`
-	CreatedAt        string              `json:"created_at,omitempty"`
+	ID              uuid.UUID             `json:"id"`
+	Title           string                `json:"title"`
+	Caption         string                `json:"caption"`
+	AltText         string                `json:"alt_text"`
+	Locale          string                `json:"locale,omitempty"`
+	BrandID         *uuid.UUID            `json:"brand_id,omitempty"`
+	Brand           *DesignBrandRef       `json:"brand,omitempty"`
+	Sizes           []SizeResponse        `json:"sizes"`
+	Types           []TypeResponse        `json:"types"`
+	Finishes        []FinishResponse      `json:"finishes"`
+	Images          []DesignImageResponse `json:"images"`
+	PrimaryImageURL string                `json:"primary_image_url"`
+	PrimaryThumbURL string                `json:"primary_thumb_url"`
+	SortOrder       int                   `json:"sort_order"`
+	IsPublished     bool                  `json:"is_published"`
+	HasFA           bool                  `json:"has_fa,omitempty"`
+	ImageCount      int                   `json:"image_count,omitempty"`
+	CreatedAt       string                `json:"created_at,omitempty"`
 }
 
 type AdminDesignResponse struct {
@@ -181,6 +193,24 @@ func hasDesignTranslation(translations []model.DesignTranslation, locale string)
 	return false
 }
 
+func (s *DesignService) applyBrand(resp *DesignResponse, design *model.Design, locale string) {
+	resp.BrandID = design.BrandID
+	if design.Brand == nil {
+		return
+	}
+	ref := DesignBrandRef{
+		ID:         design.Brand.ID,
+		WebsiteURL: design.Brand.WebsiteURL,
+	}
+	if design.Brand.LogoObjectKey != "" {
+		ref.LogoURL = s.store.PublicURL(design.Brand.LogoObjectKey)
+	}
+	if tr := pickBrandTranslation(design.Brand, locale); tr != nil {
+		ref.Name = tr.Name
+	}
+	resp.Brand = &ref
+}
+
 func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation, resolvedLocale string) DesignResponse {
 	images := make([]DesignImageResponse, len(design.Images))
 	for i := range design.Images {
@@ -200,6 +230,7 @@ func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation
 		IsPublished:     design.IsPublished,
 		Locale:          resolvedLocale,
 	}
+	s.applyBrand(&resp, design, resolvedLocale)
 	if tr != nil {
 		resp.Title = tr.Title
 		resp.Caption = tr.Caption
@@ -226,6 +257,7 @@ func (s *DesignService) enrichList(
 		IsPublished: design.IsPublished,
 		Locale:      resolvedLocale,
 	}
+	s.applyBrand(&resp, design, resolvedLocale)
 	if primary != nil {
 		imgResp := s.imageResponse(primary)
 		resp.PrimaryImageURL = imgResp.ImageURL
@@ -252,6 +284,15 @@ func (s *DesignService) translationsMap(design *model.Design) map[string]DesignT
 }
 
 func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error {
+	if in.BrandID != nil {
+		ok, err := s.brandRepo.Exists(ctx, *in.BrandID)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("brand ID is invalid")
+		}
+	}
 	if len(in.SizeIDs) > 0 {
 		ok, err := s.sizeRepo.ExistsAll(ctx, in.SizeIDs)
 		if err != nil {
@@ -453,6 +494,7 @@ func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in Design
 	design := &model.Design{
 		SortOrder:   in.SortOrder,
 		IsPublished: in.IsPublished,
+		BrandID:     in.BrandID,
 	}
 	if err := s.repo.Create(ctx, design); err != nil {
 		return nil, err
@@ -485,6 +527,7 @@ func (s *DesignService) Update(ctx context.Context, actorID, id uuid.UUID, in De
 	}
 	design.SortOrder = in.SortOrder
 	design.IsPublished = in.IsPublished
+	design.BrandID = in.BrandID
 	if err := s.repo.Update(ctx, design); err != nil {
 		return nil, err
 	}

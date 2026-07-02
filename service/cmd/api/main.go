@@ -74,6 +74,8 @@ func main() {
 		&model.RefreshToken{},
 		&model.AuditLog{},
 		&model.BrandInfoTranslation{},
+		&model.Brand{},
+		&model.BrandTranslation{},
 	); err != nil {
 		log.Fatalf("migrate: %v", err)
 	}
@@ -100,37 +102,40 @@ func main() {
 	sizeRepo := repository.NewSizeRepository(db)
 	typeRepo := repository.NewTypeRepository(db)
 	finishRepo := repository.NewFinishRepository(db)
+	brandInfoRepo := repository.NewBrandInfoRepository(db)
 	brandRepo := repository.NewBrandRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	auditSvc := service.NewAuditService(auditRepo)
 	authSvc := service.NewAuthService(cfg, adminRepo, tokenRepo, auditSvc)
 	postSvc := service.NewPostService(postRepo, store, auditSvc)
-	designSvc := service.NewDesignService(designRepo, sizeRepo, typeRepo, finishRepo, store, auditSvc)
+	designSvc := service.NewDesignService(designRepo, sizeRepo, typeRepo, finishRepo, brandRepo, store, auditSvc)
 	sizeSvc := service.NewSizeService(sizeRepo)
 	typeSvc := service.NewTypeService(typeRepo)
 	finishSvc := service.NewFinishService(finishRepo)
-	brandSvc := service.NewBrandService(brandRepo, auditSvc)
+	brandInfoSvc := service.NewBrandInfoService(brandInfoRepo, auditSvc)
+	brandSvc := service.NewBrandService(brandRepo, store, auditSvc)
 	uploadSvc := service.NewUploadService(cfg, store)
 
 	if err := authSvc.BootstrapAdmin(ctx); err != nil {
 		log.Fatalf("bootstrap admin: %v", err)
 	}
-	if err := brandSvc.SeedDefaults(ctx); err != nil {
+	if err := brandInfoSvc.SeedDefaults(ctx); err != nil {
 		log.Fatalf("seed brand info: %v", err)
 	}
 
 	handlers := router.Handlers{
-		Health:  handler.NewHealthHandler(db, store),
-		Auth:    handler.NewAuthHandler(cfg, authSvc),
-		Posts:   handler.NewPostHandler(postSvc),
-		Designs: handler.NewDesignHandler(designSvc),
-		Sizes:   handler.NewSizeHandler(sizeSvc),
-		Types:    handler.NewTypeHandler(typeSvc),
-		Finishes: handler.NewFinishHandler(finishSvc),
-		Brand:    handler.NewBrandHandler(brandSvc),
-		Upload:  handler.NewUploadHandler(uploadSvc),
-		Audit:   handler.NewAuditHandler(auditSvc),
+		Health:    handler.NewHealthHandler(db, store),
+		Auth:      handler.NewAuthHandler(cfg, authSvc),
+		Posts:     handler.NewPostHandler(postSvc),
+		Designs:   handler.NewDesignHandler(designSvc),
+		Sizes:     handler.NewSizeHandler(sizeSvc),
+		Types:     handler.NewTypeHandler(typeSvc),
+		Finishes:  handler.NewFinishHandler(finishSvc),
+		BrandInfo: handler.NewBrandInfoHandler(brandInfoSvc),
+		Brands:    handler.NewBrandHandler(brandSvc),
+		Upload:    handler.NewUploadHandler(uploadSvc),
+		Audit:     handler.NewAuditHandler(auditSvc),
 	}
 
 	engine := router.New(cfg, handlers)

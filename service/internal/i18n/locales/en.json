@@ -16,5 +16,7 @@
   { "id": "error.validation", "translation": "Validation failed" },
   { "id": "error.size_in_use", "translation": "This size is in use and cannot be modified or deleted" },
   { "id": "error.size_not_found", "translation": "Size not found" },
-  { "id": "error.design_not_found", "translation": "Design not found" }
+  { "id": "error.design_not_found", "translation": "Design not found" },
+  { "id": "error.brand_not_found", "translation": "Brand not found" },
+  { "id": "error.brand_in_use", "translation": "This brand is assigned to designs and cannot be deleted" }
 ]

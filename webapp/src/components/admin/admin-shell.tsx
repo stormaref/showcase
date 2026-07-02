@@ -14,10 +14,11 @@ const nav = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/posts", label: "Blog posts" },
   { href: "/admin/designs", label: "Designs" },
+  { href: "/admin/brands", label: "Brands" },
   { href: "/admin/sizes", label: "Tile sizes" },
   { href: "/admin/types", label: "Tile categories" },
   { href: "/admin/finishes", label: "Surface finishes" },
-  { href: "/admin/brand", label: "Brand info" },
+  { href: "/admin/company", label: "Company info" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

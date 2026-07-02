@@ -102,6 +102,29 @@ export type AdminSurfaceFinish = SurfaceFinish & {
   translations?: Record<string, { name: string }>;
 };
 
+export type Brand = {
+  id: string;
+  name: string;
+  description: string;
+  logo_url?: string;
+  website_url?: string;
+  sort_order: number;
+  is_published: boolean;
+  in_use?: boolean;
+};
+
+export type AdminBrand = Brand & {
+  logo_object_key: string;
+  translations?: Record<string, { name: string; description: string }>;
+};
+
+export type DesignBrandRef = {
+  id: string;
+  name: string;
+  logo_url?: string;
+  website_url?: string;
+};
+
 export type DesignImage = {
   id?: string;
   size_id?: string | null;
@@ -119,6 +142,8 @@ export type Design = {
   caption: string;
   alt_text: string;
   locale?: string;
+  brand_id?: string | null;
+  brand?: DesignBrandRef;
   sizes: TileSize[];
   types: DesignType[];
   finishes?: SurfaceFinish[];

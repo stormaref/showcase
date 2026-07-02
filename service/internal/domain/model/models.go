@@ -77,12 +77,14 @@ func (t *BlogPostTranslation) BeforeCreate(tx *gorm.DB) error {
 }
 
 type Design struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	SortOrder   int       `gorm:"index:idx_designs_published_sort,priority:2;default:0" json:"sort_order"`
-	IsPublished bool      `gorm:"index:idx_designs_published_sort,priority:1;default:false" json:"is_published"`
-	CreatedAt   time.Time `gorm:"index:idx_designs_published_sort,priority:3" json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
+	BrandID     *uuid.UUID `gorm:"type:uuid;index" json:"brand_id"`
+	SortOrder   int        `gorm:"index:idx_designs_published_sort,priority:2;default:0" json:"sort_order"`
+	IsPublished bool       `gorm:"index:idx_designs_published_sort,priority:1;default:false" json:"is_published"`
+	CreatedAt   time.Time  `gorm:"index:idx_designs_published_sort,priority:3" json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 
+	Brand        *Brand              `gorm:"foreignKey:BrandID" json:"brand,omitempty"`
 	Translations []DesignTranslation `gorm:"foreignKey:DesignID" json:"translations,omitempty"`
 	Sizes        []TileSize          `gorm:"many2many:design_sizes;joinReferences:size_id" json:"sizes,omitempty"`
 	Types        []DesignType        `gorm:"many2many:design_types;joinReferences:type_id" json:"types,omitempty"`
@@ -290,6 +292,44 @@ type BrandInfoTranslation struct {
 func (b *BrandInfoTranslation) BeforeCreate(tx *gorm.DB) error {
 	if b.ID == uuid.Nil {
 		b.ID = uuid.New()
+	}
+	return nil
+}
+
+// Brand is one of the multiple brands owned by the company and listed on the
+// public site. Each Design may belong to a Brand.
+type Brand struct {
+	ID            uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	LogoObjectKey string    `gorm:"size:500" json:"logo_object_key"`
+	WebsiteURL    string    `gorm:"size:500" json:"website_url"`
+	SortOrder     int       `gorm:"index:idx_brands_published_sort,priority:2;default:0" json:"sort_order"`
+	IsPublished   bool      `gorm:"index:idx_brands_published_sort,priority:1;default:true" json:"is_published"`
+	CreatedAt     time.Time `gorm:"index:idx_brands_published_sort,priority:3" json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+
+	Translations []BrandTranslation `gorm:"foreignKey:BrandID" json:"translations,omitempty"`
+}
+
+func (b *Brand) BeforeCreate(tx *gorm.DB) error {
+	if b.ID == uuid.Nil {
+		b.ID = uuid.New()
+	}
+	return nil
+}
+
+type BrandTranslation struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	BrandID     uuid.UUID `gorm:"type:uuid;index:idx_brand_locale,unique;not null" json:"brand_id"`
+	Locale      string    `gorm:"size:5;index:idx_brand_locale,unique;not null" json:"locale"`
+	Name        string    `gorm:"size:255;not null" json:"name"`
+	Description string    `gorm:"type:text" json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+func (t *BrandTranslation) BeforeCreate(tx *gorm.DB) error {
+	if t.ID == uuid.Nil {
+		t.ID = uuid.New()
 	}
 	return nil
 }

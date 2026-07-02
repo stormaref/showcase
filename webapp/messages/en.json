@@ -7,6 +7,8 @@
     "homeDescription": "Art Ceramic — explore our tile design catalog, available sizes, and project inspiration.",
     "designsTitle": "Design",
     "designsDescription": "Browse tile designs, patterns, and available sizes from Art Ceramic.",
+    "brandsTitle": "Brands",
+    "brandsDescription": "The family of brands owned by Art Ceramic.",
     "blogTitle": "Blog",
     "blogDescription": "News, techniques, and updates from Art Ceramic.",
     "postNotFound": "Post not found",
@@ -15,6 +17,7 @@
   "nav": {
     "home": "Home",
     "designs": "Design",
+    "brands": "Brands",
     "blog": "Blog",
     "localeEn": "English",
     "localeFa": "فارسی",
@@ -26,6 +29,9 @@
     "viewDesigns": "Browse designs",
     "readBlog": "Read blog",
     "aboutTitle": "About us",
+    "brandsTitle": "Our brands",
+    "brandsSubtitle": "The family of brands behind our work.",
+    "brandsVisit": "Visit",
     "servicesTitle": "Our services",
     "servicesSubtitle": "What we offer at the studio and for your projects.",
     "contactTitle": "Contact",
@@ -58,6 +64,13 @@
     "filterByFinish": "Filter by finish",
     "clearFilters": "Clear filters",
     "noMatches": "No designs match the selected filters."
+  },
+  "brands": {
+    "eyebrow": "Our brands",
+    "title": "Brands",
+    "subtitle": "The family of brands owned by the company.",
+    "empty": "No brands published yet.",
+    "visit": "Visit"
   },
   "designDetail": {
     "backToCatalog": "Back to catalog",
