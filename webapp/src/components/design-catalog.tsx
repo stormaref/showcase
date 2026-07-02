@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { DesignBrandFilter } from "@/components/design-brand-filter";
 import { DesignFinishFilter } from "@/components/design-finish-filter";
 import { DesignGrid } from "@/components/design-grid";
 import { DesignSizeFilter } from "@/components/design-size-filter";
@@ -11,10 +12,12 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Design } from "@/lib/api";
 import {
   buildFilterQuery,
+  collectBrandsFromDesigns,
   collectFinishesFromDesigns,
   collectSizesFromDesigns,
   collectTypesFromDesigns,
   filterDesigns,
+  parseBrandParam,
   parseFinishParam,
   parseSizeParam,
   parseTypeParam,
@@ -33,6 +36,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   const availableSizes = useMemo(() => collectSizesFromDesigns(items), [items]);
   const availableTypes = useMemo(() => collectTypesFromDesigns(items), [items]);
   const availableFinishes = useMemo(() => collectFinishesFromDesigns(items), [items]);
+  const availableBrands = useMemo(() => collectBrandsFromDesigns(items), [items]);
   const validSizeIds = useMemo(
     () => new Set(availableSizes.map((s) => s.id)),
     [availableSizes],
@@ -44,6 +48,10 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   const validFinishIds = useMemo(
     () => new Set(availableFinishes.map((f) => f.id)),
     [availableFinishes],
+  );
+  const validBrandIds = useMemo(
+    () => new Set(availableBrands.map((b) => b.id)),
+    [availableBrands],
   );
 
   const selectedSizeIds = useMemo(
@@ -58,14 +66,30 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     () => parseFinishParam(searchParams, validFinishIds),
     [searchParams, validFinishIds],
   );
-
-  const filteredItems = useMemo(
-    () => filterDesigns(items, selectedSizeIds, selectedTypeIds, selectedFinishIds),
-    [items, selectedSizeIds, selectedTypeIds, selectedFinishIds],
+  const selectedBrandIds = useMemo(
+    () => parseBrandParam(searchParams, validBrandIds),
+    [searchParams, validBrandIds],
   );
 
-  function updateFilters(sizes: Set<string>, types: Set<string>, finishes: Set<string>) {
-    const query = buildFilterQuery(sizes, types, finishes);
+  const filteredItems = useMemo(
+    () =>
+      filterDesigns(
+        items,
+        selectedSizeIds,
+        selectedTypeIds,
+        selectedFinishIds,
+        selectedBrandIds,
+      ),
+    [items, selectedSizeIds, selectedTypeIds, selectedFinishIds, selectedBrandIds],
+  );
+
+  function updateFilters(
+    sizes: Set<string>,
+    types: Set<string>,
+    finishes: Set<string>,
+    brands: Set<string>,
+  ) {
+    const query = buildFilterQuery(sizes, types, finishes, brands);
     const href = query ? `${pathname}?${query}` : pathname;
     router.replace(href, { scroll: false });
   }
@@ -77,7 +101,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     } else {
       next.add(id);
     }
-    updateFilters(next, selectedTypeIds, selectedFinishIds);
+    updateFilters(next, selectedTypeIds, selectedFinishIds, selectedBrandIds);
   }
 
   function toggleType(id: string) {
@@ -87,7 +111,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     } else {
       next.add(id);
     }
-    updateFilters(selectedSizeIds, next, selectedFinishIds);
+    updateFilters(selectedSizeIds, next, selectedFinishIds, selectedBrandIds);
   }
 
   function toggleFinish(id: string) {
@@ -97,19 +121,33 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     } else {
       next.add(id);
     }
-    updateFilters(selectedSizeIds, selectedTypeIds, next);
+    updateFilters(selectedSizeIds, selectedTypeIds, next, selectedBrandIds);
+  }
+
+  function toggleBrand(id: string) {
+    const next = new Set(selectedBrandIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    updateFilters(selectedSizeIds, selectedTypeIds, selectedFinishIds, next);
   }
 
   function clearSizeFilters() {
-    updateFilters(new Set(), selectedTypeIds, selectedFinishIds);
+    updateFilters(new Set(), selectedTypeIds, selectedFinishIds, selectedBrandIds);
   }
 
   function clearTypeFilters() {
-    updateFilters(selectedSizeIds, new Set(), selectedFinishIds);
+    updateFilters(selectedSizeIds, new Set(), selectedFinishIds, selectedBrandIds);
   }
 
   function clearFinishFilters() {
-    updateFilters(selectedSizeIds, selectedTypeIds, new Set());
+    updateFilters(selectedSizeIds, selectedTypeIds, new Set(), selectedBrandIds);
+  }
+
+  function clearBrandFilters() {
+    updateFilters(selectedSizeIds, selectedTypeIds, selectedFinishIds, new Set());
   }
 
   const filterLabels = {
@@ -119,6 +157,16 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   return (
     <div className="mt-12 flex flex-col gap-8 lg:flex-row">
       <div className="flex flex-col gap-6 lg:w-56 lg:shrink-0">
+        <DesignBrandFilter
+          brands={availableBrands}
+          selectedIds={selectedBrandIds}
+          onToggle={toggleBrand}
+          onClear={clearBrandFilters}
+          labels={{
+            filterByBrand: t("filterByBrand"),
+            ...filterLabels,
+          }}
+        />
         <DesignSizeFilter
           sizes={availableSizes}
           selectedIds={selectedSizeIds}
@@ -152,7 +200,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
       </div>
       <div className="min-w-0 flex-1">
         {filteredItems.length === 0 ? (
-          <p className="text-gray-400">{t("noMatches")}</p>
+          <p className="text-gray-500">{t("noMatches")}</p>
         ) : (
           <DesignGrid items={filteredItems} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" />
         )}

@@ -22,9 +22,17 @@ export function DesignGrid({
       ? item.primary_thumb_url || item.primary_image_url
       : item.primary_image_url || item.primary_thumb_url;
 
-  const cardClass = compact
-    ? "overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm transition hover:border-gray-200 hover:shadow-md"
-    : "overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition hover:border-gray-200 hover:shadow-md";
+  const cardClass =
+    "overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md";
+
+  function BrandLabel({ brand }: { brand: Design["brand"] }) {
+    if (!brand?.name) return null;
+    return (
+      <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-clay">
+        {brand.name}
+      </p>
+    );
+  }
 
   function SizeChips({ sizes }: { sizes: Design["sizes"] }) {
     if (sizes.length === 0) return null;
@@ -49,7 +57,7 @@ export function DesignGrid({
         {types.map((tp) => (
           <span
             key={tp.id}
-            className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+            className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
           >
             {tp.name}
           </span>
@@ -58,16 +66,14 @@ export function DesignGrid({
     );
   }
 
-  const figcaptionClass = compact
-    ? "p-4 text-sm font-medium text-gray-800"
-    : "p-5";
+  const figcaptionClass = compact ? "p-4 text-sm" : "p-5";
 
   return (
     <div className={className}>
       {items.map((item) => (
         <Link
           key={item.id}
-          href={`/designs/${item.id}`}
+          href={`/products/${item.id}`}
           className={cn("group block cursor-pointer", cardClass)}
         >
           <figure>
@@ -75,12 +81,14 @@ export function DesignGrid({
             <img
               src={thumbSrc(item)}
               alt={item.alt_text || item.title}
+              loading="lazy"
               className="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.02]"
             />
             <figcaption className={figcaptionClass}>
+              <BrandLabel brand={item.brand} />
               {compact ? (
                 <>
-                  <span className="font-medium text-gray-800 group-hover:text-gray-900">
+                  <span className="font-medium text-gray-900 group-hover:text-clay">
                     {item.title}
                   </span>
                   <TypeChips types={item.types} />
@@ -88,7 +96,7 @@ export function DesignGrid({
                 </>
               ) : (
                 <>
-                  <h2 className="font-medium text-gray-900 group-hover:underline">
+                  <h2 className="font-semibold text-gray-900 group-hover:text-clay">
                     {item.title}
                   </h2>
                   <TypeChips types={item.types} />

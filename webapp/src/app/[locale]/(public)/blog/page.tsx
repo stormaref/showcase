@@ -36,25 +36,27 @@ export default async function BlogListPage() {
   const dateLocale = locale === "fa" ? "fa-IR" : "en-US";
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight text-gray-900">{t("title")}</h1>
-      <p className="mt-2 text-gray-500">{t("subtitle")}</p>
-      <ul className="mt-12 divide-y divide-gray-100">
+    <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
+      <h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
+        {t("title")}
+      </h1>
+      <p className="mt-4 text-lg text-gray-600">{t("subtitle")}</p>
+      <ul className="mt-12 divide-y divide-gray-200">
         {posts.length === 0 && (
-          <li className="py-8 text-gray-400">{t("empty")}</li>
+          <li className="py-8 text-gray-500">{t("empty")}</li>
         )}
         {posts.map((post) => (
           <li key={post.id} className="py-8">
-            <Link href={`/blog/${post.slug}`} className="group block">
-              <time className="text-xs text-gray-400">
+            <Link href={`/blog/${post.slug}`} className="group block cursor-pointer">
+              <time className="text-xs font-medium uppercase tracking-wider text-gray-500">
                 {post.published_at
                   ? new Date(post.published_at).toLocaleDateString(dateLocale)
                   : ""}
               </time>
-              <h2 className="mt-1 text-xl font-medium text-gray-900 group-hover:underline">
+              <h2 className="mt-2 text-xl font-semibold text-gray-900 group-hover:text-clay">
                 {post.title}
               </h2>
-              <p className="mt-2 text-gray-500">{post.excerpt}</p>
+              <p className="mt-2 text-gray-600">{post.excerpt}</p>
             </Link>
           </li>
         ))}

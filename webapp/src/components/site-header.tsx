@@ -10,22 +10,22 @@ export async function SiteHeader() {
 
   const links = [
     { href: "/" as const, label: t("home") },
-    { href: "/designs" as const, label: t("designs") },
+    { href: "/products" as const, label: t("designs") },
     { href: "/brands" as const, label: t("brands") },
     { href: "/blog" as const, label: t("blog") },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-100 bg-cream/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="text-lg font-semibold tracking-tight text-cocoa transition hover:text-clay"
+          className="text-lg font-bold tracking-tight text-gray-900 transition hover:text-clay"
         >
           {brand.name}
         </Link>
         <div className="flex items-center gap-8">
-          <nav className="flex gap-8 text-sm text-gray-600">
+          <nav className="flex gap-7 text-sm font-medium text-gray-700">
             {links.map((l) => (
               <Link
                 key={l.href}

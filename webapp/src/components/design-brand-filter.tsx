@@ -1,41 +1,41 @@
-import type { SurfaceFinish } from "@/lib/api";
+import type { DesignBrandRef } from "@/lib/api";
 
-type DesignFinishFilterProps = {
-  finishes: SurfaceFinish[];
+type DesignBrandFilterProps = {
+  brands: DesignBrandRef[];
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
   onClear: () => void;
   labels: {
-    filterByFinish: string;
+    filterByBrand: string;
     clearFilters: string;
   };
 };
 
-export function DesignFinishFilter({
-  finishes,
+export function DesignBrandFilter({
+  brands,
   selectedIds,
   onToggle,
   onClear,
   labels,
-}: DesignFinishFilterProps) {
-  if (finishes.length === 0) return null;
+}: DesignBrandFilterProps) {
+  if (brands.length === 0) return null;
 
   return (
     <fieldset className="rounded-xl border border-gray-200 bg-white p-4">
       <legend className="px-1 text-sm font-medium text-gray-900">
-        {labels.filterByFinish}
+        {labels.filterByBrand}
       </legend>
       <ul className="mt-3 space-y-2">
-        {finishes.map((finish) => (
-          <li key={finish.id}>
+        {brands.map((brand) => (
+          <li key={brand.id}>
             <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
-                checked={selectedIds.has(finish.id)}
-                onChange={() => onToggle(finish.id)}
+                checked={selectedIds.has(brand.id)}
+                onChange={() => onToggle(brand.id)}
                 className="rounded border-gray-300 accent-clay"
               />
-              {finish.name}
+              {brand.name}
             </label>
           </li>
         ))}

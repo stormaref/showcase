@@ -1,8 +1,15 @@
-import type { Design, DesignType, SurfaceFinish, TileSize } from "@/lib/api";
+import type {
+  Design,
+  DesignBrandRef,
+  DesignType,
+  SurfaceFinish,
+  TileSize,
+} from "@/lib/api";
 
 export const SIZE_PARAM = "size";
 export const TYPE_PARAM = "type";
 export const FINISH_PARAM = "finish";
+export const BRAND_PARAM = "brand";
 
 export function parseSizeParam(
   searchParams: URLSearchParams,
@@ -43,15 +50,30 @@ export function parseFinishParam(
   return new Set(ids.filter((id) => validIds.has(id)));
 }
 
+export function parseBrandParam(
+  searchParams: URLSearchParams,
+  validIds?: Set<string>,
+): Set<string> {
+  const raw = searchParams.get(BRAND_PARAM);
+  if (!raw) return new Set();
+
+  const ids = raw.split(",").map((id) => id.trim()).filter(Boolean);
+  if (!validIds) return new Set(ids);
+
+  return new Set(ids.filter((id) => validIds.has(id)));
+}
+
 export function buildFilterQuery(
   selectedSizes: Iterable<string>,
   selectedTypes: Iterable<string>,
   selectedFinishes: Iterable<string> = [],
+  selectedBrands: Iterable<string> = [],
 ): string {
   const parts: string[] = [];
   const sizeIds = [...selectedSizes];
   const typeIds = [...selectedTypes];
   const finishIds = [...selectedFinishes];
+  const brandIds = [...selectedBrands];
   if (sizeIds.length > 0) {
     parts.push(`${SIZE_PARAM}=${sizeIds.join(",")}`);
   }
@@ -60,6 +82,9 @@ export function buildFilterQuery(
   }
   if (finishIds.length > 0) {
     parts.push(`${FINISH_PARAM}=${finishIds.join(",")}`);
+  }
+  if (brandIds.length > 0) {
+    parts.push(`${BRAND_PARAM}=${brandIds.join(",")}`);
   }
   return parts.join("&");
 }
@@ -105,6 +130,16 @@ export function collectFinishesFromDesigns(items: Design[]): SurfaceFinish[] {
   );
 }
 
+export function collectBrandsFromDesigns(items: Design[]): DesignBrandRef[] {
+  const map = new Map<string, DesignBrandRef>();
+  for (const item of items) {
+    if (item.brand) {
+      map.set(item.brand.id, item.brand);
+    }
+  }
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export function filterDesignsBySize(
   items: Design[],
   selectedIds: Set<string>,
@@ -135,14 +170,24 @@ export function filterDesignsByFinish(
   );
 }
 
+export function filterDesignsByBrand(
+  items: Design[],
+  selectedIds: Set<string>,
+): Design[] {
+  if (selectedIds.size === 0) return items;
+  return items.filter((item) => item.brand && selectedIds.has(item.brand.id));
+}
+
 export function filterDesigns(
   items: Design[],
   selectedSizes: Set<string>,
   selectedTypes: Set<string>,
   selectedFinishes: Set<string> = new Set(),
+  selectedBrands: Set<string> = new Set(),
 ): Design[] {
   let result = filterDesignsBySize(items, selectedSizes);
   result = filterDesignsByType(result, selectedTypes);
   result = filterDesignsByFinish(result, selectedFinishes);
+  result = filterDesignsByBrand(result, selectedBrands);
   return result;
 }

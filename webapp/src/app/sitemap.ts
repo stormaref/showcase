@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const FETCH_TIMEOUT_MS = 10_000;
 
 function staticRoutesFor(base: string): MetadataRoute.Sitemap {
-  const staticPaths = ["", "/designs", "/blog"];
+  const staticPaths = ["", "/products", "/brands", "/blog"];
   const routes: MetadataRoute.Sitemap = [];
 
   for (const locale of routing.locales) {
@@ -93,12 +93,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const locale = routing.locales[i];
     for (const d of data.items) {
       designRoutes.push({
-        url: `${base}/${locale}/designs/${d.id}`,
+        url: `${base}/${locale}/products/${d.id}`,
         changeFrequency: "weekly",
         priority: 0.75,
         alternates: {
           languages: Object.fromEntries(
-            routing.locales.map((l) => [l, `${base}/${l}/designs/${d.id}`]),
+            routing.locales.map((l) => [l, `${base}/${l}/products/${d.id}`]),
           ),
         },
       });

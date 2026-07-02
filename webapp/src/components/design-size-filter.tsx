@@ -21,7 +21,7 @@ export function DesignSizeFilter({
   if (sizes.length === 0) return null;
 
   return (
-    <fieldset className="rounded-xl border border-gray-200 p-4">
+    <fieldset className="rounded-xl border border-gray-200 bg-white p-4">
         <legend className="px-1 text-sm font-medium text-gray-900">
           {labels.filterBySize}
         </legend>
@@ -33,7 +33,7 @@ export function DesignSizeFilter({
                   type="checkbox"
                   checked={selectedIds.has(size.id)}
                   onChange={() => onToggle(size.id)}
-                  className="rounded border-gray-300"
+                  className="rounded border-gray-300 accent-clay"
                 />
                 {size.label}
               </label>
@@ -44,7 +44,7 @@ export function DesignSizeFilter({
           <button
             type="button"
             onClick={onClear}
-            className="mt-4 text-sm text-gray-500 hover:text-gray-900"
+            className="mt-4 cursor-pointer text-sm text-gray-500 transition hover:text-clay"
           >
             {labels.clearFilters}
           </button>

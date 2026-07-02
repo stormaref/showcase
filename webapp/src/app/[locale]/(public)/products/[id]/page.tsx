@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = design.caption || design.alt_text;
     return buildPageMetadata({
       locale,
-      path: `/designs/${id}`,
+      path: `/products/${id}`,
       title: design.title,
       description,
       siteName: brand.name,

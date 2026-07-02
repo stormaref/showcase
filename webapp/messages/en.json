@@ -1,22 +1,22 @@
 {
   "metadata": {
     "siteTitle": "Art Ceramic",
-    "siteDescription": "Art Ceramic — custom tile designs, patterns, and sizes for residential and commercial projects.",
+    "siteDescription": "Art Ceramic — custom tile products, patterns, and sizes for residential and commercial projects.",
     "titleTemplate": "%s | Art Ceramic",
     "homeTitle": "Welcome",
-    "homeDescription": "Art Ceramic — explore our tile design catalog, available sizes, and project inspiration.",
-    "designsTitle": "Design",
-    "designsDescription": "Browse tile designs, patterns, and available sizes from Art Ceramic.",
+    "homeDescription": "Art Ceramic — explore our tile product catalog, available sizes, and project inspiration.",
+    "designsTitle": "Products",
+    "designsDescription": "Browse tile products, patterns, and available sizes from Art Ceramic.",
     "brandsTitle": "Brands",
     "brandsDescription": "The family of brands owned by Art Ceramic.",
     "blogTitle": "Blog",
     "blogDescription": "News, techniques, and updates from Art Ceramic.",
     "postNotFound": "Post not found",
-    "designNotFound": "Design not found"
+    "designNotFound": "Product not found"
   },
   "nav": {
     "home": "Home",
-    "designs": "Design",
+    "designs": "Products",
     "brands": "Brands",
     "blog": "Blog",
     "localeEn": "English",
@@ -26,16 +26,16 @@
   },
   "home": {
     "eyebrow": "Tile design studio",
-    "viewDesigns": "Browse designs",
+    "viewDesigns": "Browse products",
     "readBlog": "Read blog",
     "aboutTitle": "About us",
     "brandsTitle": "Our brands",
     "brandsSubtitle": "The family of brands behind our work.",
-    "brandsVisit": "Visit",
+    "brandsVisit": "Visit website",
     "servicesTitle": "Our services",
     "servicesSubtitle": "What we offer at the studio and for your projects.",
     "contactTitle": "Contact",
-    "designsTitle": "Design",
+    "designsTitle": "Products",
     "designsSubtitle": "Explore patterns and available tile sizes.",
     "viewAll": "View all",
     "latestPosts": "Latest posts",
@@ -55,31 +55,33 @@
     }
   },
   "designs": {
-    "eyebrow": "Tile catalog",
-    "title": "Design",
-    "subtitle": "Browse our tile patterns. Each design is available in multiple sizes.",
-    "empty": "No designs published yet.",
+    "eyebrow": "Product catalog",
+    "title": "Products",
+    "subtitle": "Browse our tile products. Each product is available in multiple sizes.",
+    "empty": "No products published yet.",
     "filterBySize": "Filter by size",
     "filterByType": "Filter by category",
     "filterByFinish": "Filter by finish",
+    "filterByBrand": "Filter by brand",
     "clearFilters": "Clear filters",
-    "noMatches": "No designs match the selected filters."
+    "noMatches": "No products match the selected filters."
   },
   "brands": {
     "eyebrow": "Our brands",
     "title": "Brands",
     "subtitle": "The family of brands owned by the company.",
     "empty": "No brands published yet.",
-    "visit": "Visit"
+    "visit": "Visit website",
+    "viewProducts": "View products"
   },
   "designDetail": {
-    "backToCatalog": "Back to catalog",
+    "backToCatalog": "Back to products",
     "showcase": "Showcase",
     "availableIn": "Available sizes",
-    "noShowcaseImages": "No showcase images for this design.",
+    "noShowcaseImages": "No showcase images for this product.",
     "noSizeImages": "No images for this size yet.",
     "noVariantImages": "No images for this size and type yet.",
-    "notFound": "Design not found",
+    "notFound": "Product not found",
     "previousImage": "Previous image",
     "nextImage": "Next image",
     "slide": "Slide"
