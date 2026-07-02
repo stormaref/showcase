@@ -19,7 +19,7 @@ export function BrandGrid({
       {brands.map((brand) => (
         <li
           key={brand.id}
-          className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+          className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-clay/40 hover:shadow-md"
         >
           <Link
             href={`/products?brand=${brand.id}`}

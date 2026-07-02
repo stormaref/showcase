@@ -74,7 +74,7 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
               role="menuitem"
               href="/products"
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm font-medium text-gray-900 transition hover:bg-gray-50 hover:text-clay"
+              className="block px-3 py-2 text-sm font-medium text-gray-900 transition hover:bg-clay-soft/60 hover:text-clay-dark"
             >
               {allLabel}
             </Link>
@@ -86,7 +86,7 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
                 role="menuitem"
                 href={`/products?type=${tp.id}`}
                 onClick={() => setOpen(false)}
-                className="block px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-50 hover:text-clay"
+                className="block px-3 py-2 text-sm text-gray-600 transition hover:bg-clay-soft/60 hover:text-clay-dark"
               >
                 {tp.name}
               </Link>

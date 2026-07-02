@@ -16,6 +16,10 @@ export async function SiteFooter() {
 
   return (
     <footer className="mt-auto bg-gray-900 text-gray-300">
+      <div
+        className="h-1 bg-gradient-to-r from-clay-dark via-clay to-clay-light"
+        aria-hidden
+      />
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-3">
         <div>
           <p className="text-lg font-bold tracking-tight text-white">
@@ -30,7 +34,7 @@ export async function SiteFooter() {
             <Link
               key={l.href}
               href={l.href}
-              className="w-fit transition hover:text-white"
+              className="w-fit transition hover:text-clay-light"
             >
               {l.label}
             </Link>
@@ -42,12 +46,12 @@ export async function SiteFooter() {
             <span className="block">{brand.addressLine3}</span>
           </address>
           <p className="mt-3">
-            <a href={phoneTelHref(brand.phone)} className="transition hover:text-white">
+            <a href={phoneTelHref(brand.phone)} className="transition hover:text-clay-light">
               {brand.phone}
             </a>
           </p>
           <p className="mt-1">
-            <a href={`mailto:${brand.email}`} className="transition hover:text-white">
+            <a href={`mailto:${brand.email}`} className="transition hover:text-clay-light">
               {brand.email}
             </a>
           </p>

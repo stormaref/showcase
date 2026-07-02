@@ -52,7 +52,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <article className="mx-auto max-w-3xl px-6 py-16">
       <header>
-        <time className="text-sm text-gray-400">
+        <time className="text-sm text-gray-500">
           {post.published_at
             ? new Date(post.published_at).toLocaleDateString(dateLocale, {
                 year: "numeric",

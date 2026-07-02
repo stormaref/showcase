@@ -23,7 +23,7 @@ export function DesignGrid({
       : item.primary_image_url || item.primary_thumb_url;
 
   const cardClass =
-    "overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md";
+    "overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-clay/40 hover:shadow-md";
 
   function BrandLabel({ brand }: { brand: Design["brand"] }) {
     if (!brand?.name) return null;
@@ -57,7 +57,7 @@ export function DesignGrid({
         {types.map((tp) => (
           <span
             key={tp.id}
-            className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+            className="rounded bg-clay-soft px-2 py-0.5 text-xs font-medium text-clay-dark"
           >
             {tp.name}
           </span>

@@ -61,33 +61,35 @@ export default async function HomePage({ params }: PageProps) {
 
   return (
     <>
-      <section className="mx-auto max-w-6xl px-6 py-24 text-center md:py-32">
-        <p className="text-sm font-semibold uppercase tracking-widest text-clay">
-          {t("eyebrow")}
-        </p>
-        <h1 className="mx-auto mt-5 max-w-4xl text-5xl font-bold tracking-tight text-gray-900 md:text-7xl">
-          {brand.name}
-        </h1>
-        <p className="mx-auto mt-6 max-w-xl text-xl leading-relaxed text-gray-600">
-          {brand.tagline}
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link
-            href="/products"
-            className="cursor-pointer rounded-full bg-gray-900 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-clay"
-          >
-            {t("viewDesigns")}
-          </Link>
-          <Link
-            href="/blog"
-            className="cursor-pointer rounded-full border border-gray-300 px-7 py-3.5 text-sm font-semibold text-gray-800 transition duration-200 hover:border-gray-900 hover:text-gray-900"
-          >
-            {t("readBlog")}
-          </Link>
+      <section className="bg-gradient-to-b from-clay-soft/70 via-cream/40 to-transparent">
+        <div className="mx-auto max-w-6xl px-6 py-24 text-center md:py-32">
+          <p className="text-sm font-semibold uppercase tracking-widest text-clay">
+            {t("eyebrow")}
+          </p>
+          <h1 className="mx-auto mt-5 max-w-4xl text-5xl font-bold tracking-tight text-gray-900 md:text-7xl">
+            {brand.name}
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-xl leading-relaxed text-gray-600">
+            {brand.tagline}
+          </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/products"
+              className="cursor-pointer rounded-full bg-clay px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-clay/25 transition duration-200 hover:-translate-y-0.5 hover:bg-clay-dark hover:shadow-lg hover:shadow-clay/30"
+            >
+              {t("viewDesigns")}
+            </Link>
+            <Link
+              href="/blog"
+              className="cursor-pointer rounded-full border border-gray-300 bg-white/60 px-7 py-3.5 text-sm font-semibold text-gray-800 transition duration-200 hover:border-clay hover:text-clay"
+            >
+              {t("readBlog")}
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="border-y border-gray-200 bg-gray-50 py-20">
+      <section className="border-y border-gray-200 bg-sand py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900">
             {t("aboutTitle")}
@@ -117,7 +119,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
       )}
 
-      <section className="border-y border-gray-200 bg-gray-50 py-20">
+      <section className="border-y border-gray-200 bg-sand py-20">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
             {t("servicesTitle")}
@@ -129,8 +131,12 @@ export default async function HomePage({ params }: PageProps) {
             {services.map((service) => (
               <li
                 key={service.title}
-                className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-clay/40 hover:shadow-md"
               >
+                <span
+                  className="mb-4 block h-1 w-8 rounded-full bg-gradient-to-r from-clay to-clay-light"
+                  aria-hidden
+                />
                 <h3 className="font-semibold text-gray-900">{service.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
                   {service.description}
@@ -169,7 +175,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
       )}
 
-      <section className="border-y border-gray-200 bg-gray-50 py-20">
+      <section className="border-y border-gray-200 bg-sand py-20">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
             {t("contactTitle")}
@@ -183,7 +189,7 @@ export default async function HomePage({ params }: PageProps) {
             <p>
               <a
                 href={phoneTelHref(brand.phone)}
-                className="text-lg font-semibold text-gray-900 transition hover:text-clay"
+                className="text-lg font-semibold text-clay transition hover:text-clay-dark"
               >
                 {brand.phone}
               </a>

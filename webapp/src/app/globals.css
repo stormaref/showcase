@@ -1,35 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  /* Rust terracotta accent — ceramic identity without reading yellow/gold */
-  --color-clay: #c2410c;
-  --color-clay-dark: #9a3412;
-  --color-clay-soft: #fceee5;
+  /* Vermilion terracotta accent — ceramic identity, contemporary rather
+     than burnt-orange rustic */
+  --color-clay: #c13a17;
+  --color-clay-dark: #992d12;
+  --color-clay-soft: #fae8de;
+  /* Coral terracotta for accents on dark surfaces (footer, dark bands) */
+  --color-clay-light: #fb7a4c;
 
-  /* Named surfaces (kept for existing class usage, now neutral) */
-  --color-cream: #fafaf9;
-  --color-sand: #f5f5f4;
-  --color-cocoa: #1c1917;
+  /* Named surfaces: warm but low-chroma (greige, not beige) */
+  --color-cream: #f8f6f2;
+  --color-sand: #f2efe9;
+  --color-cocoa: #1b1814;
 
-  /* Map the gray scale to Tailwind's stone values: warm-neutral,
-     high contrast at the dark end, no yellow cast. */
-  --color-gray-50: #fafaf9;
-  --color-gray-100: #f5f5f4;
-  --color-gray-200: #e7e5e4;
-  --color-gray-300: #d6d3d1;
-  --color-gray-400: #a8a29e;
-  --color-gray-500: #78716c;
-  --color-gray-600: #57534e;
-  --color-gray-700: #44403c;
-  --color-gray-800: #292524;
-  --color-gray-900: #1c1917;
+  /* Greige gray scale: a hint of warmth, near-black ink at the dark end,
+     no yellow cast. */
+  --color-gray-50: #f9f7f4;
+  --color-gray-100: #f1eee8;
+  --color-gray-200: #e5e1d8;
+  --color-gray-300: #d1cbbf;
+  --color-gray-400: #a39c90;
+  --color-gray-500: #736c62;
+  --color-gray-600: #555047;
+  --color-gray-700: #403b34;
+  --color-gray-800: #27231e;
+  --color-gray-900: #1b1814;
 
   --font-sans: ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #1c1917;
+  --background: #fbfaf8;
+  --foreground: #1b1814;
 }
 
 body {
@@ -64,7 +67,7 @@ body {
 
 .prose-showcase p {
   margin-bottom: 1em;
-  color: #44403c;
+  color: #403b34;
 }
 
 .prose-showcase a {
@@ -83,7 +86,7 @@ body {
 }
 
 .prose-showcase pre {
-  background: #f5f5f4;
+  background: var(--color-gray-100);
   border: 1px solid var(--color-gray-200);
   border-radius: 0.5rem;
   padding: 1rem;

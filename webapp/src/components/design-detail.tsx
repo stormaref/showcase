@@ -90,7 +90,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
             {finishes.map((finish) => (
               <li
                 key={finish.id}
-                className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-600"
+                className="rounded-full border border-clay/20 bg-clay-soft/50 px-3 py-1 text-sm font-medium text-clay-dark"
               >
                 {finish.name}
               </li>
