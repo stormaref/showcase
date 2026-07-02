@@ -19,6 +19,19 @@ export async function DesignDetail({ design }: DesignDetailProps) {
   const showcaseSlides = carouselSlides(showcase, alt);
   const types = design.types ?? [];
   const finishes = design.finishes ?? [];
+  // Explicit category x size combinations; older cached responses without a
+  // variant list fall back to the full cartesian product.
+  const variantSet = design.variants
+    ? new Set(design.variants.map((v) => `${v.type_id}:${v.size_id}`))
+    : null;
+  const typeSections = types
+    .map((type) => ({
+      type,
+      sizes: design.sizes.filter(
+        (size) => !variantSet || variantSet.has(`${type.id}:${size.id}`),
+      ),
+    }))
+    .filter((section) => section.sizes.length > 0);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
@@ -86,17 +99,17 @@ export async function DesignDetail({ design }: DesignDetailProps) {
         )}
       </header>
 
-      {types.length > 0 && design.sizes.length > 0 && (
+      {typeSections.length > 0 && (
         <section className="mt-16 border-t border-gray-200 pt-16">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-clay">
             {t("availableIn")}
           </h2>
           <div className="mt-10 space-y-16">
-            {types.map((type) => (
+            {typeSections.map(({ type, sizes }) => (
               <div key={type.id}>
                 <h3 className="text-lg font-semibold text-gray-900">{type.name}</h3>
                 <div className="mt-8 space-y-12">
-                  {design.sizes.map((size) => {
+                  {sizes.map((size) => {
                     const sizeImgs = imagesForSizeAndType(
                       design.images,
                       size.id,

@@ -125,6 +125,14 @@ func (s *TypeService) upsertTranslations(ctx context.Context, typeID uuid.UUID, 
 	return nil
 }
 
+func (s *TypeService) ListPublic(ctx context.Context, locale string) ([]TypeResponse, error) {
+	types, err := s.repo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return typeResponses(types, locale), nil
+}
+
 func (s *TypeService) List(ctx context.Context) ([]AdminTypeResponse, error) {
 	types, err := s.repo.List(ctx)
 	if err != nil {

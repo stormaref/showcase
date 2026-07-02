@@ -125,6 +125,11 @@ export type DesignBrandRef = {
   website_url?: string;
 };
 
+export type DesignVariantRef = {
+  type_id: string;
+  size_id: string;
+};
+
 export type DesignImage = {
   id?: string;
   size_id?: string | null;
@@ -144,6 +149,7 @@ export type Design = {
   locale?: string;
   brand_id?: string | null;
   brand?: DesignBrandRef;
+  variants?: DesignVariantRef[];
   sizes: TileSize[];
   types: DesignType[];
   finishes?: SurfaceFinish[];

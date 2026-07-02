@@ -1,19 +1,15 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ProductsNavMenu } from "@/components/products-nav-menu";
 import { getBrandInfo } from "@/lib/brand-info";
+import { getTileTypes } from "@/lib/tile-types";
 
 export async function SiteHeader() {
   const locale = await getLocale();
   const t = await getTranslations("nav");
   const brand = await getBrandInfo(locale);
-
-  const links = [
-    { href: "/" as const, label: t("home") },
-    { href: "/products" as const, label: t("designs") },
-    { href: "/brands" as const, label: t("brands") },
-    { href: "/blog" as const, label: t("blog") },
-  ];
+  const tileTypes = await getTileTypes(locale);
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur">
@@ -25,16 +21,21 @@ export async function SiteHeader() {
           {brand.name}
         </Link>
         <div className="flex items-center gap-8">
-          <nav className="flex gap-7 text-sm font-medium text-gray-700">
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="transition hover:text-clay"
-              >
-                {l.label}
-              </Link>
-            ))}
+          <nav className="flex items-center gap-7 text-sm font-medium text-gray-700">
+            <Link href="/" className="transition hover:text-clay">
+              {t("home")}
+            </Link>
+            <ProductsNavMenu
+              label={t("designs")}
+              allLabel={t("allProducts")}
+              types={tileTypes}
+            />
+            <Link href="/brands" className="transition hover:text-clay">
+              {t("brands")}
+            </Link>
+            <Link href="/blog" className="transition hover:text-clay">
+              {t("blog")}
+            </Link>
           </nav>
           <LocaleSwitcher />
         </div>

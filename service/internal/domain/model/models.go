@@ -85,6 +85,7 @@ type Design struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 
 	Brand        *Brand              `gorm:"foreignKey:BrandID" json:"brand,omitempty"`
+	Variants     []DesignVariant     `gorm:"foreignKey:DesignID" json:"variants,omitempty"`
 	Translations []DesignTranslation `gorm:"foreignKey:DesignID" json:"translations,omitempty"`
 	Sizes        []TileSize          `gorm:"many2many:design_sizes;joinReferences:size_id" json:"sizes,omitempty"`
 	Types        []DesignType        `gorm:"many2many:design_types;joinReferences:type_id" json:"types,omitempty"`
@@ -198,6 +199,17 @@ type DesignDesignType struct {
 }
 
 func (DesignDesignType) TableName() string { return "design_types" }
+
+// DesignVariant is an explicitly selected category x size combination a
+// design is offered in, replacing the implicit cartesian product of the
+// design's types and sizes.
+type DesignVariant struct {
+	DesignID uuid.UUID `gorm:"type:uuid;primaryKey" json:"design_id"`
+	TypeID   uuid.UUID `gorm:"type:uuid;primaryKey;index:idx_design_variants_type_id" json:"type_id"`
+	SizeID   uuid.UUID `gorm:"type:uuid;primaryKey;index:idx_design_variants_size_id" json:"size_id"`
+}
+
+func (DesignVariant) TableName() string { return "design_variants" }
 
 type SurfaceFinish struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`

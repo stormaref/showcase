@@ -215,6 +215,16 @@ func NewTypeHandler(types *service.TypeService) *TypeHandler {
 	return &TypeHandler{types: types}
 }
 
+func (h *TypeHandler) ListPublic(c *gin.Context) {
+	loc := locale.Get(c)
+	items, err := h.types.ListPublic(c.Request.Context(), loc)
+	if err != nil {
+		httpx.JSON(c, http.StatusInternalServerError, "internal", "error.internal")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"items": items, "locale": loc})
+}
+
 func (h *TypeHandler) List(c *gin.Context) {
 	items, err := h.types.List(c.Request.Context())
 	if err != nil {

@@ -67,6 +67,7 @@ func main() {
 		&model.DesignType{},
 		&model.DesignTypeTranslation{},
 		&model.DesignDesignType{},
+		&model.DesignVariant{},
 		&model.SurfaceFinish{},
 		&model.SurfaceFinishTranslation{},
 		&model.DesignSurfaceFinish{},

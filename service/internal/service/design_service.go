@@ -48,6 +48,11 @@ type DesignImageInput struct {
 	SortOrder      int        `json:"sort_order"`
 }
 
+type DesignVariantInput struct {
+	TypeID uuid.UUID `json:"type_id"`
+	SizeID uuid.UUID `json:"size_id"`
+}
+
 type DesignInput struct {
 	SortOrder    int                               `json:"sort_order"`
 	IsPublished  bool                              `json:"is_published"`
@@ -55,8 +60,58 @@ type DesignInput struct {
 	SizeIDs      []uuid.UUID                       `json:"size_ids"`
 	TypeIDs      []uuid.UUID                       `json:"type_ids"`
 	FinishIDs    []uuid.UUID                       `json:"finish_ids"`
+	Variants     []DesignVariantInput              `json:"variants"`
 	Images       []DesignImageInput                `json:"images"`
 	Translations map[string]DesignTranslationInput `json:"translations"`
+}
+
+// designRelations is the effective set of relations to persist. When the
+// input carries explicit variants, sizes and types are derived from them;
+// otherwise (legacy payloads) the flat ID lists are used and the variant set
+// is their cartesian product.
+type designRelations struct {
+	sizeIDs  []uuid.UUID
+	typeIDs  []uuid.UUID
+	variants []DesignVariantInput
+	explicit bool
+}
+
+func variantKey(typeID, sizeID uuid.UUID) string {
+	return typeID.String() + ":" + sizeID.String()
+}
+
+func resolveRelations(in DesignInput) designRelations {
+	if in.Variants == nil {
+		variants := make([]DesignVariantInput, 0, len(in.TypeIDs)*len(in.SizeIDs))
+		for _, tid := range in.TypeIDs {
+			for _, sid := range in.SizeIDs {
+				variants = append(variants, DesignVariantInput{TypeID: tid, SizeID: sid})
+			}
+		}
+		return designRelations{sizeIDs: in.SizeIDs, typeIDs: in.TypeIDs, variants: variants}
+	}
+
+	seen := make(map[string]struct{}, len(in.Variants))
+	sizeSeen := make(map[uuid.UUID]struct{})
+	typeSeen := make(map[uuid.UUID]struct{})
+	rel := designRelations{explicit: true, variants: make([]DesignVariantInput, 0, len(in.Variants))}
+	for _, v := range in.Variants {
+		key := variantKey(v.TypeID, v.SizeID)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		rel.variants = append(rel.variants, v)
+		if _, ok := typeSeen[v.TypeID]; !ok {
+			typeSeen[v.TypeID] = struct{}{}
+			rel.typeIDs = append(rel.typeIDs, v.TypeID)
+		}
+		if _, ok := sizeSeen[v.SizeID]; !ok {
+			sizeSeen[v.SizeID] = struct{}{}
+			rel.sizeIDs = append(rel.sizeIDs, v.SizeID)
+		}
+	}
+	return rel
 }
 
 type DesignImageResponse struct {
@@ -85,6 +140,7 @@ type DesignResponse struct {
 	Locale          string                `json:"locale,omitempty"`
 	BrandID         *uuid.UUID            `json:"brand_id,omitempty"`
 	Brand           *DesignBrandRef       `json:"brand,omitempty"`
+	Variants        []DesignVariantInput  `json:"variants"`
 	Sizes           []SizeResponse        `json:"sizes"`
 	Types           []TypeResponse        `json:"types"`
 	Finishes        []FinishResponse      `json:"finishes"`
@@ -193,6 +249,14 @@ func hasDesignTranslation(translations []model.DesignTranslation, locale string)
 	return false
 }
 
+func variantResponses(variants []model.DesignVariant) []DesignVariantInput {
+	out := make([]DesignVariantInput, len(variants))
+	for i, v := range variants {
+		out[i] = DesignVariantInput{TypeID: v.TypeID, SizeID: v.SizeID}
+	}
+	return out
+}
+
 func (s *DesignService) applyBrand(resp *DesignResponse, design *model.Design, locale string) {
 	resp.BrandID = design.BrandID
 	if design.Brand == nil {
@@ -219,6 +283,7 @@ func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation
 	primaryURL, primaryThumb := s.primaryImage(design.Images)
 	resp := DesignResponse{
 		ID:              design.ID,
+		Variants:        variantResponses(design.Variants),
 		Sizes:           s.sizeResponses(design.Sizes),
 		Types:           typeResponses(design.Types, resolvedLocale),
 		Finishes:        finishResponses(design.Finishes, resolvedLocale),
@@ -248,6 +313,7 @@ func (s *DesignService) enrichList(
 ) DesignResponse {
 	resp := DesignResponse{
 		ID:          design.ID,
+		Variants:    variantResponses(design.Variants),
 		Sizes:       s.sizeResponses(design.Sizes),
 		Types:       typeResponses(design.Types, resolvedLocale),
 		Finishes:    finishResponses(design.Finishes, resolvedLocale),
@@ -283,7 +349,7 @@ func (s *DesignService) translationsMap(design *model.Design) map[string]DesignT
 	return out
 }
 
-func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error {
+func (s *DesignService) validateInput(ctx context.Context, in DesignInput, rel designRelations) error {
 	if in.BrandID != nil {
 		ok, err := s.brandRepo.Exists(ctx, *in.BrandID)
 		if err != nil {
@@ -293,8 +359,8 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error
 			return errors.New("brand ID is invalid")
 		}
 	}
-	if len(in.SizeIDs) > 0 {
-		ok, err := s.sizeRepo.ExistsAll(ctx, in.SizeIDs)
+	if len(rel.sizeIDs) > 0 {
+		ok, err := s.sizeRepo.ExistsAll(ctx, rel.sizeIDs)
 		if err != nil {
 			return err
 		}
@@ -302,8 +368,8 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error
 			return errors.New("one or more size IDs are invalid")
 		}
 	}
-	if len(in.TypeIDs) > 0 {
-		ok, err := s.typeRepo.ExistsAll(ctx, in.TypeIDs)
+	if len(rel.typeIDs) > 0 {
+		ok, err := s.typeRepo.ExistsAll(ctx, rel.typeIDs)
 		if err != nil {
 			return err
 		}
@@ -320,13 +386,13 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error
 			return errors.New("one or more finish IDs are invalid")
 		}
 	}
-	sizeSet := make(map[uuid.UUID]struct{}, len(in.SizeIDs))
-	for _, id := range in.SizeIDs {
+	sizeSet := make(map[uuid.UUID]struct{}, len(rel.sizeIDs))
+	for _, id := range rel.sizeIDs {
 		sizeSet[id] = struct{}{}
 	}
-	typeSet := make(map[uuid.UUID]struct{}, len(in.TypeIDs))
-	for _, id := range in.TypeIDs {
-		typeSet[id] = struct{}{}
+	comboSet := make(map[string]struct{}, len(rel.variants))
+	for _, v := range rel.variants {
+		comboSet[variantKey(v.TypeID, v.SizeID)] = struct{}{}
 	}
 	for _, img := range in.Images {
 		if img.ObjectKey == "" {
@@ -344,11 +410,8 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput) error
 			return errors.New("variant images must specify both size and type")
 		}
 		if hasSize {
-			if _, ok := sizeSet[*img.SizeID]; !ok {
-				return errors.New("image references a size not assigned to this design")
-			}
-			if _, ok := typeSet[*img.TypeID]; !ok {
-				return errors.New("image references a type not assigned to this design")
+			if _, ok := comboSet[variantKey(*img.TypeID, *img.SizeID)]; !ok {
+				return errors.New("image references a category and size combination not selected for this design")
 			}
 		}
 	}
@@ -473,7 +536,7 @@ func (s *DesignService) upsertTranslations(ctx context.Context, designID uuid.UU
 	return nil
 }
 
-func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, in DesignInput) error {
+func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, in DesignInput, rel designRelations) error {
 	images := make([]model.DesignImage, len(in.Images))
 	for i, imgIn := range in.Images {
 		images[i] = model.DesignImage{
@@ -484,11 +547,16 @@ func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, 
 			SortOrder:      imgIn.SortOrder,
 		}
 	}
-	return s.repo.ReplaceRelations(ctx, designID, in.SizeIDs, in.TypeIDs, in.FinishIDs, images)
+	variants := make([]model.DesignVariant, len(rel.variants))
+	for i, v := range rel.variants {
+		variants[i] = model.DesignVariant{TypeID: v.TypeID, SizeID: v.SizeID}
+	}
+	return s.repo.ReplaceRelations(ctx, designID, rel.sizeIDs, rel.typeIDs, in.FinishIDs, variants, images)
 }
 
 func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in DesignInput) (*AdminDesignResponse, error) {
-	if err := s.validateInput(ctx, in); err != nil {
+	rel := resolveRelations(in)
+	if err := s.validateInput(ctx, in, rel); err != nil {
 		return nil, err
 	}
 	design := &model.Design{
@@ -506,7 +574,7 @@ func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in Design
 	if err := s.upsertTranslations(ctx, design.ID, translations); err != nil {
 		return nil, err
 	}
-	if err := s.applyRelations(ctx, design.ID, in); err != nil {
+	if err := s.applyRelations(ctx, design.ID, in, rel); err != nil {
 		return nil, err
 	}
 	s.audit.Log(ctx, actorID, "design.create", "design", design.ID, nil)
@@ -514,7 +582,8 @@ func (s *DesignService) Create(ctx context.Context, actorID uuid.UUID, in Design
 }
 
 func (s *DesignService) Update(ctx context.Context, actorID, id uuid.UUID, in DesignInput) (*AdminDesignResponse, error) {
-	if err := s.validateInput(ctx, in); err != nil {
+	rel := resolveRelations(in)
+	if err := s.validateInput(ctx, in, rel); err != nil {
 		return nil, err
 	}
 	oldImages, err := s.repo.ListImages(ctx, id)
@@ -536,7 +605,7 @@ func (s *DesignService) Update(ctx context.Context, actorID, id uuid.UUID, in De
 			return nil, err
 		}
 	}
-	if err := s.applyRelations(ctx, design.ID, in); err != nil {
+	if err := s.applyRelations(ctx, design.ID, in, rel); err != nil {
 		return nil, err
 	}
 	s.deleteOrphanImages(ctx, oldImages, in.Images)

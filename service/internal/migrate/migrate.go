@@ -24,6 +24,49 @@ func RunPost(db *gorm.DB) error {
 	if err := migrateDesignSizesJoinColumn(db); err != nil {
 		return err
 	}
+	if err := backfillDesignVariants(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+// backfillDesignVariants seeds the explicit variant table from the category x
+// size combinations that currently display images: images tagged with both a
+// size and a type, plus legacy size-only images crossed with the design's
+// types (which render as a fallback on the public page). Combinations that
+// never had images are intentionally dropped.
+func backfillDesignVariants(db *gorm.DB) error {
+	m := db.Migrator()
+	if !m.HasTable("design_variants") || !m.HasTable("design_images") || !m.HasTable("design_types") {
+		return nil
+	}
+	var count int64
+	if err := db.Table("design_variants").Count(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		return nil
+	}
+	res := db.Exec(`
+		INSERT INTO design_variants (design_id, type_id, size_id)
+		SELECT design_id, type_id, size_id FROM (
+			SELECT DISTINCT di.design_id, di.type_id, di.size_id
+			FROM design_images di
+			WHERE di.type_id IS NOT NULL AND di.size_id IS NOT NULL
+			UNION
+			SELECT DISTINCT di.design_id, dt.type_id, di.size_id
+			FROM design_images di
+			JOIN design_types dt ON dt.design_id = di.design_id
+			WHERE di.type_id IS NULL AND di.size_id IS NOT NULL
+		) AS combos
+		ON CONFLICT DO NOTHING
+	`)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected > 0 {
+		slog.Info("backfilled design variants from images", "count", res.RowsAffected)
+	}
 	return nil
 }
 

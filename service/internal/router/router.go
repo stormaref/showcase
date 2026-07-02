@@ -75,6 +75,11 @@ func registerPublicRoutes(v1 *gin.RouterGroup, h Handlers) {
 		brands.GET("", h.Brands.ListPublic)
 	}
 
+	types := public.Group("/types")
+	{
+		types.GET("", h.Types.ListPublic)
+	}
+
 	public.GET("/brand-info", h.BrandInfo.GetPublic)
 }
 

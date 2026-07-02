@@ -41,6 +41,7 @@ func (r *DesignRepository) preloadForList(q *gorm.DB, locale string) *gorm.DB {
 	return r.preloadFinishes(q, locale).
 		Preload("Brand").
 		Preload("Brand.Translations", "locale IN ?", translationLocales(locale)).
+		Preload("Variants").
 		Preload("Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -53,6 +54,7 @@ func (r *DesignRepository) preloadForAdminList(q *gorm.DB) *gorm.DB {
 	return r.preloadFinishesAll(q).
 		Preload("Brand").
 		Preload("Brand.Translations").
+		Preload("Variants").
 		Preload("Translations").
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -65,6 +67,7 @@ func (r *DesignRepository) preloadFull(q *gorm.DB, locale string) *gorm.DB {
 	return r.preloadFinishes(q, locale).
 		Preload("Brand").
 		Preload("Brand.Translations", "locale IN ?", translationLocales(locale)).
+		Preload("Variants").
 		Preload("Translations", "locale IN ?", translationLocales(locale)).
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -98,6 +101,7 @@ func (r *DesignRepository) FindByID(ctx context.Context, id uuid.UUID) (*model.D
 	err := r.preloadFinishesAll(r.db.WithContext(ctx)).
 		Preload("Brand").
 		Preload("Brand.Translations").
+		Preload("Variants").
 		Preload("Translations").
 		Preload("Sizes").
 		Preload("Types", func(db *gorm.DB) *gorm.DB {
@@ -145,6 +149,9 @@ func (r *DesignRepository) Update(ctx context.Context, design *model.Design) err
 func (r *DesignRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("design_id = ?", id).Delete(&model.DesignImage{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("design_id = ?", id).Delete(&model.DesignVariant{}).Error; err != nil {
 			return err
 		}
 		if err := tx.Where("design_id = ?", id).Delete(&model.DesignSize{}).Error; err != nil {
@@ -238,9 +245,21 @@ func (r *DesignRepository) ReplaceRelations(
 	sizeIDs []uuid.UUID,
 	typeIDs []uuid.UUID,
 	finishIDs []uuid.UUID,
+	variants []model.DesignVariant,
 	images []model.DesignImage,
 ) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("design_id = ?", designID).Delete(&model.DesignVariant{}).Error; err != nil {
+			return err
+		}
+		if len(variants) > 0 {
+			for i := range variants {
+				variants[i].DesignID = designID
+			}
+			if err := tx.CreateInBatches(variants, 100).Error; err != nil {
+				return err
+			}
+		}
 		if err := tx.Where("design_id = ?", designID).Delete(&model.DesignSize{}).Error; err != nil {
 			return err
 		}

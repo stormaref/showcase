@@ -39,7 +39,7 @@ type DesignFormProps = {
 };
 
 const checkboxClass =
-  "size-4 shrink-0 rounded border-gray-300 accent-gray-900";
+  "size-4 shrink-0 cursor-pointer rounded border-gray-300 accent-gray-900";
 
 function typeLabel(t: AdminDesignType): string {
   return t.translations?.en?.name ?? t.name;
@@ -47,6 +47,14 @@ function typeLabel(t: AdminDesignType): string {
 
 function finishLabel(f: AdminSurfaceFinish): string {
   return f.translations?.en?.name ?? f.name;
+}
+
+function brandLabel(b: AdminBrand): string {
+  return b.translations?.en?.name ?? b.name;
+}
+
+function variantKey(typeId: string, sizeId: string): string {
+  return `${typeId}:${sizeId}`;
 }
 
 function imagesFromDesign(design?: Design): PendingImage[] {
@@ -62,22 +70,25 @@ function imagesFromDesign(design?: Design): PendingImage[] {
   }));
 }
 
-function selectedSizeIdsFromDesign(design?: Design): string[] {
-  if (!design) return [];
-  const fromSizes = design.sizes.map((s) => s.id);
-  const fromImages = design.images
-    .map((img) => img.size_id)
-    .filter((id): id is string => Boolean(id));
-  return [...new Set([...fromSizes, ...fromImages])];
+function variantKeysFromDesign(design?: Design): Set<string> {
+  if (!design) return new Set();
+  if (design.variants) {
+    return new Set(design.variants.map((v) => variantKey(v.type_id, v.size_id)));
+  }
+  // Legacy responses without an explicit variant list imply the cartesian
+  // product of the design's categories and sizes.
+  const keys = new Set<string>();
+  for (const tp of design.types ?? []) {
+    for (const size of design.sizes) {
+      keys.add(variantKey(tp.id, size.id));
+    }
+  }
+  return keys;
 }
 
-function selectedTypeIdsFromDesign(design?: Design): string[] {
+function selectedFinishIdsFromDesign(design?: Design): string[] {
   if (!design) return [];
-  const fromTypes = (design.types ?? []).map((t) => t.id);
-  const fromImages = design.images
-    .map((img) => img.type_id)
-    .filter((id): id is string => Boolean(id));
-  return [...new Set([...fromTypes, ...fromImages])];
+  return (design.finishes ?? []).map((f) => f.id);
 }
 
 function FileUploadButton({
@@ -106,22 +117,13 @@ function FileUploadButton({
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
       >
         <Upload className="size-4" aria-hidden />
         {label}
       </button>
     </div>
   );
-}
-
-function selectedFinishIdsFromDesign(design?: Design): string[] {
-  if (!design) return [];
-  return (design.finishes ?? []).map((f) => f.id);
-}
-
-function brandLabel(b: AdminBrand): string {
-  return b.translations?.en?.name ?? b.name;
 }
 
 export function DesignForm({
@@ -137,11 +139,8 @@ export function DesignForm({
   const [translations, setTranslations] = useState(() =>
     designTranslationsFromRecord(initial?.translations),
   );
-  const [selectedSizeIds, setSelectedSizeIds] = useState<string[]>(() =>
-    selectedSizeIdsFromDesign(initial),
-  );
-  const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>(() =>
-    selectedTypeIdsFromDesign(initial),
+  const [variantKeys, setVariantKeys] = useState<Set<string>>(() =>
+    variantKeysFromDesign(initial),
   );
   const [selectedFinishIds, setSelectedFinishIds] = useState<string[]>(() =>
     selectedFinishIdsFromDesign(initial),
@@ -162,23 +161,19 @@ export function DesignForm({
     }));
   }
 
-  function toggleSize(id: string) {
-    setSelectedSizeIds((prev) => {
-      if (prev.includes(id)) {
-        setImages((imgs) => imgs.filter((img) => img.size_id !== id));
-        return prev.filter((s) => s !== id);
+  function toggleVariant(typeId: string, sizeId: string) {
+    const key = variantKey(typeId, sizeId);
+    setVariantKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+        setImages((imgs) =>
+          imgs.filter((img) => !(img.type_id === typeId && img.size_id === sizeId)),
+        );
+      } else {
+        next.add(key);
       }
-      return [...prev, id];
-    });
-  }
-
-  function toggleType(id: string) {
-    setSelectedTypeIds((prev) => {
-      if (prev.includes(id)) {
-        setImages((imgs) => imgs.filter((img) => img.type_id !== id));
-        return prev.filter((t) => t !== id);
-      }
-      return [...prev, id];
+      return next;
     });
   }
 
@@ -229,9 +224,11 @@ export function DesignForm({
       sort_order: sortOrder,
       is_published: isPublished,
       brand_id: brandId || null,
-      size_ids: selectedSizeIds,
-      type_ids: selectedTypeIds,
       finish_ids: selectedFinishIds,
+      variants: [...variantKeys].map((key) => {
+        const [type_id, size_id] = key.split(":");
+        return { type_id, size_id };
+      }),
       translations: { en: translations.en },
       images: images.map((img) => ({
         object_key: img.object_key,
@@ -266,8 +263,12 @@ export function DesignForm({
 
   const t = translations[tab];
   const showcaseImages = images.filter((img) => !img.size_id && !img.type_id);
-  const selectedSizes = sizes.filter((s) => selectedSizeIds.includes(s.id));
-  const selectedTypes = types.filter((tp) => selectedTypeIds.includes(tp.id));
+
+  const variantSections = types.flatMap((tp) =>
+    sizes
+      .filter((size) => variantKeys.has(variantKey(tp.id, size.id)))
+      .map((size) => ({ type: tp, size })),
+  );
 
   function renderImageGrid(list: PendingImage[], globalIndices: number[]) {
     if (list.length === 0) return null;
@@ -284,7 +285,7 @@ export function DesignForm({
             <button
               type="button"
               onClick={() => removeImage(globalIndices[i])}
-              className="absolute end-1 top-1 rounded bg-black/60 px-1.5 py-0.5 text-xs text-white"
+              className="absolute end-1 top-1 cursor-pointer rounded bg-black/60 px-1.5 py-0.5 text-xs text-white"
             >
               Remove
             </button>
@@ -365,53 +366,59 @@ export function DesignForm({
       </label>
 
       <fieldset className="rounded-xl border border-gray-200 p-4">
-        <legend className="px-1 text-sm font-medium">Available sizes</legend>
-        {sizes.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No sizes defined yet. Add tile sizes first.
+        <legend className="px-1 text-sm font-medium">Variants</legend>
+        <p className="text-xs text-gray-500">
+          Tick the category and size combinations this product is offered in.
+          Only ticked combinations appear on the public site.
+        </p>
+        {types.length === 0 || sizes.length === 0 ? (
+          <p className="mt-3 text-sm text-gray-500">
+            {types.length === 0
+              ? "No categories defined yet. Add tile categories first."
+              : "No sizes defined yet. Add tile sizes first."}
           </p>
         ) : (
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {sizes.map((size) => (
-              <label
-                key={size.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedSizeIds.includes(size.id)}
-                  onChange={() => toggleSize(size.id)}
-                  className={checkboxClass}
-                />
-                {size.label}
-              </label>
-            ))}
-          </div>
-        )}
-      </fieldset>
-
-      <fieldset className="rounded-xl border border-gray-200 p-4">
-        <legend className="px-1 text-sm font-medium">Tile categories</legend>
-        {types.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No categories defined yet. Add tile categories first.
-          </p>
-        ) : (
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {types.map((tp) => (
-              <label
-                key={tp.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedTypeIds.includes(tp.id)}
-                  onChange={() => toggleType(tp.id)}
-                  className={checkboxClass}
-                />
-                {typeLabel(tp)}
-              </label>
-            ))}
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-max text-sm">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="py-2 pe-4 text-start font-medium text-gray-500">
+                    Size
+                  </th>
+                  {types.map((tp) => (
+                    <th
+                      key={tp.id}
+                      className="px-3 py-2 text-center font-medium text-gray-700"
+                    >
+                      {typeLabel(tp)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sizes.map((size) => (
+                  <tr key={size.id} className="border-b border-gray-100 last:border-0">
+                    <th
+                      scope="row"
+                      className="py-2 pe-4 text-start font-normal text-gray-900"
+                    >
+                      {size.label}
+                    </th>
+                    {types.map((tp) => (
+                      <td key={tp.id} className="px-3 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          aria-label={`${typeLabel(tp)} — ${size.label}`}
+                          checked={variantKeys.has(variantKey(tp.id, size.id))}
+                          onChange={() => toggleVariant(tp.id, size.id)}
+                          className={checkboxClass}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </fieldset>
@@ -457,36 +464,34 @@ export function DesignForm({
         {renderImageGrid(showcaseImages, showcaseIndices)}
       </fieldset>
 
-      {selectedTypes.flatMap((tp) =>
-        selectedSizes.map((size) => {
-          const comboImages = images.filter(
-            (img) => img.size_id === size.id && img.type_id === tp.id,
-          );
-          const comboIndices = images
-            .map((img, i) =>
-              img.size_id === size.id && img.type_id === tp.id ? i : -1,
-            )
-            .filter((i) => i >= 0);
-          return (
-            <fieldset
-              key={`${tp.id}-${size.id}`}
-              className="rounded-xl border border-gray-200 p-4"
-            >
-              <legend className="px-1 text-sm font-medium">
-                {typeLabel(tp)} — {size.label}
-              </legend>
-              <FileUploadButton
-                disabled={isUploading}
-                onChange={(e) => {
-                  handleUpload(e.target.files, size.id, tp.id);
-                  e.target.value = "";
-                }}
-              />
-              {renderImageGrid(comboImages, comboIndices)}
-            </fieldset>
-          );
-        }),
-      )}
+      {variantSections.map(({ type: tp, size }) => {
+        const comboImages = images.filter(
+          (img) => img.size_id === size.id && img.type_id === tp.id,
+        );
+        const comboIndices = images
+          .map((img, i) =>
+            img.size_id === size.id && img.type_id === tp.id ? i : -1,
+          )
+          .filter((i) => i >= 0);
+        return (
+          <fieldset
+            key={`${tp.id}-${size.id}`}
+            className="rounded-xl border border-gray-200 p-4"
+          >
+            <legend className="px-1 text-sm font-medium">
+              {typeLabel(tp)} — {size.label}
+            </legend>
+            <FileUploadButton
+              disabled={isUploading}
+              onChange={(e) => {
+                handleUpload(e.target.files, size.id, tp.id);
+                e.target.value = "";
+              }}
+            />
+            {renderImageGrid(comboImages, comboIndices)}
+          </fieldset>
+        );
+      })}
 
       {isUploading && percent !== null && (
         <UploadProgressBar percent={percent} label="Uploading image…" />
@@ -497,7 +502,7 @@ export function DesignForm({
       <button
         type="submit"
         disabled={saving || !translations.en.title}
-        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="cursor-pointer rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
         {saving ? "Saving…" : submitLabel}
       </button>
