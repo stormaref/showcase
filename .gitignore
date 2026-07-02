@@ -12,6 +12,9 @@ webapp/node_modules/
 webapp/.next/
 webapp/out/
 
+# Claude Code
+.claude/
+
 # IDE
 .idea/
 .vscode/*
