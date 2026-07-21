@@ -14,22 +14,22 @@ export type BrandInfo = {
 const fallbacks: Record<string, BrandInfo> = {
   en: {
     name: "Art Ceramic",
-    tagline: "Custom tile designs for every space",
+    tagline: "Ceramic tiles for every space",
     about:
-      "Art Ceramic is a tile design studio specializing in patterns, glazes, and formats for kitchens, bathrooms, and architectural surfaces. Each design is available in multiple sizes — browse the catalog to find the right look for your project.",
+      "Art Ceramic supplies ceramic tiles in a wide range of designs and sizes for kitchens, bathrooms, floors, and architectural surfaces. Every design is offered in multiple sizes — browse the catalog to find the right one for your project.",
     addressLine1: "42 Kiln Street",
-    addressLine2: "Pottery District",
+    addressLine2: "Ceramics District",
     addressLine3: "Portland, OR 97201",
     phone: "+1 (555) 123-4567",
     email: "hello@artceramic.example",
   },
   fa: {
     name: "آرت سرامیک",
-    tagline: "طرح‌های کاشی سفارشی برای هر فضا",
+    tagline: "کاشی سرامیک برای هر فضا",
     about:
-      "آرت سرامیک استودیوی طراحی کاشی است که در نقش‌ها، لعاب‌ها و ابعاد مختلف برای آشپزخانه، حمام و سطوح معماری تخصص دارد. هر طرح در چند سایز موجود است — کاتالوگ را مرور کنید تا طرح مناسب پروژه خود را پیدا کنید.",
+      "آرت سرامیک عرضه‌کننده کاشی سرامیک در طرح‌ها و سایزهای متنوع برای آشپزخانه، حمام، کف و سطوح معماری است. هر طرح در چند سایز عرضه می‌شود — کاتالوگ را مرور کنید تا گزینه مناسب پروژه خود را پیدا کنید.",
     addressLine1: "خیابان کوره ۴۲",
-    addressLine2: "محله سفالگری",
+    addressLine2: "محله سرامیک",
     addressLine3: "پورتلند، OR 97201",
     phone: "+1 (555) 123-4567",
     email: "hello@artceramic.example",

@@ -50,9 +50,9 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-16">
+    <article className="mx-auto max-w-3xl px-6 py-16 md:py-24">
       <header>
-        <time className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
+        <time className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
           {post.published_at
             ? new Date(post.published_at).toLocaleDateString(dateLocale, {
                 year: "numeric",
@@ -61,18 +61,16 @@ export default async function BlogPostPage({ params }: Props) {
               })
             : ""}
         </time>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
+        <h1 className="mt-4 text-4xl font-extralight leading-[1.1] tracking-tight text-ink md:text-5xl">
           {post.title}
         </h1>
         {post.excerpt && (
-          <p className="mt-5 text-lg leading-relaxed text-gray-600">{post.excerpt}</p>
+          <p className="mt-6 text-lg font-light leading-relaxed text-gray-500">
+            {post.excerpt}
+          </p>
         )}
-        <span
-          className="mt-8 block h-1 w-12 rounded-full bg-gradient-to-r from-clay to-ochre"
-          aria-hidden
-        />
       </header>
-      <div className="mt-12">
+      <div className="mt-12 border-t border-gray-200 pt-12">
         {post.content_html ? (
           <MarkdownContent html={post.content_html} />
         ) : (

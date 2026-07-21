@@ -1,45 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-  /* Fired-clay palette: saturated terracotta primary with a deep kiln red
-     for hover/dark pairings and a coral glow for dark surfaces. */
-  --color-clay: #b0421c;
-  --color-clay-dark: #8c3113;
-  --color-clay-soft: #f3d9c4;
-  --color-clay-light: #e78a5e;
+  /* Porcelain-minimal palette. Warm white ground, near-black ink, stone
+     neutrals, and one restrained terracotta accent used sparingly. */
+  --color-clay: #a5471d;
+  --color-clay-dark: #7d3414;
+  --color-clay-soft: #ede0d6;
+  --color-clay-light: #c97a52;
 
-  /* Amber-glaze accent — eyebrows and numerals on dark surfaces only
-     (fails AA on light grounds). */
-  --color-ochre: #c9862b;
+  --color-ink: #171310;
+  --color-paper: #fbfaf7;
+  --color-cream: #f5f3ee;
+  --color-sand: #e9e6de;
+  --color-shell: #ffffff;
+  --color-cocoa: #171310;
 
-  /* Named surfaces: warm bone and sand instead of pale greige, plus a
-     near-white shell for cards so they don't read cold against ivory. */
-  --color-shell: #fffdf7;
-  --color-cream: #f7efe3;
-  --color-sand: #efe1cb;
-  --color-cocoa: #221611;
+  /* Stone gray scale — neutral with a faint warm undertone. */
+  --color-gray-50: #f8f7f4;
+  --color-gray-100: #f0eee9;
+  --color-gray-200: #e2dfd7;
+  --color-gray-300: #c9c5ba;
+  --color-gray-400: #a19c90;
+  --color-gray-500: #7a7468;
+  --color-gray-600: #5c564c;
+  --color-gray-700: #46413a;
+  --color-gray-800: #2b2721;
+  --color-gray-900: #171310;
 
-  /* Warm taupe scale: umber-tinted from bone to kiln-black. */
-  --color-gray-50: #faf5eb;
-  --color-gray-100: #f3ead9;
-  --color-gray-200: #e5d7c0;
-  --color-gray-300: #cfb99c;
-  --color-gray-400: #a68d6d;
-  --color-gray-500: #7f6b52;
-  --color-gray-600: #61503b;
-  --color-gray-700: #4a3c2c;
-  --color-gray-800: #31261c;
-  --color-gray-900: #221611;
-
-  --font-sans: var(--font-worksans), var(--font-sgkara), ui-sans-serif,
+  --font-sans: var(--font-worksans), var(--font-vazirmatn), ui-sans-serif,
     system-ui, sans-serif;
-  --font-display: var(--font-fraunces), var(--font-sgkara), ui-serif, Georgia,
-    serif;
+  --font-display: var(--font-worksans), var(--font-vazirmatn), ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 :root {
-  --background: #faf3e6;
-  --foreground: #221611;
+  --background: #fbfaf7;
+  --foreground: #171310;
 }
 
 body {
@@ -50,7 +46,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-clay);
+  background: var(--color-ink);
   color: #fff;
 }
 
@@ -65,69 +61,52 @@ body {
   letter-spacing: 0 !important;
 }
 
-/* Subtle fired-surface grain for dark and terracotta bands. */
-.texture-grain {
-  position: relative;
-}
-
-.texture-grain::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 160px 160px;
-  opacity: 0.16;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-}
-
 .prose-showcase {
-  line-height: 1.75;
+  line-height: 1.85;
 }
 
 .prose-showcase h1,
 .prose-showcase h2,
 .prose-showcase h3 {
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.01em;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  color: var(--color-gray-900);
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+  color: var(--color-ink);
 }
 
 .prose-showcase p {
   margin-bottom: 1em;
-  color: var(--color-gray-700);
+  color: var(--color-gray-600);
 }
 
 .prose-showcase a {
-  color: var(--color-clay);
+  color: var(--color-ink);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-color: var(--color-gray-400);
+  text-underline-offset: 3px;
 }
 
 .prose-showcase a:hover {
-  color: var(--color-clay-dark);
+  color: var(--color-clay);
+  text-decoration-color: var(--color-clay);
 }
 
 .prose-showcase img {
-  border-radius: 0.75rem;
-  margin: 1.5em 0;
+  margin: 2em 0;
 }
 
 .prose-showcase blockquote {
-  border-inline-start: 3px solid var(--color-clay);
-  padding-inline-start: 1rem;
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-gray-700);
+  border-inline-start: 1px solid var(--color-gray-300);
+  padding-inline-start: 1.25rem;
+  font-weight: 300;
+  font-size: 1.15em;
+  color: var(--color-gray-600);
 }
 
 .prose-showcase pre {
-  background: var(--color-gray-100);
+  background: var(--color-gray-50);
   border: 1px solid var(--color-gray-200);
-  border-radius: 0.75rem;
   padding: 1rem;
   overflow-x: auto;
 }

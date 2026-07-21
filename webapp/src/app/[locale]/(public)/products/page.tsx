@@ -35,21 +35,22 @@ export default async function ProductsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-      <header className="max-w-2xl">
-        <p className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-clay">
-          <span className="h-px w-10 bg-clay" aria-hidden />
+    <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 md:py-24">
+      <header>
+        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
           {t("eyebrow")}
         </p>
-        <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
+        <h1 className="mt-5 text-4xl font-extralight tracking-tight text-ink md:text-6xl">
           {t("title")}
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-gray-600">{t("subtitle")}</p>
+        <p className="mt-5 max-w-xl text-sm font-light leading-relaxed text-gray-500">
+          {t("subtitle")}
+        </p>
       </header>
       {items.length === 0 ? (
-        <p className="mt-16 text-gray-500">{t("empty")}</p>
+        <p className="mt-16 font-light text-gray-500">{t("empty")}</p>
       ) : (
-        <Suspense fallback={<div className="mt-12 h-64 animate-pulse rounded-2xl bg-gray-100" />}>
+        <Suspense fallback={<div className="mt-14 h-64 animate-pulse bg-gray-100" />}>
           <DesignCatalog items={items} />
         </Suspense>
       )}

@@ -76,7 +76,7 @@ export function ImageCarousel({ images, className, labels }: ImageCarouselProps)
             onClick={() => scrollTo(activeIndex - 1)}
             disabled={activeIndex === 0}
             aria-label={prevLabel}
-            className="absolute start-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-cream/95 text-gray-800 shadow-md transition hover:bg-cream hover:text-clay disabled:pointer-events-none disabled:opacity-40"
+            className="absolute start-4 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center bg-white/90 text-ink transition hover:bg-white disabled:pointer-events-none disabled:opacity-0"
           >
             <ChevronLeft className="size-5 rtl:rotate-180" aria-hidden />
           </button>
@@ -85,7 +85,7 @@ export function ImageCarousel({ images, className, labels }: ImageCarouselProps)
             onClick={() => scrollTo(activeIndex + 1)}
             disabled={activeIndex === images.length - 1}
             aria-label={nextLabel}
-            className="absolute end-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-cream/95 text-gray-800 shadow-md transition hover:bg-cream hover:text-clay disabled:pointer-events-none disabled:opacity-40"
+            className="absolute end-4 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center bg-white/90 text-ink transition hover:bg-white disabled:pointer-events-none disabled:opacity-0"
           >
             <ChevronRight className="size-5 rtl:rotate-180" aria-hidden />
           </button>
@@ -98,7 +98,7 @@ export function ImageCarousel({ images, className, labels }: ImageCarouselProps)
                 aria-label={`${labels?.slide ?? "Slide"} ${i + 1}`}
                 aria-current={i === activeIndex ? "true" : undefined}
                 className={cn(
-                  "size-2 rounded-full transition",
+                  "h-0.5 w-6 transition",
                   i === activeIndex ? "bg-white" : "bg-white/50 hover:bg-white/80",
                 )}
               />

@@ -35,22 +35,54 @@ export async function DesignDetail({ design }: DesignDetailProps) {
     .filter((section) => section.sizes.length > 0);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
+    <div className="mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-20">
       <Link
         href="/products"
-        className="group inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 transition hover:text-clay"
+        className="group inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500 transition hover:text-ink"
       >
         <ArrowLeft
-          className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180 rtl:group-hover:translate-x-0.5"
+          className="size-3.5 transition-transform duration-300 group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1"
           aria-hidden
         />
         {t("backToCatalog")}
       </Link>
 
-      <section className="mt-8">
+      <header className="mt-12 max-w-3xl">
+        {design.brand && (
+          <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+            {design.brand.website_url ? (
+              <a
+                href={design.brand.website_url}
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-ink"
+              >
+                {design.brand.name}
+              </a>
+            ) : (
+              design.brand.name
+            )}
+          </p>
+        )}
+        <h1 className="mt-4 text-4xl font-extralight tracking-tight text-ink md:text-6xl">
+          {design.title}
+        </h1>
+        {design.caption && (
+          <p className="mt-5 text-lg font-light leading-relaxed text-gray-500">
+            {design.caption}
+          </p>
+        )}
+        {finishes.length > 0 && (
+          <p className="mt-5 text-xs font-light text-gray-500">
+            {finishes.map((finish) => finish.name).join(" · ")}
+          </p>
+        )}
+      </header>
+
+      <section className="mt-12">
         <h2 className="sr-only">{t("showcase")}</h2>
         {showcaseSlides.length > 0 ? (
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-shell shadow-sm">
+          <div className="overflow-hidden bg-gray-100">
             <ImageCarousel
               images={showcaseSlides}
               labels={{
@@ -61,63 +93,24 @@ export async function DesignDetail({ design }: DesignDetailProps) {
             />
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">
+          <p className="border border-gray-200 bg-cream px-6 py-14 text-center text-sm font-light text-gray-500">
             {t("noShowcaseImages")}
           </p>
         )}
       </section>
 
-      <header className="mt-12 max-w-2xl">
-        {design.brand && (
-          <p className="mb-3 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-clay">
-            <span className="h-px w-10 bg-clay" aria-hidden />
-            {design.brand.website_url ? (
-              <a
-                href={design.brand.website_url}
-                target="_blank"
-                rel="noreferrer"
-                className="transition hover:text-clay-dark"
-              >
-                {design.brand.name}
-              </a>
-            ) : (
-              design.brand.name
-            )}
-          </p>
-        )}
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
-          {design.title}
-        </h1>
-        {design.caption && (
-          <p className="mt-4 text-lg leading-relaxed text-gray-600">{design.caption}</p>
-        )}
-        {finishes.length > 0 && (
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {finishes.map((finish) => (
-              <li
-                key={finish.id}
-                className="rounded-full border border-clay/20 bg-clay-soft/60 px-3.5 py-1 text-sm font-medium text-clay-dark"
-              >
-                {finish.name}
-              </li>
-            ))}
-          </ul>
-        )}
-      </header>
-
       {typeSections.length > 0 && (
-        <section className="mt-16 border-t border-gray-200 pt-16">
-          <h2 className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-clay">
-            <span className="h-px w-10 bg-clay" aria-hidden />
+        <section className="mt-20 md:mt-28">
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
             {t("availableIn")}
           </h2>
-          <div className="mt-10 space-y-16">
+          <div className="mt-10 space-y-20">
             {typeSections.map(({ type, sizes }) => (
               <div key={type.id}>
-                <h3 className="font-display text-2xl font-semibold tracking-tight text-gray-900">
+                <h3 className="border-t border-gray-200 pt-6 text-2xl font-light tracking-tight text-ink md:text-3xl">
                   {type.name}
                 </h3>
-                <div className="mt-8 space-y-12">
+                <div className="mt-10 space-y-14">
                   {sizes.map((size) => {
                     const sizeImgs = imagesForSizeAndType(
                       design.images,
@@ -126,25 +119,15 @@ export async function DesignDetail({ design }: DesignDetailProps) {
                     );
                     const slides = carouselSlides(sizeImgs, alt);
                     return (
-                      <article
-                        key={`${type.id}-${size.id}`}
-                        className="rounded-2xl border border-gray-200 bg-shell p-6 shadow-sm md:p-8"
-                      >
-                        <header className="mb-6">
-                          <h4 className="font-display text-xl font-semibold text-gray-900">
-                            {size.label}
-                          </h4>
-                          <p className="mt-1 text-sm font-medium text-gray-600">
+                      <article key={`${type.id}-${size.id}`}>
+                        <header className="mb-5 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                          <h4 className="text-lg font-medium text-ink">{size.label}</h4>
+                          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
                             {design.title}
                           </p>
-                          {design.caption && (
-                            <p className="mt-2 text-sm leading-relaxed text-gray-500">
-                              {design.caption}
-                            </p>
-                          )}
                         </header>
                         {slides.length > 0 ? (
-                          <div className="overflow-hidden rounded-xl">
+                          <div className="overflow-hidden bg-gray-100">
                             <ImageCarousel
                               images={slides}
                               labels={{
@@ -155,7 +138,9 @@ export async function DesignDetail({ design }: DesignDetailProps) {
                             />
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-500">{t("noVariantImages")}</p>
+                          <p className="text-sm font-light text-gray-500">
+                            {t("noVariantImages")}
+                          </p>
                         )}
                       </article>
                     );

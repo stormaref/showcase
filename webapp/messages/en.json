@@ -1,7 +1,7 @@
 {
   "metadata": {
     "siteTitle": "Art Ceramic",
-    "siteDescription": "Art Ceramic — custom tile products, patterns, and sizes for residential and commercial projects.",
+    "siteDescription": "Art Ceramic — ceramic tiles in a wide range of designs and sizes for residential and commercial projects.",
     "titleTemplate": "%s | Art Ceramic",
     "homeTitle": "Welcome",
     "homeDescription": "Art Ceramic — explore our tile product catalog, available sizes, and project inspiration.",
@@ -10,7 +10,7 @@
     "brandsTitle": "Brands",
     "brandsDescription": "The family of brands owned by Art Ceramic.",
     "blogTitle": "Blog",
-    "blogDescription": "News, techniques, and updates from Art Ceramic.",
+    "blogDescription": "News, trends, and updates from Art Ceramic.",
     "postNotFound": "Post not found",
     "designNotFound": "Product not found"
   },
@@ -26,33 +26,33 @@
     "supportedLanguages": "Supported languages"
   },
   "home": {
-    "eyebrow": "Tile design studio",
+    "eyebrow": "Ceramic tiles",
     "viewDesigns": "Browse products",
     "readBlog": "Read blog",
     "aboutTitle": "About us",
     "brandsTitle": "Our brands",
     "brandsSubtitle": "The family of brands behind our work.",
     "brandsVisit": "Visit website",
-    "servicesTitle": "Our services",
-    "servicesSubtitle": "What we offer at the studio and for your projects.",
+    "servicesTitle": "Why choose us",
+    "servicesSubtitle": "Tiles, sizes, and service you can count on.",
     "contactTitle": "Contact",
     "designsTitle": "Products",
     "designsSubtitle": "Explore patterns and available tile sizes.",
     "viewAll": "View all",
     "latestPosts": "Latest posts",
     "services": {
-      "tilesTitle": "Custom tile designs",
-      "tilesDesc": "Original patterns and glazes for kitchens, bathrooms, and feature walls.",
-      "potteryTitle": "Handmade pottery",
-      "potteryDesc": "Tableware, vases, and decorative pieces thrown and finished by hand.",
-      "glazingTitle": "Glazing & finishing",
-      "glazingDesc": "Professional glazing, firing, and surface treatments for your project.",
-      "restorationTitle": "Restoration & repair",
-      "restorationDesc": "Careful repair of chipped, cracked, or worn ceramic and tile work.",
-      "consultationTitle": "Design consultation",
-      "consultationDesc": "Pattern selection, color palettes, and layout guidance for your space.",
-      "workshopsTitle": "Workshops",
-      "workshopsDesc": "Introductory and advanced classes in wheel throwing and hand-building."
+      "designsTitle": "Designs for every taste",
+      "designsDesc": "A broad catalog of tile designs, from timeless classics to contemporary patterns.",
+      "sizesTitle": "Every design, multiple sizes",
+      "sizesDesc": "Each design comes in a range of sizes to suit floors, walls, and any layout.",
+      "brandsTitle": "Trusted brands",
+      "brandsDesc": "Tiles from reputable manufacturers, selected for quality and consistency.",
+      "applicationsTitle": "Floors and walls",
+      "applicationsDesc": "Tiles for kitchens, bathrooms, living areas, and commercial spaces.",
+      "guidanceTitle": "Expert guidance",
+      "guidanceDesc": "Help choosing the right design and size for your project.",
+      "supplyTitle": "Project-ready supply",
+      "supplyDesc": "Order the quantities you need, from a single room to a large project."
     }
   },
   "designs": {
@@ -89,7 +89,7 @@
   },
   "blog": {
     "title": "Blog",
-    "subtitle": "Stories and updates from the studio.",
+    "subtitle": "News, trends, and updates from the world of tile.",
     "empty": "No posts published yet.",
     "contentUnavailable": "Content unavailable."
   },

@@ -36,31 +36,35 @@ export default async function BlogListPage() {
   const dateLocale = locale === "fa" ? "fa-IR" : "en-US";
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-      <span
-        className="block h-1 w-12 rounded-full bg-gradient-to-r from-clay to-ochre"
-        aria-hidden
-      />
-      <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
-        {t("title")}
-      </h1>
-      <p className="mt-4 text-lg leading-relaxed text-gray-600">{t("subtitle")}</p>
-      <ul className="mt-12 divide-y divide-gray-200">
+    <div className="mx-auto max-w-4xl px-6 py-16 md:py-24">
+      <header>
+        <h1 className="text-4xl font-extralight tracking-tight text-ink md:text-6xl">
+          {t("title")}
+        </h1>
+        <p className="mt-5 max-w-xl text-sm font-light leading-relaxed text-gray-500">
+          {t("subtitle")}
+        </p>
+      </header>
+      <ul className="mt-16">
         {posts.length === 0 && (
-          <li className="py-8 text-gray-500">{t("empty")}</li>
+          <li className="border-t border-gray-200 py-10 font-light text-gray-500">
+            {t("empty")}
+          </li>
         )}
         {posts.map((post) => (
-          <li key={post.id} className="py-9">
-            <Link href={`/blog/${post.slug}`} className="group block cursor-pointer">
-              <time className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
+          <li key={post.id} className="border-t border-gray-200">
+            <Link href={`/blog/${post.slug}`} className="group block cursor-pointer py-10">
+              <time className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
                 {post.published_at
                   ? new Date(post.published_at).toLocaleDateString(dateLocale)
                   : ""}
               </time>
-              <h2 className="mt-3 font-display text-2xl font-semibold text-gray-900 transition group-hover:text-clay">
+              <h2 className="mt-3 text-2xl font-light tracking-tight text-ink transition group-hover:text-clay md:text-3xl">
                 {post.title}
               </h2>
-              <p className="mt-3 leading-relaxed text-gray-600">{post.excerpt}</p>
+              <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-gray-500">
+                {post.excerpt}
+              </p>
             </Link>
           </li>
         ))}

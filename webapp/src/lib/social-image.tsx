@@ -20,100 +20,45 @@ export function renderSocialImage({ title, tagline, locale }: SocialImageProps) 
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "space-between",
           padding: "80px",
-          background: "linear-gradient(145deg, #221611 0%, #2e1c12 55%, #45231a 100%)",
+          background: "#fbfaf7",
           direction: isRtl ? "rtl" : "ltr",
         }}
       >
         <div
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background:
-              "radial-gradient(circle at 80% 10%, rgba(176, 66, 28, 0.45) 0%, transparent 55%), radial-gradient(circle at 15% 90%, rgba(201, 134, 43, 0.25) 0%, transparent 45%)",
-          }}
-        />
-        {/* Kiln arches */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: isRtl ? undefined : "70px",
-            left: isRtl ? "70px" : undefined,
-            display: "flex",
-            alignItems: "flex-end",
-            gap: "18px",
+            fontSize: 24,
+            fontWeight: 600,
+            color: "#171310",
+            textTransform: "uppercase",
+            letterSpacing: isRtl ? 0 : "0.35em",
           }}
         >
-          <div
-            style={{
-              width: "90px",
-              height: "180px",
-              borderRadius: "45px 45px 0 0",
-              background: "linear-gradient(180deg, #c9862b, #b0421c)",
-              opacity: 0.9,
-            }}
-          />
-          <div
-            style={{
-              width: "120px",
-              height: "260px",
-              borderRadius: "60px 60px 0 0",
-              background: "linear-gradient(180deg, #b0421c, #8c3113)",
-            }}
-          />
-          <div
-            style={{
-              width: "100px",
-              height: "210px",
-              borderRadius: "50px 50px 0 0",
-              background: "rgba(247, 239, 227, 0.12)",
-              border: "1px solid rgba(247, 239, 227, 0.3)",
-            }}
-          />
+          {title}
+        </div>
+        <div
+          style={{
+            fontSize: 58,
+            fontWeight: 300,
+            color: "#171310",
+            lineHeight: 1.15,
+            letterSpacing: isRtl ? 0 : "-0.02em",
+            maxWidth: "900px",
+          }}
+        >
+          {tagline}
         </div>
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            gap: "24px",
-            position: "relative",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
           }}
         >
-          <div
-            style={{
-              width: "64px",
-              height: "5px",
-              background: "linear-gradient(90deg, #b0421c, #c9862b)",
-              borderRadius: "3px",
-            }}
-          />
-          <div
-            style={{
-              fontSize: 72,
-              fontWeight: 600,
-              color: "#f7efe3",
-              lineHeight: 1.1,
-              letterSpacing: isRtl ? 0 : "-0.02em",
-              maxWidth: "820px",
-            }}
-          >
-            {title}
-          </div>
-          <div
-            style={{
-              fontSize: 32,
-              color: "#d8c3ab",
-              lineHeight: 1.4,
-              maxWidth: "760px",
-            }}
-          >
-            {tagline}
-          </div>
+          <div style={{ width: "160px", height: "1px", background: "#c9c5ba" }} />
+          <div style={{ width: "14px", height: "14px", background: "#a5471d" }} />
         </div>
       </div>
     ),

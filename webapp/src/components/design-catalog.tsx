@@ -202,7 +202,10 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
         {filteredItems.length === 0 ? (
           <p className="text-gray-500">{t("noMatches")}</p>
         ) : (
-          <DesignGrid items={filteredItems} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" />
+          <DesignGrid
+            items={filteredItems}
+            className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3"
+          />
         )}
       </div>
     </div>
