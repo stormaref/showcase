@@ -25,7 +25,7 @@ export async function SiteFooter() {
             {brand.tagline}
           </p>
         </div>
-        <nav className="flex flex-col gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">
+        <nav className="flex flex-col gap-3 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500">
           {links.map((l) => (
             <Link key={l.href} href={l.href} className="w-fit transition hover:text-ink">
               {l.label}

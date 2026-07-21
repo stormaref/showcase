@@ -54,7 +54,7 @@ function QuietLink({ href, children }: { href: "/products" | "/blog"; children: 
   return (
     <Link
       href={href}
-      className="group inline-flex shrink-0 cursor-pointer items-center gap-2 pb-1 text-[11px] font-medium uppercase tracking-[0.18em] text-ink transition hover:text-clay"
+      className="group inline-flex shrink-0 cursor-pointer items-center gap-2 pb-1 text-[13px] font-medium uppercase tracking-[0.18em] text-ink transition hover:text-clay"
     >
       {children}
       <ArrowRight
@@ -106,7 +106,7 @@ export default async function HomePage({ params }: PageProps) {
     <>
       {/* Hero — quiet type block */}
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-20 md:px-10 md:pb-24 md:pt-28">
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+        <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
           {t("eyebrow")}
         </p>
         <h1 className="mt-6 max-w-3xl text-5xl font-extralight leading-[1.05] tracking-tight text-ink md:text-7xl">
@@ -115,7 +115,7 @@ export default async function HomePage({ params }: PageProps) {
         <div className="mt-12 flex flex-wrap items-center gap-8">
           <Link
             href="/products"
-            className="cursor-pointer bg-ink px-9 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition duration-300 hover:bg-clay"
+            className="cursor-pointer bg-ink px-10 py-4 text-sm font-medium uppercase tracking-[0.2em] text-white transition duration-300 hover:bg-clay"
           >
             {t("viewDesigns")}
           </Link>
@@ -142,7 +142,7 @@ export default async function HomePage({ params }: PageProps) {
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 via-ink/25 to-transparent p-5 pt-14">
                   {design.brand?.name && (
-                    <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/70">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/70">
                       {design.brand.name}
                     </p>
                   )}
@@ -160,7 +160,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* About — stone band */}
       <section className="border-y border-gray-200 bg-cream">
         <div className="mx-auto max-w-3xl px-6 py-24 text-center md:py-32">
-          <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+          <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
             {t("aboutTitle")}
           </p>
           <p className="mt-8 text-2xl font-light leading-relaxed text-gray-800 md:text-[1.75rem]">
@@ -211,7 +211,7 @@ export default async function HomePage({ params }: PageProps) {
               <article key={post.id} className="border-t border-gray-200 pt-6">
                 <Link href={`/blog/${post.slug}`} className="group block cursor-pointer">
                   {post.published_at && (
-                    <time className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                    <time className="text-[13px] font-medium uppercase tracking-[0.18em] text-gray-400">
                       {new Date(post.published_at).toLocaleDateString(dateLocale)}
                     </time>
                   )}
@@ -231,7 +231,7 @@ export default async function HomePage({ params }: PageProps) {
       {/* Contact — centered, calm */}
       <section className="border-t border-gray-200 bg-cream">
         <div className="mx-auto max-w-3xl px-6 py-24 text-center md:py-32">
-          <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+          <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
             {t("contactTitle")}
           </p>
           <p className="mt-8">

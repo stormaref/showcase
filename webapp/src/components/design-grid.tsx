@@ -47,7 +47,7 @@ export function DesignGrid({
             </div>
             <figcaption className="mt-5">
               {item.brand?.name && (
-                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-400">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
                   {item.brand.name}
                 </p>
               )}

@@ -22,7 +22,7 @@ export function DesignSizeFilter({
 
   return (
     <fieldset className="border border-gray-200 bg-white p-5">
-        <legend className="px-1 text-[11px] font-medium uppercase tracking-[0.18em] text-ink">
+        <legend className="px-1 text-[13px] font-medium uppercase tracking-[0.18em] text-ink">
           {labels.filterBySize}
         </legend>
         <ul className="mt-3 space-y-2">

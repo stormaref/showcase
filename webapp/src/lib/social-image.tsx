@@ -58,7 +58,7 @@ export function renderSocialImage({ title, tagline, locale }: SocialImageProps) 
           }}
         >
           <div style={{ width: "160px", height: "1px", background: "#c9c5ba" }} />
-          <div style={{ width: "14px", height: "14px", background: "#a5471d" }} />
+          <div style={{ width: "14px", height: "14px", background: "#795548" }} />
         </div>
       </div>
     ),

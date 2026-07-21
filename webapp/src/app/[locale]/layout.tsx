@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
-import { vazirmatn } from "@/lib/fonts/vazirmatn";
+import { iranYekan } from "@/lib/fonts/iranyekan";
 import { workSans } from "@/lib/fonts/worksans";
 import { metadataBase } from "@/lib/metadata";
 import "../globals.css";
@@ -46,13 +46,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const dir = locale === "fa" ? "rtl" : "ltr";
-  const fontClass = locale === "fa" ? vazirmatn.className : "font-sans";
+  const fontClass = locale === "fa" ? iranYekan.className : "font-sans";
 
   return (
     <html
       lang={locale}
       dir={dir}
-      className={`h-full antialiased ${vazirmatn.variable} ${workSans.variable}`}
+      className={`h-full antialiased ${iranYekan.variable} ${workSans.variable}`}
     >
       <body className={`min-h-full flex flex-col ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>

@@ -37,7 +37,7 @@ export function BrandGrid({
                 </span>
               )}
             </div>
-            <h3 className="mt-5 text-[11px] font-medium uppercase tracking-[0.22em] text-ink">
+            <h3 className="mt-5 text-[13px] font-medium uppercase tracking-[0.22em] text-ink">
               {brand.name}
             </h3>
             {brand.description && (
@@ -45,7 +45,7 @@ export function BrandGrid({
                 {brand.description}
               </p>
             )}
-            <span className="mt-5 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500 underline decoration-gray-300 underline-offset-4 transition group-hover:text-clay group-hover:decoration-clay">
+            <span className="mt-5 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500 underline decoration-gray-300 underline-offset-4 transition group-hover:text-clay group-hover:decoration-clay">
               {productsLabel}
             </span>
           </Link>

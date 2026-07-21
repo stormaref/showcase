@@ -54,7 +54,7 @@ export default async function BlogListPage() {
         {posts.map((post) => (
           <li key={post.id} className="border-t border-gray-200">
             <Link href={`/blog/${post.slug}`} className="group block cursor-pointer py-10">
-              <time className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+              <time className="text-[13px] font-medium uppercase tracking-[0.18em] text-gray-400">
                 {post.published_at
                   ? new Date(post.published_at).toLocaleDateString(dateLocale)
                   : ""}

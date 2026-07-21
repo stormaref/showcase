@@ -2,11 +2,11 @@
 
 @theme {
   /* Porcelain-minimal palette. Warm white ground, near-black ink, stone
-     neutrals, and one restrained terracotta accent used sparingly. */
-  --color-clay: #a5471d;
-  --color-clay-dark: #7d3414;
-  --color-clay-soft: #ede0d6;
-  --color-clay-light: #c97a52;
+     neutrals, and one restrained warm-brown accent used sparingly. */
+  --color-clay: #795548;
+  --color-clay-dark: #5d4037;
+  --color-clay-soft: #e9e0da;
+  --color-clay-light: #a1887f;
 
   --color-ink: #171310;
   --color-paper: #fbfaf7;
@@ -27,9 +27,9 @@
   --color-gray-800: #2b2721;
   --color-gray-900: #171310;
 
-  --font-sans: var(--font-worksans), var(--font-vazirmatn), ui-sans-serif,
+  --font-sans: var(--font-worksans), var(--font-iranyekan), ui-sans-serif,
     system-ui, sans-serif;
-  --font-display: var(--font-worksans), var(--font-vazirmatn), ui-sans-serif,
+  --font-display: var(--font-worksans), var(--font-iranyekan), ui-sans-serif,
     system-ui, sans-serif;
 }
 

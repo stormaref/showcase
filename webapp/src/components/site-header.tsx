@@ -21,7 +21,7 @@ export async function SiteHeader() {
           {brand.name}
         </Link>
         <div className="flex items-center gap-8">
-          <nav className="flex items-center gap-8 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">
+          <nav className="flex items-center gap-8 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500">
             <Link href="/" className="transition hover:text-ink">
               {t("home")}
             </Link>

@@ -37,7 +37,7 @@ export default async function ProductsPage() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 md:py-24">
       <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+        <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
           {t("eyebrow")}
         </p>
         <h1 className="mt-5 text-4xl font-extralight tracking-tight text-ink md:text-6xl">

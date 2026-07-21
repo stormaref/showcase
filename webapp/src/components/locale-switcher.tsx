@@ -5,7 +5,7 @@ import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
-import { vazirmatn } from "@/lib/fonts/vazirmatn";
+import { iranYekan } from "@/lib/fonts/iranyekan";
 
 const LOCALE_OPTIONS: { locale: Locale; label: string; persian?: boolean }[] = [
   { locale: "en", label: "English" },
@@ -68,7 +68,7 @@ export function LocaleSwitcher() {
               selected
                 ? "bg-gray-50 font-medium text-ink"
                 : "font-light text-gray-600 hover:bg-gray-50 hover:text-clay"
-            } ${persian ? vazirmatn.className : ""}`;
+            } ${persian ? iranYekan.className : ""}`;
 
             return (
               <li key={l} role="option" aria-selected={selected}>

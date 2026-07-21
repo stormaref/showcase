@@ -38,7 +38,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
     <div className="mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-20">
       <Link
         href="/products"
-        className="group inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500 transition hover:text-ink"
+        className="group inline-flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500 transition hover:text-ink"
       >
         <ArrowLeft
           className="size-3.5 transition-transform duration-300 group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1"
@@ -49,7 +49,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
 
       <header className="mt-12 max-w-3xl">
         {design.brand && (
-          <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+          <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
             {design.brand.website_url ? (
               <a
                 href={design.brand.website_url}
@@ -101,7 +101,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
 
       {typeSections.length > 0 && (
         <section className="mt-20 md:mt-28">
-          <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-gray-500">
+          <h2 className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
             {t("availableIn")}
           </h2>
           <div className="mt-10 space-y-20">
@@ -122,7 +122,7 @@ export async function DesignDetail({ design }: DesignDetailProps) {
                       <article key={`${type.id}-${size.id}`}>
                         <header className="mb-5 flex flex-wrap items-baseline gap-x-5 gap-y-1">
                           <h4 className="text-lg font-medium text-ink">{size.label}</h4>
-                          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">
+                          <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-gray-400">
                             {design.title}
                           </p>
                         </header>
