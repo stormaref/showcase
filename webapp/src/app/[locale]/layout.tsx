@@ -1,10 +1,23 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { Fraunces, Work_Sans } from "next/font/google";
 import { routing, type Locale } from "@/i18n/routing";
 import { sgkara } from "@/lib/fonts/sgkara";
 import { metadataBase } from "@/lib/metadata";
 import "../globals.css";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  variable: "--font-worksans",
+  display: "swap",
+});
 
 type Props = {
   children: React.ReactNode;
@@ -48,7 +61,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   const fontClass = locale === "fa" ? sgkara.className : "font-sans";
 
   return (
-    <html lang={locale} dir={dir} className={`h-full antialiased ${sgkara.variable}`}>
+    <html
+      lang={locale}
+      dir={dir}
+      className={`h-full antialiased ${sgkara.variable} ${fraunces.variable} ${workSans.variable}`}
+    >
       <body className={`min-h-full flex flex-col ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>

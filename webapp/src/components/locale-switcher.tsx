@@ -49,7 +49,7 @@ export function LocaleSwitcher() {
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-controls={listId}
-        className="flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-50 hover:text-gray-900"
+        className="flex size-9 items-center justify-center rounded-md text-gray-600 transition hover:bg-sand hover:text-gray-900"
         aria-label={t("changeLanguage")}
       >
         <Languages className="size-5" strokeWidth={1.5} aria-hidden />
@@ -60,14 +60,14 @@ export function LocaleSwitcher() {
           id={listId}
           role="listbox"
           aria-label={t("supportedLanguages")}
-          className="absolute end-0 top-full z-50 mt-1 min-w-[9rem] rounded-md border border-gray-100 bg-white py-1 shadow-lg"
+          className="absolute end-0 top-full z-50 mt-1 min-w-[9rem] rounded-xl border border-gray-200 bg-shell py-1.5 shadow-lg shadow-gray-900/10"
         >
           {LOCALE_OPTIONS.map(({ locale: l, label, persian }) => {
             const selected = l === locale;
-            const itemClass = `block w-full px-3 py-2 text-start text-sm transition ${
+            const itemClass = `block w-full px-3.5 py-2 text-start text-sm transition ${
               selected
-                ? "bg-gray-50 font-medium text-gray-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                ? "bg-clay-soft/60 font-medium text-clay-dark"
+                : "text-gray-600 hover:bg-clay-soft/40 hover:text-gray-900"
             } ${persian ? sgkara.className : ""}`;
 
             return (

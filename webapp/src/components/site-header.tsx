@@ -12,16 +12,24 @@ export async function SiteHeader() {
   const tileTypes = await getTileTypes(locale);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-cream/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-cream/95 backdrop-blur">
+      <div
+        className="h-0.5 bg-gradient-to-r from-clay-dark via-clay to-ochre"
+        aria-hidden
+      />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="text-lg font-bold tracking-tight text-gray-900 transition hover:text-clay"
+          className="group flex items-center gap-2.5 font-display text-xl font-semibold tracking-tight text-gray-900 transition hover:text-clay"
         >
+          <span
+            className="inline-block size-2.5 rotate-45 bg-clay transition duration-300 group-hover:rotate-[135deg]"
+            aria-hidden
+          />
           {brand.name}
         </Link>
         <div className="flex items-center gap-8">
-          <nav className="flex items-center gap-7 text-sm font-medium text-gray-700">
+          <nav className="flex items-center gap-7 text-[13px] font-semibold uppercase tracking-[0.14em] text-gray-700">
             <Link href="/" className="transition hover:text-clay">
               {t("home")}
             </Link>

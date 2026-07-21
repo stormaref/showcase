@@ -26,13 +26,14 @@ export default async function BrandsPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
       <header className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-widest text-clay">
+        <p className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-clay">
+          <span className="h-px w-10 bg-clay" aria-hidden />
           {t("eyebrow")}
         </p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
+        <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
           {t("title")}
         </h1>
-        <p className="mt-4 text-lg text-gray-600">{t("subtitle")}</p>
+        <p className="mt-4 text-lg leading-relaxed text-gray-600">{t("subtitle")}</p>
       </header>
       {brands.length === 0 ? (
         <p className="mt-16 text-gray-500">{t("empty")}</p>

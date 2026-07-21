@@ -15,21 +15,22 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="mt-auto bg-gray-900 text-gray-300">
+    <footer className="texture-grain mt-auto overflow-hidden bg-cocoa text-gray-300">
       <div
-        className="h-1 bg-gradient-to-r from-clay-dark via-clay to-clay-light"
+        className="h-1 bg-gradient-to-r from-clay-dark via-clay to-ochre"
         aria-hidden
       />
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-3">
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-3">
         <div>
-          <p className="text-lg font-bold tracking-tight text-white">
+          <p className="flex items-center gap-2.5 font-display text-2xl font-semibold tracking-tight text-cream">
+            <span className="inline-block size-2.5 rotate-45 bg-clay-light" aria-hidden />
             {brand.name}
           </p>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-400">
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-gray-400">
             {brand.tagline}
           </p>
         </div>
-        <nav className="flex flex-col gap-2 text-sm">
+        <nav className="flex flex-col gap-3 text-[13px] font-semibold uppercase tracking-[0.14em]">
           {links.map((l) => (
             <Link
               key={l.href}
@@ -45,8 +46,11 @@ export async function SiteFooter() {
             <span className="block">{brand.addressLine1}</span>
             <span className="block">{brand.addressLine3}</span>
           </address>
-          <p className="mt-3">
-            <a href={phoneTelHref(brand.phone)} className="transition hover:text-clay-light">
+          <p className="mt-4">
+            <a
+              href={phoneTelHref(brand.phone)}
+              className="font-display text-lg text-cream transition hover:text-clay-light"
+            >
               {brand.phone}
             </a>
           </p>
@@ -57,7 +61,7 @@ export async function SiteFooter() {
           </p>
         </div>
       </div>
-      <div className="border-t border-gray-800">
+      <div className="relative border-t border-white/10">
         <p className="mx-auto max-w-6xl px-6 py-6 text-sm text-gray-400">
           © {new Date().getFullYear()} {brand.name}. {t("rights")}
         </p>

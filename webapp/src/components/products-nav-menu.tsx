@@ -67,14 +67,14 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
         <ul
           id={menuId}
           role="menu"
-          className="absolute start-0 top-full z-50 mt-2 min-w-[11rem] rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+          className="absolute start-0 top-full z-50 mt-2 min-w-[11rem] rounded-xl border border-gray-200 bg-shell py-1.5 shadow-lg shadow-gray-900/10"
         >
           <li role="none">
             <Link
               role="menuitem"
               href="/products"
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm font-medium text-gray-900 transition hover:bg-clay-soft/60 hover:text-clay-dark"
+              className="block px-3.5 py-2 text-sm font-medium normal-case tracking-normal text-gray-900 transition hover:bg-clay-soft/60 hover:text-clay-dark"
             >
               {allLabel}
             </Link>
@@ -86,7 +86,7 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
                 role="menuitem"
                 href={`/products?type=${tp.id}`}
                 onClick={() => setOpen(false)}
-                className="block px-3 py-2 text-sm text-gray-600 transition hover:bg-clay-soft/60 hover:text-clay-dark"
+                className="block px-3.5 py-2 text-sm normal-case tracking-normal text-gray-600 transition hover:bg-clay-soft/60 hover:text-clay-dark"
               >
                 {tp.name}
               </Link>

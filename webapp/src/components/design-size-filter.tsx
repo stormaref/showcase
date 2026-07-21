@@ -21,8 +21,8 @@ export function DesignSizeFilter({
   if (sizes.length === 0) return null;
 
   return (
-    <fieldset className="rounded-xl border border-gray-200 bg-white p-4">
-        <legend className="px-1 text-sm font-medium text-gray-900">
+    <fieldset className="rounded-2xl border border-gray-200 bg-shell p-5">
+        <legend className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
           {labels.filterBySize}
         </legend>
         <ul className="mt-3 space-y-2">

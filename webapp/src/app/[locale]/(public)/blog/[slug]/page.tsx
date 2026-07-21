@@ -52,7 +52,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <article className="mx-auto max-w-3xl px-6 py-16">
       <header>
-        <time className="text-sm text-gray-500">
+        <time className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
           {post.published_at
             ? new Date(post.published_at).toLocaleDateString(dateLocale, {
                 year: "numeric",
@@ -61,12 +61,16 @@ export default async function BlogPostPage({ params }: Props) {
               })
             : ""}
         </time>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-gray-900">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
           {post.title}
         </h1>
         {post.excerpt && (
-          <p className="mt-4 text-lg text-gray-500">{post.excerpt}</p>
+          <p className="mt-5 text-lg leading-relaxed text-gray-600">{post.excerpt}</p>
         )}
+        <span
+          className="mt-8 block h-1 w-12 rounded-full bg-gradient-to-r from-clay to-ochre"
+          aria-hidden
+        />
       </header>
       <div className="mt-12">
         {post.content_html ? (

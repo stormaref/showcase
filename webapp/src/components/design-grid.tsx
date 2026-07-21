@@ -23,12 +23,12 @@ export function DesignGrid({
       : item.primary_image_url || item.primary_thumb_url;
 
   const cardClass =
-    "overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-clay/40 hover:shadow-md";
+    "overflow-hidden rounded-2xl border border-gray-200 bg-shell shadow-sm transition duration-200 hover:-translate-y-1 hover:border-clay/50 hover:shadow-lg hover:shadow-clay/10";
 
   function BrandLabel({ brand }: { brand: Design["brand"] }) {
     if (!brand?.name) return null;
     return (
-      <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-clay">
+      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-clay">
         {brand.name}
       </p>
     );
@@ -37,11 +37,11 @@ export function DesignGrid({
   function SizeChips({ sizes }: { sizes: Design["sizes"] }) {
     if (sizes.length === 0) return null;
     return (
-      <div className="mt-2 flex flex-wrap gap-1">
+      <div className="mt-2 flex flex-wrap gap-1.5">
         {sizes.map((s) => (
           <span
             key={s.id}
-            className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+            className="rounded-full bg-sand px-2.5 py-0.5 text-xs text-gray-700"
           >
             {s.label}
           </span>
@@ -53,11 +53,11 @@ export function DesignGrid({
   function TypeChips({ types }: { types: Design["types"] }) {
     if (!types?.length) return null;
     return (
-      <div className="mt-1 flex flex-wrap gap-1">
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
         {types.map((tp) => (
           <span
             key={tp.id}
-            className="rounded bg-clay-soft px-2 py-0.5 text-xs font-medium text-clay-dark"
+            className="rounded-full bg-clay-soft/70 px-2.5 py-0.5 text-xs font-medium text-clay-dark"
           >
             {tp.name}
           </span>
@@ -66,7 +66,7 @@ export function DesignGrid({
     );
   }
 
-  const figcaptionClass = compact ? "p-4 text-sm" : "p-5";
+  const figcaptionClass = compact ? "p-5 text-sm" : "p-6";
 
   return (
     <div className={className}>
@@ -77,18 +77,20 @@ export function DesignGrid({
           className={cn("group block cursor-pointer", cardClass)}
         >
           <figure>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={thumbSrc(item)}
-              alt={item.alt_text || item.title}
-              loading="lazy"
-              className="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-            />
+            <div className="overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={thumbSrc(item)}
+                alt={item.alt_text || item.title}
+                loading="lazy"
+                className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
+              />
+            </div>
             <figcaption className={figcaptionClass}>
               <BrandLabel brand={item.brand} />
               {compact ? (
                 <>
-                  <span className="font-medium text-gray-900 group-hover:text-clay">
+                  <span className="font-display text-base font-semibold text-gray-900 transition group-hover:text-clay">
                     {item.title}
                   </span>
                   <TypeChips types={item.types} />
@@ -96,13 +98,15 @@ export function DesignGrid({
                 </>
               ) : (
                 <>
-                  <h2 className="font-semibold text-gray-900 group-hover:text-clay">
+                  <h2 className="font-display text-lg font-semibold text-gray-900 transition group-hover:text-clay">
                     {item.title}
                   </h2>
                   <TypeChips types={item.types} />
                   <SizeChips sizes={item.sizes} />
                   {showCaption && item.caption && (
-                    <p className="mt-1 text-sm text-gray-500">{item.caption}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                      {item.caption}
+                    </p>
                   )}
                 </>
               )}

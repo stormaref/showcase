@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ImageCarousel } from "@/components/image-carousel";
 import type { Design } from "@/lib/api";
@@ -37,15 +38,19 @@ export async function DesignDetail({ design }: DesignDetailProps) {
     <div className="mx-auto max-w-6xl px-6 py-16">
       <Link
         href="/products"
-        className="text-sm font-medium text-gray-600 transition hover:text-clay"
+        className="group inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 transition hover:text-clay"
       >
-        ← {t("backToCatalog")}
+        <ArrowLeft
+          className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180 rtl:group-hover:translate-x-0.5"
+          aria-hidden
+        />
+        {t("backToCatalog")}
       </Link>
 
       <section className="mt-8">
         <h2 className="sr-only">{t("showcase")}</h2>
         {showcaseSlides.length > 0 ? (
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-shell shadow-sm">
             <ImageCarousel
               images={showcaseSlides}
               labels={{
@@ -56,15 +61,16 @@ export async function DesignDetail({ design }: DesignDetailProps) {
             />
           </div>
         ) : (
-          <p className="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">
+          <p className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">
             {t("noShowcaseImages")}
           </p>
         )}
       </section>
 
-      <header className="mt-10 max-w-2xl">
+      <header className="mt-12 max-w-2xl">
         {design.brand && (
-          <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-clay">
+          <p className="mb-3 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-clay">
+            <span className="h-px w-10 bg-clay" aria-hidden />
             {design.brand.website_url ? (
               <a
                 href={design.brand.website_url}
@@ -79,18 +85,18 @@ export async function DesignDetail({ design }: DesignDetailProps) {
             )}
           </p>
         )}
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-gray-900 md:text-5xl">
           {design.title}
         </h1>
         {design.caption && (
-          <p className="mt-4 text-lg text-gray-600">{design.caption}</p>
+          <p className="mt-4 text-lg leading-relaxed text-gray-600">{design.caption}</p>
         )}
         {finishes.length > 0 && (
-          <ul className="mt-4 flex flex-wrap gap-2">
+          <ul className="mt-5 flex flex-wrap gap-2">
             {finishes.map((finish) => (
               <li
                 key={finish.id}
-                className="rounded-full border border-clay/20 bg-clay-soft/50 px-3 py-1 text-sm font-medium text-clay-dark"
+                className="rounded-full border border-clay/20 bg-clay-soft/60 px-3.5 py-1 text-sm font-medium text-clay-dark"
               >
                 {finish.name}
               </li>
@@ -101,13 +107,16 @@ export async function DesignDetail({ design }: DesignDetailProps) {
 
       {typeSections.length > 0 && (
         <section className="mt-16 border-t border-gray-200 pt-16">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-clay">
+          <h2 className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-clay">
+            <span className="h-px w-10 bg-clay" aria-hidden />
             {t("availableIn")}
           </h2>
           <div className="mt-10 space-y-16">
             {typeSections.map(({ type, sizes }) => (
               <div key={type.id}>
-                <h3 className="text-lg font-semibold text-gray-900">{type.name}</h3>
+                <h3 className="font-display text-2xl font-semibold tracking-tight text-gray-900">
+                  {type.name}
+                </h3>
                 <div className="mt-8 space-y-12">
                   {sizes.map((size) => {
                     const sizeImgs = imagesForSizeAndType(
@@ -119,21 +128,23 @@ export async function DesignDetail({ design }: DesignDetailProps) {
                     return (
                       <article
                         key={`${type.id}-${size.id}`}
-                        className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:p-8"
+                        className="rounded-2xl border border-gray-200 bg-shell p-6 shadow-sm md:p-8"
                       >
                         <header className="mb-6">
-                          <h4 className="text-xl font-semibold text-gray-900">
+                          <h4 className="font-display text-xl font-semibold text-gray-900">
                             {size.label}
                           </h4>
                           <p className="mt-1 text-sm font-medium text-gray-600">
                             {design.title}
                           </p>
                           {design.caption && (
-                            <p className="mt-2 text-sm text-gray-500">{design.caption}</p>
+                            <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                              {design.caption}
+                            </p>
                           )}
                         </header>
                         {slides.length > 0 ? (
-                          <div className="overflow-hidden rounded-lg">
+                          <div className="overflow-hidden rounded-xl">
                             <ImageCarousel
                               images={slides}
                               labels={{
