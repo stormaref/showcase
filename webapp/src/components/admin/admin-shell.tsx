@@ -77,17 +77,19 @@ function AdminShellLayout({
     <div className="flex min-h-screen">
       <aside className="relative flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
         <div className="border-b border-gray-100 px-5 py-5">
-          <p className="font-semibold tracking-tight">Showcase Admin</p>
+          <p className="text-[13px] font-semibold uppercase tracking-[0.25em] text-ink">
+            Showcase Admin
+          </p>
         </div>
         <nav className="space-y-1 p-3">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`block rounded-lg px-3 py-2 text-sm transition ${
+              className={`block border-s-2 px-3 py-2 text-sm transition ${
                 pathname === item.href
-                  ? "bg-gray-100 font-medium text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50"
+                  ? "border-clay bg-cream font-medium text-ink"
+                  : "border-transparent text-gray-600 hover:bg-gray-50 hover:text-ink"
               }`}
             >
               {item.label}
@@ -101,7 +103,7 @@ function AdminShellLayout({
               await logout();
               router.push("/admin/login");
             }}
-            className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
+            className="w-full rounded-none px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
           >
             Sign out
           </button>

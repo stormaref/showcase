@@ -93,13 +93,13 @@ export default function EditPostPage() {
           value={t.title}
           onChange={(e) => updateTranslation(tab, { title: e.target.value })}
           placeholder="Title"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-lg font-medium"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-lg font-medium"
         />
         <input
           value={t.slug}
           onChange={(e) => updateTranslation(tab, { slug: e.target.value })}
           placeholder="Slug"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <textarea
@@ -107,7 +107,7 @@ export default function EditPostPage() {
           onChange={(e) => updateTranslation(tab, { excerpt: e.target.value })}
           rows={2}
           placeholder="Excerpt"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <BlogEditor
@@ -122,13 +122,13 @@ export default function EditPostPage() {
             value={t.meta_title}
             onChange={(e) => updateTranslation(tab, { meta_title: e.target.value })}
             placeholder="SEO title"
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="rounded-none border border-gray-200 px-3 py-2 text-sm"
             dir={tab === "fa" ? "rtl" : "ltr"}
           />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="rounded-none border border-gray-200 px-3 py-2 text-sm"
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -141,14 +141,14 @@ export default function EditPostPage() {
           }
           rows={2}
           placeholder="SEO description"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-none bg-ink px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save changes"}
         </button>

@@ -44,7 +44,7 @@ function fieldsFromResponse(row?: BrandInfoResponse): BrandFields {
 }
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm";
+  "mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm";
 
 export function CompanyInfoForm() {
   const [tab, setTab] = useState<Tab>("en");
@@ -101,7 +101,7 @@ export function CompanyInfoForm() {
     <form onSubmit={onSubmit} className="mt-8 max-w-2xl space-y-6">
       <TranslationTabs active={tab} onChange={setTab} hasFa={Boolean(fa.name)} />
 
-      <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">
+      <div className="space-y-4 rounded-none border border-gray-200 bg-white p-6">
         <label className="block text-sm font-medium">
           Name {tab === "en" && <span className="text-red-600">*</span>}
           <input
@@ -179,7 +179,7 @@ export function CompanyInfoForm() {
       <button
         type="submit"
         disabled={saving}
-        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
         {saving ? "Saving…" : "Save brand info"}
       </button>

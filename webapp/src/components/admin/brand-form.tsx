@@ -17,7 +17,7 @@ type BrandFormProps = {
 };
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm";
+  "mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm";
 
 function translationsFromInitial(
   initial?: AdminBrand,
@@ -122,7 +122,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
         hasFa={Boolean(translations.fa.name)}
       />
 
-      <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">
+      <div className="space-y-4 rounded-none border border-gray-200 bg-white p-6">
         <label className="block text-sm font-medium">
           Name {tab === "en" && <span className="text-red-600">*</span>}
           <input
@@ -145,7 +145,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
         </label>
       </div>
 
-      <fieldset className="rounded-xl border border-gray-200 p-4">
+      <fieldset className="rounded-none border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Logo</legend>
         <div className="mt-2 flex items-center gap-4">
           {logoUrl ? (
@@ -153,10 +153,10 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
             <img
               src={logoUrl}
               alt=""
-              className="size-20 rounded-lg border border-gray-100 object-contain p-1"
+              className="size-20 rounded-none border border-gray-100 object-contain p-1"
             />
           ) : (
-            <div className="flex size-20 items-center justify-center rounded-lg border border-dashed border-gray-200 text-xs text-gray-400">
+            <div className="flex size-20 items-center justify-center rounded-none border border-dashed border-gray-200 text-xs text-gray-400">
               No logo
             </div>
           )}
@@ -172,7 +172,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
               type="button"
               disabled={isUploading}
               onClick={() => logoInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               <Upload className="size-4" aria-hidden />
               {logoUrl ? "Replace logo" : "Upload logo"}
@@ -217,12 +217,12 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
         </label>
         <div className="block text-sm font-medium">
           Status
-          <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 font-normal hover:bg-gray-50">
+          <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-none border border-gray-200 px-3 py-2.5 font-normal hover:bg-gray-50">
             <input
               type="checkbox"
               checked={isPublished}
               onChange={(e) => setIsPublished(e.target.checked)}
-              className="size-4 shrink-0 rounded border-gray-300 accent-gray-900"
+              className="size-4 shrink-0 rounded-none border-gray-300 accent-gray-900"
             />
             Published
           </label>
@@ -238,7 +238,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
       <button
         type="submit"
         disabled={saving || isUploading || !translations.en.name.trim()}
-        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
         {saving ? "Saving…" : submitLabel}
       </button>

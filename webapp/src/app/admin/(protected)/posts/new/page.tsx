@@ -71,7 +71,7 @@ export default function NewPostPage() {
     <div className="max-w-4xl">
       <h1 className="text-2xl font-semibold tracking-tight">New post</h1>
       {error && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="mt-4 rounded-none bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
       <div className="mt-4">
         <TranslationTabs active={tab} onChange={setTab} />
@@ -81,13 +81,13 @@ export default function NewPostPage() {
           placeholder="Title"
           value={t.title}
           onChange={(e) => updateTranslation(tab, { title: e.target.value })}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-lg font-medium"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-lg font-medium"
         />
         <input
           placeholder="Slug (optional)"
           value={t.slug}
           onChange={(e) => updateTranslation(tab, { slug: e.target.value })}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <textarea
@@ -95,7 +95,7 @@ export default function NewPostPage() {
           value={t.excerpt}
           onChange={(e) => updateTranslation(tab, { excerpt: e.target.value })}
           rows={2}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <BlogEditor
@@ -110,13 +110,13 @@ export default function NewPostPage() {
             placeholder="SEO title"
             value={t.meta_title}
             onChange={(e) => updateTranslation(tab, { meta_title: e.target.value })}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="rounded-none border border-gray-200 px-3 py-2 text-sm"
             dir={tab === "fa" ? "rtl" : "ltr"}
           />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="rounded-none border border-gray-200 px-3 py-2 text-sm"
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -129,14 +129,14 @@ export default function NewPostPage() {
             updateTranslation(tab, { meta_description: e.target.value })
           }
           rows={2}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+          className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           dir={tab === "fa" ? "rtl" : "ltr"}
         />
         <button
           type="button"
           onClick={save}
           disabled={saving || !translations.en.title}
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-none bg-ink px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save post"}
         </button>

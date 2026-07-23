@@ -28,14 +28,14 @@ export default function AdminDashboardPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <Link
           href="/admin/posts"
-          className="rounded-xl border border-gray-200 bg-white p-6 transition hover:border-gray-300"
+          className="rounded-none border border-gray-200 bg-white p-6 transition hover:border-gray-300"
         >
           <p className="text-3xl font-semibold">{stats.posts}</p>
           <p className="mt-1 text-sm text-gray-500">Blog posts</p>
         </Link>
         <Link
           href="/admin/designs"
-          className="rounded-xl border border-gray-200 bg-white p-6 transition hover:border-gray-300"
+          className="rounded-none border border-gray-200 bg-white p-6 transition hover:border-gray-300"
         >
           <p className="text-3xl font-semibold">{stats.designs}</p>
           <p className="mt-1 text-sm text-gray-500">Designs</p>

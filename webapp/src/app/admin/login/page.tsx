@@ -29,12 +29,12 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 shadow-sm"
+        className="w-full max-w-sm rounded-none border border-gray-200 bg-white p-8 shadow-sm"
       >
         <h1 className="text-xl font-semibold tracking-tight">Admin sign in</h1>
         <p className="mt-1 text-sm text-gray-500">Showcase content management</p>
         {error && (
-          <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-4 rounded-none bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
         )}
@@ -45,7 +45,7 @@ export default function AdminLoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
+            className="mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm outline-none focus:border-clay"
           />
         </label>
         <label className="mt-4 block text-sm font-medium text-gray-700">
@@ -56,13 +56,13 @@ export default function AdminLoginPage() {
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
+            className="mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm outline-none focus:border-clay"
           />
         </label>
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+          className="mt-6 w-full rounded-none bg-ink py-2.5 text-sm font-medium text-white transition hover:bg-clay disabled:opacity-50"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>

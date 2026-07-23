@@ -41,7 +41,7 @@ export function InitializedMDXEditor({
   );
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-none border border-gray-200 bg-white">
       <MDXEditor
         plugins={[
           headingsPlugin(),

@@ -35,7 +35,7 @@ export default function AdminDesignsPage() {
         </div>
         <Link
           href="/admin/designs/new"
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white"
         >
           New design
         </Link>
@@ -45,7 +45,7 @@ export default function AdminDesignsPage() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="overflow-hidden rounded-xl border border-gray-200 bg-white"
+            className="overflow-hidden rounded-none border border-gray-200 bg-white"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -57,12 +57,12 @@ export default function AdminDesignsPage() {
               <p className="text-sm font-medium">
                 {item.title}
                 {item.has_fa && (
-                  <span className="ms-2 rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-normal text-indigo-700">
+                  <span className="ms-2 rounded-none bg-clay-soft px-1.5 py-0.5 text-xs font-normal text-clay-dark">
                     FA
                   </span>
                 )}
                 {!item.is_published && (
-                  <span className="ms-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-600">
+                  <span className="ms-2 rounded-none bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-600">
                     Draft
                   </span>
                 )}

@@ -10,11 +10,11 @@ type Props = {
 
 export function TranslationTabs({ active, onChange, hasFa }: Props) {
   return (
-    <div className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 text-sm">
+    <div className="flex gap-1 rounded-none border border-gray-200 bg-gray-50 p-1 text-sm">
       <button
         type="button"
         onClick={() => onChange("en")}
-        className={`rounded-md px-3 py-1.5 font-medium transition ${
+        className={`rounded-none px-3 py-1.5 font-medium transition ${
           active === "en" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
         }`}
       >
@@ -23,7 +23,7 @@ export function TranslationTabs({ active, onChange, hasFa }: Props) {
       <button
         type="button"
         onClick={() => onChange("fa")}
-        className={`rounded-md px-3 py-1.5 font-medium transition ${
+        className={`rounded-none px-3 py-1.5 font-medium transition ${
           active === "fa" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
         }`}
       >

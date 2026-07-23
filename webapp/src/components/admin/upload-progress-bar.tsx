@@ -20,7 +20,7 @@ export function UploadProgressBar({ percent, label }: UploadProgressBarProps) {
         aria-valuemax={100}
       >
         <div
-          className="h-full rounded-full bg-gray-900 transition-[width] duration-150 ease-out"
+          className="h-full rounded-full bg-ink transition-[width] duration-150 ease-out"
           style={{ width: `${clamped}%` }}
         />
       </div>

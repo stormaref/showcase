@@ -39,7 +39,7 @@ type DesignFormProps = {
 };
 
 const checkboxClass =
-  "size-4 shrink-0 cursor-pointer rounded border-gray-300 accent-gray-900";
+  "size-4 shrink-0 cursor-pointer rounded-none border-gray-300 accent-gray-900";
 
 function typeLabel(t: AdminDesignType): string {
   return t.translations?.en?.name ?? t.name;
@@ -117,7 +117,7 @@ function FileUploadButton({
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
       >
         <Upload className="size-4" aria-hidden />
         {label}
@@ -280,12 +280,12 @@ export function DesignForm({
             <img
               src={img.thumb_url || img.preview_url}
               alt=""
-              className="aspect-square w-full rounded-lg object-cover"
+              className="aspect-square w-full rounded-none object-cover"
             />
             <button
               type="button"
               onClick={() => removeImage(globalIndices[i])}
-              className="absolute end-1 top-1 cursor-pointer rounded bg-black/60 px-1.5 py-0.5 text-xs text-white"
+              className="absolute end-1 top-1 cursor-pointer rounded-none bg-black/60 px-1.5 py-0.5 text-xs text-white"
             >
               Remove
             </button>
@@ -307,21 +307,21 @@ export function DesignForm({
         required={tab === "en"}
         value={t.title}
         onChange={(e) => updateTranslation(tab, { title: e.target.value })}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+        className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
         dir={tab === "fa" ? "rtl" : "ltr"}
       />
       <input
         placeholder="Alt text"
         value={t.alt_text}
         onChange={(e) => updateTranslation(tab, { alt_text: e.target.value })}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+        className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
         dir={tab === "fa" ? "rtl" : "ltr"}
       />
       <textarea
         placeholder="Caption"
         value={t.caption}
         onChange={(e) => updateTranslation(tab, { caption: e.target.value })}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+        className="w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
         dir={tab === "fa" ? "rtl" : "ltr"}
       />
 
@@ -332,12 +332,12 @@ export function DesignForm({
             type="number"
             value={sortOrder}
             onChange={(e) => setSortOrder(parseInt(e.target.value, 10) || 0)}
-            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           />
         </label>
         <div className="block text-sm font-medium">
           Status
-          <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 font-normal hover:bg-gray-50">
+          <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-none border border-gray-200 px-3 py-2.5 font-normal hover:bg-gray-50">
             <input
               type="checkbox"
               checked={isPublished}
@@ -354,7 +354,7 @@ export function DesignForm({
         <select
           value={brandId}
           onChange={(e) => setBrandId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-none border border-gray-200 bg-white px-3 py-2 text-sm"
         >
           <option value="">No brand</option>
           {brands.map((b) => (
@@ -365,7 +365,7 @@ export function DesignForm({
         </select>
       </label>
 
-      <fieldset className="rounded-xl border border-gray-200 p-4">
+      <fieldset className="rounded-none border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Variants</legend>
         <p className="text-xs text-gray-500">
           Tick the category and size combinations this product is offered in.
@@ -423,7 +423,7 @@ export function DesignForm({
         )}
       </fieldset>
 
-      <fieldset className="rounded-xl border border-gray-200 p-4">
+      <fieldset className="rounded-none border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Surface finishes</legend>
         {finishes.length === 0 ? (
           <p className="text-sm text-gray-500">
@@ -434,7 +434,7 @@ export function DesignForm({
             {finishes.map((f) => (
               <label
                 key={f.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
+                className="flex cursor-pointer items-center gap-3 rounded-none border border-gray-200 px-3 py-2.5 text-sm hover:bg-gray-50"
               >
                 <input
                   type="checkbox"
@@ -449,7 +449,7 @@ export function DesignForm({
         )}
       </fieldset>
 
-      <fieldset className="rounded-xl border border-gray-200 p-4">
+      <fieldset className="rounded-none border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Showcase images</legend>
         <p className="text-xs text-gray-500">
           Room shots and marketing photos not tied to a specific size or type.
@@ -476,7 +476,7 @@ export function DesignForm({
         return (
           <fieldset
             key={`${tp.id}-${size.id}`}
-            className="rounded-xl border border-gray-200 p-4"
+            className="rounded-none border border-gray-200 p-4"
           >
             <legend className="px-1 text-sm font-medium">
               {typeLabel(tp)} — {size.label}
@@ -502,7 +502,7 @@ export function DesignForm({
       <button
         type="submit"
         disabled={saving || !translations.en.title}
-        className="cursor-pointer rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="cursor-pointer rounded-none bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
         {saving ? "Saving…" : submitLabel}
       </button>

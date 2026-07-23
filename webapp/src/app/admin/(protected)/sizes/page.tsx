@@ -107,7 +107,7 @@ export default function AdminSizesPage() {
       <form
         ref={formRef}
         onSubmit={onSubmit}
-        className="mt-8 max-w-lg space-y-4 rounded-xl border border-gray-200 bg-white p-6"
+        className="mt-8 max-w-lg space-y-4 rounded-none border border-gray-200 bg-white p-6"
       >
         <h2 className="text-sm font-medium text-gray-900">
           {editId ? "Edit size" : "Add size"}
@@ -122,7 +122,7 @@ export default function AdminSizesPage() {
               required
               value={form.width_cm}
               onChange={(e) => setForm((f) => ({ ...f, width_cm: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -134,7 +134,7 @@ export default function AdminSizesPage() {
               required
               value={form.height_cm}
               onChange={(e) => setForm((f) => ({ ...f, height_cm: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
             />
           </label>
         </div>
@@ -144,14 +144,14 @@ export default function AdminSizesPage() {
             placeholder="e.g. 60×60 cm"
             value={form.label}
             onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-none border border-gray-200 px-3 py-2 text-sm"
           />
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex gap-2">
           <button
             type="submit"
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+            className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white"
           >
             {editId ? "Save changes" : "Add size"}
           </button>
@@ -159,7 +159,7 @@ export default function AdminSizesPage() {
             <button
               type="button"
               onClick={cancelEdit}
-              className="rounded-lg border border-gray-200 px-4 py-2 text-sm"
+              className="rounded-none border border-gray-200 px-4 py-2 text-sm"
             >
               Cancel
             </button>
@@ -167,7 +167,7 @@ export default function AdminSizesPage() {
         </div>
       </form>
 
-      <div className="mt-12 overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="mt-12 overflow-hidden rounded-none border border-gray-200 bg-white">
         <table className="w-full text-sm">
           <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>

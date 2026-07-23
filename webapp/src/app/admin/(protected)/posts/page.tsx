@@ -23,12 +23,12 @@ export default function AdminPostsPage() {
         </div>
         <Link
           href="/admin/posts/new"
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-clay"
         >
           New post
         </Link>
       </div>
-      <div className="mt-8 overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="mt-8 overflow-hidden rounded-none border border-gray-200 bg-white">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-gray-100 bg-gray-50/80 text-gray-500">
             <tr>
@@ -44,7 +44,7 @@ export default function AdminPostsPage() {
                 <td className="px-4 py-3 font-medium">
                   {p.title}
                   {p.has_fa && (
-                    <span className="ms-2 rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-normal text-indigo-700">
+                    <span className="ms-2 rounded-none bg-clay-soft px-1.5 py-0.5 text-xs font-normal text-clay-dark">
                       FA
                     </span>
                   )}
