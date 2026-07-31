@@ -1,8 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { routing, type Locale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
+import heroImage from "@/assets/images/home-hero.jpg";
 import { BrandGrid } from "@/components/brand-grid";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
 import { getBrandInfo, phoneTelHref } from "@/lib/brand-info";
@@ -104,22 +106,49 @@ export default async function HomePage({ params }: PageProps) {
 
   return (
     <>
-      {/* Hero — quiet type block */}
-      <section className="mx-auto max-w-7xl px-6 pb-16 pt-20 md:px-10 md:pb-24 md:pt-28">
-        <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
-          {t("eyebrow")}
-        </p>
-        <h1 className="mt-6 max-w-3xl text-5xl font-extralight leading-[1.05] tracking-tight text-ink md:text-7xl">
-          {brand.tagline}
-        </h1>
-        <div className="mt-12 flex flex-wrap items-center gap-8">
-          <Link
-            href="/products"
-            className="cursor-pointer bg-ink px-10 py-4 text-sm font-medium uppercase tracking-[0.2em] text-white transition duration-300 hover:bg-clay"
-          >
-            {t("viewDesigns")}
-          </Link>
-          <QuietLink href="/blog">{t("readBlog")}</QuietLink>
+      {/* Hero — full-bleed image header with overlaid type. The image is
+          admin-managed (company info); the bundled photo is the fallback. */}
+      <section className="relative h-[70svh] min-h-[480px] w-full overflow-hidden md:h-[78svh]">
+        <Image
+          src={brand.heroImageUrl || heroImage}
+          alt={t("heroAlt")}
+          fill
+          priority
+          placeholder={brand.heroImageUrl ? "empty" : "blur"}
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/20 to-transparent"
+          aria-hidden
+        />
+        <div className="absolute inset-x-0 bottom-0">
+          <div className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
+            <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-white/80">
+              {t("eyebrow")}
+            </p>
+            <h1 className="mt-5 max-w-3xl text-4xl font-extralight leading-[1.05] tracking-tight text-white md:text-6xl">
+              {brand.tagline}
+            </h1>
+            <div className="mt-9 flex flex-wrap items-center gap-8">
+              <Link
+                href="/products"
+                className="cursor-pointer bg-white px-10 py-4 text-sm font-medium uppercase tracking-[0.2em] text-ink transition duration-300 hover:bg-clay hover:text-white"
+              >
+                {t("viewDesigns")}
+              </Link>
+              <Link
+                href="/blog"
+                className="group inline-flex cursor-pointer items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-white transition hover:text-clay-soft"
+              >
+                {t("readBlog")}
+                <ArrowRight
+                  className="size-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+                  aria-hidden
+                />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

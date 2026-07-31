@@ -287,18 +287,19 @@ func (r *RefreshToken) BeforeCreate(tx *gorm.DB) error {
 }
 
 type BrandInfoTranslation struct {
-	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	Locale       string    `gorm:"size:5;uniqueIndex;not null" json:"locale"`
-	Name         string    `gorm:"size:255;not null" json:"name"`
-	Tagline      string    `gorm:"size:500" json:"tagline"`
-	About        string    `gorm:"type:text" json:"about"`
-	AddressLine1 string    `gorm:"size:255" json:"address_line_1"`
-	AddressLine2 string    `gorm:"size:255" json:"address_line_2"`
-	AddressLine3 string    `gorm:"size:255" json:"address_line_3"`
-	Phone        string    `gorm:"size:50" json:"phone"`
-	Email        string    `gorm:"size:255" json:"email"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID                 uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Locale             string    `gorm:"size:5;uniqueIndex;not null" json:"locale"`
+	Name               string    `gorm:"size:255;not null" json:"name"`
+	Tagline            string    `gorm:"size:500" json:"tagline"`
+	About              string    `gorm:"type:text" json:"about"`
+	AddressLine1       string    `gorm:"size:255" json:"address_line_1"`
+	AddressLine2       string    `gorm:"size:255" json:"address_line_2"`
+	AddressLine3       string    `gorm:"size:255" json:"address_line_3"`
+	Phone              string    `gorm:"size:50" json:"phone"`
+	Email              string    `gorm:"size:255" json:"email"`
+	HeroImageObjectKey string    `gorm:"size:500" json:"hero_image_object_key"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 func (b *BrandInfoTranslation) BeforeCreate(tx *gorm.DB) error {

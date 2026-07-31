@@ -114,7 +114,7 @@ func main() {
 	sizeSvc := service.NewSizeService(sizeRepo)
 	typeSvc := service.NewTypeService(typeRepo)
 	finishSvc := service.NewFinishService(finishRepo)
-	brandInfoSvc := service.NewBrandInfoService(brandInfoRepo, auditSvc)
+	brandInfoSvc := service.NewBrandInfoService(brandInfoRepo, store, auditSvc)
 	brandSvc := service.NewBrandService(brandRepo, store, auditSvc)
 	uploadSvc := service.NewUploadService(cfg, store)
 

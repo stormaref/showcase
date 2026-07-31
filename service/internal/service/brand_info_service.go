@@ -9,38 +9,43 @@ import (
 	"github.com/google/uuid"
 	"github.com/stormaref/showcase/service/internal/domain/model"
 	"github.com/stormaref/showcase/service/internal/repository"
+	"github.com/stormaref/showcase/service/internal/storage"
 )
 
 type BrandInfoService struct {
 	repo  *repository.BrandInfoRepository
+	store storage.ObjectStore
 	audit *AuditService
 }
 
-func NewBrandInfoService(repo *repository.BrandInfoRepository, audit *AuditService) *BrandInfoService {
-	return &BrandInfoService{repo: repo, audit: audit}
+func NewBrandInfoService(repo *repository.BrandInfoRepository, store storage.ObjectStore, audit *AuditService) *BrandInfoService {
+	return &BrandInfoService{repo: repo, store: store, audit: audit}
 }
 
 type BrandInfoInput struct {
-	Name         string `json:"name"`
-	Tagline      string `json:"tagline"`
-	About        string `json:"about"`
-	AddressLine1 string `json:"address_line_1"`
-	AddressLine2 string `json:"address_line_2"`
-	AddressLine3 string `json:"address_line_3"`
-	Phone        string `json:"phone"`
-	Email        string `json:"email"`
+	Name               string `json:"name"`
+	Tagline            string `json:"tagline"`
+	About              string `json:"about"`
+	AddressLine1       string `json:"address_line_1"`
+	AddressLine2       string `json:"address_line_2"`
+	AddressLine3       string `json:"address_line_3"`
+	Phone              string `json:"phone"`
+	Email              string `json:"email"`
+	HeroImageObjectKey string `json:"hero_image_object_key"`
 }
 
 type BrandInfoResponse struct {
-	Locale       string `json:"locale"`
-	Name         string `json:"name"`
-	Tagline      string `json:"tagline"`
-	About        string `json:"about"`
-	AddressLine1 string `json:"address_line_1"`
-	AddressLine2 string `json:"address_line_2"`
-	AddressLine3 string `json:"address_line_3"`
-	Phone        string `json:"phone"`
-	Email        string `json:"email"`
+	Locale             string `json:"locale"`
+	Name               string `json:"name"`
+	Tagline            string `json:"tagline"`
+	About              string `json:"about"`
+	AddressLine1       string `json:"address_line_1"`
+	AddressLine2       string `json:"address_line_2"`
+	AddressLine3       string `json:"address_line_3"`
+	Phone              string `json:"phone"`
+	Email              string `json:"email"`
+	HeroImageObjectKey string `json:"hero_image_object_key"`
+	HeroImageURL       string `json:"hero_image_url,omitempty"`
 }
 
 type BrandInfoUpdateInput struct {
@@ -48,17 +53,22 @@ type BrandInfoUpdateInput struct {
 }
 
 func (s *BrandInfoService) toResponse(row *model.BrandInfoTranslation) BrandInfoResponse {
-	return BrandInfoResponse{
-		Locale:       row.Locale,
-		Name:         row.Name,
-		Tagline:      row.Tagline,
-		About:        row.About,
-		AddressLine1: row.AddressLine1,
-		AddressLine2: row.AddressLine2,
-		AddressLine3: row.AddressLine3,
-		Phone:        row.Phone,
-		Email:        row.Email,
+	resp := BrandInfoResponse{
+		Locale:             row.Locale,
+		Name:               row.Name,
+		Tagline:            row.Tagline,
+		About:              row.About,
+		AddressLine1:       row.AddressLine1,
+		AddressLine2:       row.AddressLine2,
+		AddressLine3:       row.AddressLine3,
+		Phone:              row.Phone,
+		Email:              row.Email,
+		HeroImageObjectKey: row.HeroImageObjectKey,
 	}
+	if row.HeroImageObjectKey != "" {
+		resp.HeroImageURL = s.store.PublicURL(row.HeroImageObjectKey)
+	}
+	return resp
 }
 
 func (s *BrandInfoService) GetAll(ctx context.Context) (map[string]BrandInfoResponse, error) {
@@ -105,15 +115,16 @@ func validateBrandInfoInput(locale string, in BrandInfoInput) error {
 
 func inputToModel(locale string, in BrandInfoInput) *model.BrandInfoTranslation {
 	return &model.BrandInfoTranslation{
-		Locale:       locale,
-		Name:         strings.TrimSpace(in.Name),
-		Tagline:      strings.TrimSpace(in.Tagline),
-		About:        strings.TrimSpace(in.About),
-		AddressLine1: strings.TrimSpace(in.AddressLine1),
-		AddressLine2: strings.TrimSpace(in.AddressLine2),
-		AddressLine3: strings.TrimSpace(in.AddressLine3),
-		Phone:        strings.TrimSpace(in.Phone),
-		Email:        strings.TrimSpace(in.Email),
+		Locale:             locale,
+		Name:               strings.TrimSpace(in.Name),
+		Tagline:            strings.TrimSpace(in.Tagline),
+		About:              strings.TrimSpace(in.About),
+		AddressLine1:       strings.TrimSpace(in.AddressLine1),
+		AddressLine2:       strings.TrimSpace(in.AddressLine2),
+		AddressLine3:       strings.TrimSpace(in.AddressLine3),
+		Phone:              strings.TrimSpace(in.Phone),
+		Email:              strings.TrimSpace(in.Email),
+		HeroImageObjectKey: strings.TrimSpace(in.HeroImageObjectKey),
 	}
 }
 
@@ -125,7 +136,8 @@ func isEmptyBrandInfoInput(in BrandInfoInput) bool {
 		strings.TrimSpace(in.AddressLine2) == "" &&
 		strings.TrimSpace(in.AddressLine3) == "" &&
 		strings.TrimSpace(in.Phone) == "" &&
-		strings.TrimSpace(in.Email) == ""
+		strings.TrimSpace(in.Email) == "" &&
+		strings.TrimSpace(in.HeroImageObjectKey) == ""
 }
 
 func (s *BrandInfoService) Update(ctx context.Context, actorID uuid.UUID, in BrandInfoUpdateInput) (map[string]BrandInfoResponse, error) {

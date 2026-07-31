@@ -180,6 +180,8 @@ export type BrandInfoResponse = {
   address_line_3: string;
   phone: string;
   email: string;
+  hero_image_object_key?: string;
+  hero_image_url?: string;
 };
 
 export type BrandInfoTranslations = Record<string, BrandInfoResponse>;

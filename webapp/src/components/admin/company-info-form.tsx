@@ -1,7 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { Upload } from "lucide-react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
+import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { adminFetch } from "@/lib/admin-api";
 import type { BrandInfoResponse, BrandInfoTranslations } from "@/lib/api";
 
@@ -50,16 +52,24 @@ export function CompanyInfoForm() {
   const [tab, setTab] = useState<Tab>("en");
   const [en, setEn] = useState<BrandFields>(emptyFields());
   const [fa, setFa] = useState<BrandFields>(emptyFields());
+  const [heroKey, setHeroKey] = useState("");
+  const [heroUrl, setHeroUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploadError, setUploadError] = useState("");
   const [saved, setSaved] = useState(false);
+  const heroInputRef = useRef<HTMLInputElement>(null);
+  const { uploadImage, isUploading } = useUploadProgress();
 
   useEffect(() => {
     adminFetch<{ translations: BrandInfoTranslations }>("/api/v1/admin/brand-info")
       .then((data) => {
         setEn(fieldsFromResponse(data.translations.en));
         setFa(fieldsFromResponse(data.translations.fa));
+        const row = data.translations.en ?? data.translations.fa;
+        setHeroKey(row?.hero_image_object_key ?? "");
+        setHeroUrl(row?.hero_image_url ?? "");
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load brand info");
@@ -75,6 +85,21 @@ export function CompanyInfoForm() {
     setSaved(false);
   }
 
+  async function handleHero(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadError("");
+    setSaved(false);
+    try {
+      const data = await uploadImage(file);
+      setHeroKey(data.object_key);
+      setHeroUrl(data.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
@@ -83,7 +108,14 @@ export function CompanyInfoForm() {
     try {
       await adminFetch("/api/v1/admin/brand-info", {
         method: "PUT",
-        body: JSON.stringify({ translations: { en, fa } }),
+        body: JSON.stringify({
+          translations: {
+            en: { ...en, hero_image_object_key: heroKey },
+            // Leave fa untouched when it is unused so the public API keeps
+            // falling back to the English row.
+            fa: { ...fa, hero_image_object_key: fa.name.trim() ? heroKey : "" },
+          },
+        }),
       });
       setSaved(true);
     } catch (err) {
@@ -99,6 +131,60 @@ export function CompanyInfoForm() {
 
   return (
     <form onSubmit={onSubmit} className="mt-8 max-w-2xl space-y-6">
+      <fieldset className="rounded-none border border-gray-200 bg-white p-6">
+        <legend className="px-1 text-sm font-medium">Home hero image</legend>
+        <p className="text-xs text-gray-500">
+          Shown full-width at the top of the home page. When empty, the site
+          uses its built-in default photo.
+        </p>
+        <div className="mt-4">
+          {heroUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={heroUrl}
+              alt=""
+              className="aspect-[3/1] w-full rounded-none border border-gray-100 object-cover"
+            />
+          ) : (
+            <div className="flex aspect-[3/1] w-full items-center justify-center rounded-none border border-dashed border-gray-200 text-xs text-gray-400">
+              Default image in use
+            </div>
+          )}
+          <div className="mt-3">
+            <input
+              ref={heroInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleHero}
+              className="sr-only"
+            />
+            <button
+              type="button"
+              disabled={isUploading}
+              onClick={() => heroInputRef.current?.click()}
+              className="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <Upload className="size-4" aria-hidden />
+              {heroUrl ? "Replace image" : "Upload image"}
+            </button>
+            {heroUrl && (
+              <button
+                type="button"
+                onClick={() => {
+                  setHeroKey("");
+                  setHeroUrl("");
+                  setSaved(false);
+                }}
+                className="ms-3 text-sm text-red-600 hover:underline"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          {uploadError && <p className="mt-2 text-sm text-red-600">{uploadError}</p>}
+        </div>
+      </fieldset>
+
       <TranslationTabs active={tab} onChange={setTab} hasFa={Boolean(fa.name)} />
 
       <div className="space-y-4 rounded-none border border-gray-200 bg-white p-6">

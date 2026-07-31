@@ -9,6 +9,8 @@ export type BrandInfo = {
   addressLine3: string;
   phone: string;
   email: string;
+  /** Admin-managed home hero image; empty string falls back to the bundled default. */
+  heroImageUrl: string;
 };
 
 const fallbacks: Record<string, BrandInfo> = {
@@ -22,6 +24,7 @@ const fallbacks: Record<string, BrandInfo> = {
     addressLine3: "Portland, OR 97201",
     phone: "+1 (555) 123-4567",
     email: "hello@artceramic.example",
+    heroImageUrl: "",
   },
   fa: {
     name: "آرت سرامیک",
@@ -33,6 +36,7 @@ const fallbacks: Record<string, BrandInfo> = {
     addressLine3: "پورتلند، OR 97201",
     phone: "+1 (555) 123-4567",
     email: "hello@artceramic.example",
+    heroImageUrl: "",
   },
 };
 
@@ -46,6 +50,7 @@ function mapResponse(row: BrandInfoResponse): BrandInfo {
     addressLine3: row.address_line_3,
     phone: row.phone,
     email: row.email,
+    heroImageUrl: row.hero_image_url ?? "",
   };
 }
 
