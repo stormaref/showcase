@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sort"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stormaref/showcase/service/internal/domain/model"
@@ -249,6 +250,15 @@ func hasDesignTranslation(translations []model.DesignTranslation, locale string)
 	return false
 }
 
+// formatTimestamp renders a creation time for API clients (the catalog sorts
+// by "date added"). A zero time yields "" so the field stays omitted.
+func formatTimestamp(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format(time.RFC3339)
+}
+
 func variantResponses(variants []model.DesignVariant) []DesignVariantInput {
 	out := make([]DesignVariantInput, len(variants))
 	for i, v := range variants {
@@ -294,6 +304,7 @@ func (s *DesignService) enrich(design *model.Design, tr *model.DesignTranslation
 		SortOrder:       design.SortOrder,
 		IsPublished:     design.IsPublished,
 		Locale:          resolvedLocale,
+		CreatedAt:       formatTimestamp(design.CreatedAt),
 	}
 	s.applyBrand(&resp, design, resolvedLocale)
 	if tr != nil {
@@ -322,6 +333,7 @@ func (s *DesignService) enrichList(
 		SortOrder:   design.SortOrder,
 		IsPublished: design.IsPublished,
 		Locale:      resolvedLocale,
+		CreatedAt:   formatTimestamp(design.CreatedAt),
 	}
 	s.applyBrand(&resp, design, resolvedLocale)
 	if primary != nil {

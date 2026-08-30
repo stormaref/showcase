@@ -66,6 +66,12 @@
     "filterByFinish": "فیلتر بر اساس پرداخت سطح",
     "filterByBrand": "فیلتر بر اساس برند",
     "clearFilters": "پاک کردن فیلترها",
+    "sortBy": "مرتب‌سازی",
+    "sortFeatured": "پیش‌فرض",
+    "sortNewest": "جدیدترین",
+    "sortOldest": "قدیمی‌ترین",
+    "sortAZ": "عنوان: الف تا ی",
+    "sortZA": "عنوان: ی تا الف",
     "noMatches": "هیچ محصولی با فیلترهای انتخاب‌شده مطابقت ندارد."
   },
   "brands": {

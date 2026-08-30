@@ -66,6 +66,12 @@
     "filterByFinish": "Filter by finish",
     "filterByBrand": "Filter by brand",
     "clearFilters": "Clear filters",
+    "sortBy": "Sort by",
+    "sortFeatured": "Featured",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortAZ": "Title A–Z",
+    "sortZA": "Title Z–A",
     "noMatches": "No products match the selected filters."
   },
   "brands": {

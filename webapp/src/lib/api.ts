@@ -158,6 +158,7 @@ export type Design = {
   primary_thumb_url: string;
   sort_order: number;
   is_published: boolean;
+  created_at?: string;
   image_count?: number;
   translations?: Record<string, DesignTranslation>;
   has_fa?: boolean;

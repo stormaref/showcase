@@ -10,6 +10,27 @@ export const SIZE_PARAM = "size";
 export const TYPE_PARAM = "type";
 export const FINISH_PARAM = "finish";
 export const BRAND_PARAM = "brand";
+export const SORT_PARAM = "sort";
+
+/** Catalog orderings. "featured" keeps the curated order the API returns. */
+export const SORT_OPTIONS = [
+  "featured",
+  "newest",
+  "oldest",
+  "az",
+  "za",
+] as const;
+
+export type SortOption = (typeof SORT_OPTIONS)[number];
+
+export const DEFAULT_SORT: SortOption = "featured";
+
+export function parseSortParam(searchParams: URLSearchParams): SortOption {
+  const raw = searchParams.get(SORT_PARAM) ?? "";
+  return (SORT_OPTIONS as readonly string[]).includes(raw)
+    ? (raw as SortOption)
+    : DEFAULT_SORT;
+}
 
 export function parseSizeParam(
   searchParams: URLSearchParams,
@@ -68,6 +89,7 @@ export function buildFilterQuery(
   selectedTypes: Iterable<string>,
   selectedFinishes: Iterable<string> = [],
   selectedBrands: Iterable<string> = [],
+  sort: SortOption = DEFAULT_SORT,
 ): string {
   const parts: string[] = [];
   const sizeIds = [...selectedSizes];
@@ -85,6 +107,9 @@ export function buildFilterQuery(
   }
   if (brandIds.length > 0) {
     parts.push(`${BRAND_PARAM}=${brandIds.join(",")}`);
+  }
+  if (sort !== DEFAULT_SORT) {
+    parts.push(`${SORT_PARAM}=${sort}`);
   }
   return parts.join("&");
 }
@@ -190,4 +215,36 @@ export function filterDesigns(
   result = filterDesignsByFinish(result, selectedFinishes);
   result = filterDesignsByBrand(result, selectedBrands);
   return result;
+}
+
+/** Milliseconds a design was added; 0 when the API omits created_at. */
+function addedAt(item: Design): number {
+  if (!item.created_at) return 0;
+  const ms = Date.parse(item.created_at);
+  return Number.isNaN(ms) ? 0 : ms;
+}
+
+/**
+ * Order a already-filtered list. Returns a new array — "featured" hands back
+ * the API's curated order untouched. Titles collate in the active locale so
+ * Persian sorts by the Persian alphabet.
+ */
+export function sortDesigns(
+  items: Design[],
+  sort: SortOption,
+  locale?: string,
+): Design[] {
+  if (sort === "featured") return items;
+
+  const sorted = [...items];
+  if (sort === "newest" || sort === "oldest") {
+    const direction = sort === "newest" ? -1 : 1;
+    sorted.sort((a, b) => direction * (addedAt(a) - addedAt(b)));
+    return sorted;
+  }
+
+  const collator = new Intl.Collator(locale, { sensitivity: "base", numeric: true });
+  const direction = sort === "az" ? 1 : -1;
+  sorted.sort((a, b) => direction * collator.compare(a.title, b.title));
+  return sorted;
 }

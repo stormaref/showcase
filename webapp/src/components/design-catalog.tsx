@@ -2,11 +2,12 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { DesignBrandFilter } from "@/components/design-brand-filter";
 import { DesignFinishFilter } from "@/components/design-finish-filter";
 import { DesignGrid } from "@/components/design-grid";
 import { DesignSizeFilter } from "@/components/design-size-filter";
+import { DesignSort } from "@/components/design-sort";
 import { DesignTypeFilter } from "@/components/design-type-filter";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Design } from "@/lib/api";
@@ -20,7 +21,10 @@ import {
   parseBrandParam,
   parseFinishParam,
   parseSizeParam,
+  parseSortParam,
   parseTypeParam,
+  sortDesigns,
+  type SortOption,
 } from "@/lib/design-filter";
 
 type DesignCatalogProps = {
@@ -29,6 +33,7 @@ type DesignCatalogProps = {
 
 export function DesignCatalog({ items }: DesignCatalogProps) {
   const t = useTranslations("designs");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -71,6 +76,11 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     [searchParams, validBrandIds],
   );
 
+  const selectedSort = useMemo(
+    () => parseSortParam(searchParams),
+    [searchParams],
+  );
+
   const filteredItems = useMemo(
     () =>
       filterDesigns(
@@ -83,15 +93,31 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     [items, selectedSizeIds, selectedTypeIds, selectedFinishIds, selectedBrandIds],
   );
 
+  const visibleItems = useMemo(
+    () => sortDesigns(filteredItems, selectedSort, locale),
+    [filteredItems, selectedSort, locale],
+  );
+
   function updateFilters(
     sizes: Set<string>,
     types: Set<string>,
     finishes: Set<string>,
     brands: Set<string>,
+    sort: SortOption = selectedSort,
   ) {
-    const query = buildFilterQuery(sizes, types, finishes, brands);
+    const query = buildFilterQuery(sizes, types, finishes, brands, sort);
     const href = query ? `${pathname}?${query}` : pathname;
     router.replace(href, { scroll: false });
+  }
+
+  function changeSort(sort: SortOption) {
+    updateFilters(
+      selectedSizeIds,
+      selectedTypeIds,
+      selectedFinishIds,
+      selectedBrandIds,
+      sort,
+    );
   }
 
   function toggleSize(id: string) {
@@ -157,6 +183,20 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   return (
     <div className="mt-12 flex flex-col gap-8 lg:flex-row">
       <div className="flex flex-col gap-6 lg:w-56 lg:shrink-0">
+        <DesignSort
+          value={selectedSort}
+          onChange={changeSort}
+          labels={{
+            sortBy: t("sortBy"),
+            options: {
+              featured: t("sortFeatured"),
+              newest: t("sortNewest"),
+              oldest: t("sortOldest"),
+              az: t("sortAZ"),
+              za: t("sortZA"),
+            },
+          }}
+        />
         <DesignBrandFilter
           brands={availableBrands}
           selectedIds={selectedBrandIds}
@@ -199,11 +239,11 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
         />
       </div>
       <div className="min-w-0 flex-1">
-        {filteredItems.length === 0 ? (
+        {visibleItems.length === 0 ? (
           <p className="text-gray-500">{t("noMatches")}</p>
         ) : (
           <DesignGrid
-            items={filteredItems}
+            items={visibleItems}
             className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3"
           />
         )}
