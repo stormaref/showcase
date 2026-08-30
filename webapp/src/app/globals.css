@@ -36,6 +36,11 @@
 :root {
   --background: #fbfaf7;
   --foreground: #171310;
+
+  /* Height of the sticky site header. The header is pinned to this value and
+     the home hero subtracts it from the viewport, so the hero fills exactly
+     what is left of the screen on load. Keep the two in sync via this token. */
+  --header-h: 4.75rem;
 }
 
 body {

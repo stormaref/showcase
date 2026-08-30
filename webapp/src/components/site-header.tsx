@@ -12,8 +12,8 @@ export async function SiteHeader() {
   const tileTypes = await getTileTypes(locale);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-paper/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
+    <header className="sticky top-0 z-40 h-[var(--header-h)] border-b border-gray-200 bg-paper/95 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-10">
         <Link
           href="/"
           className="text-sm font-semibold uppercase tracking-[0.35em] text-ink transition hover:opacity-60"
