@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import logo from "@/assets/images/logo.png";
 import { getBrandInfo, phoneTelHref } from "@/lib/brand-info";
 
 export async function SiteFooter() {
@@ -18,9 +20,7 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t border-gray-200 bg-cream">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-3 md:px-10">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-ink">
-            {brand.name}
-          </p>
+          <Image src={logo} alt={brand.name} className="h-28 w-auto" />
           <p className="mt-4 max-w-xs text-sm font-light leading-relaxed text-gray-500">
             {brand.tagline}
           </p>

@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import logoMark from "@/assets/images/logo-mark.png";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ProductsNavMenu } from "@/components/products-nav-menu";
 import { getBrandInfo } from "@/lib/brand-info";
@@ -14,11 +16,15 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 h-[var(--header-h)] border-b border-gray-200 bg-paper/95 backdrop-blur">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-10">
+        {/* The logo mark carries the brand on its own; the wordmark beside it
+            stays localised (the full lockup is Persian-only) and steps aside on
+            narrow phones. */}
         <Link
           href="/"
-          className="text-sm font-semibold uppercase tracking-[0.35em] text-ink transition hover:opacity-60"
+          className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.35em] text-ink transition hover:opacity-60"
         >
-          {brand.name}
+          <Image src={logoMark} alt="" aria-hidden className="h-10 w-auto" />
+          <span className="hidden sm:inline">{brand.name}</span>
         </Link>
         <div className="flex items-center gap-8">
           <nav className="flex items-center gap-8 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500">
