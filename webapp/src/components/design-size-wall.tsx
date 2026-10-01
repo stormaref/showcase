@@ -60,7 +60,9 @@ function preload(src: string) {
 /**
  * The sizes of a design drawn to scale from their real dimensions, with the
  * decoration photo of the selected size underneath. When the design comes in
- * several categories, visitors pick one first and then see its sizes.
+ * several categories, visitors pick one first and then see its sizes. Only
+ * real choices are shown: a category with one size goes straight to its
+ * photo, and a design with one category and one size just shows the photo.
  */
 export function DesignSizeWall({ categories, tiles, alt, intro, labels }: DesignSizeWallProps) {
   const categoryHeadingId = useId();
@@ -74,16 +76,20 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
   const visible = tiles.filter((tile) => tile.typeId === categoryId);
   const [selectedKey, setSelectedKey] = useState(visible[0]?.key ?? "");
   const selected = visible.find((tile) => tile.key === selectedKey) ?? visible[0];
+  // A size picker only when there's a choice to make.
+  const showSizePicker = visible.length > 1;
 
-  // A category pick leads to its sizes; the sizes section may only render
-  // after this pick, so the scroll waits for the commit.
+  // A category pick leads to its sizes, or straight to the photo when it has
+  // only one. That section may only render after the pick, so the scroll
+  // waits for the commit.
   useEffect(() => {
-    if (pickedByVisitor.current) scrollToSection(sizesRef.current);
-  }, [categoryId]);
+    if (!pickedByVisitor.current) return;
+    scrollToSection(showSizePicker ? sizesRef.current : photoRef.current);
+  }, [categoryId, showSizePicker]);
 
   function selectCategory(id: string) {
     if (id === categoryId) {
-      scrollToSection(sizesRef.current);
+      scrollToSection(showSizePicker ? sizesRef.current : photoRef.current);
       return;
     }
     pickedByVisitor.current = true;
@@ -106,9 +112,18 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
   const minWidth = Math.min(idealWidth, MIN_TILE_PX * visible.length + gaps);
   const categoryName = categories.find((c) => c.id === categoryId)?.name;
 
-  // With one category there is nothing to pick, so the sizes take the
-  // picker's place beside the header and the room photo runs below.
-  const sizesBeside = !chooseCategory && Boolean(intro);
+  // What sits beside the header: the category picker; with one category the
+  // size picker (photo below); with one category and one size the photo itself.
+  const beside: "categories" | "sizes" | "photo" | null = !intro
+    ? null
+    : chooseCategory
+      ? "categories"
+      : showSizePicker
+        ? "sizes"
+        : selected
+          ? "photo"
+          : null;
+  const sizesBeside = beside === "sizes";
   const sizeSelector = selected ? (
     <>
       <h2 id={headingId} className={headingClass}>
@@ -176,7 +191,10 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
     <figure
       ref={photoRef}
       id={panelId}
-      className={cn("scroll-mt-6", !sizesBeside && "mt-12")}
+      className={cn(
+        "scroll-mt-6",
+        beside === "photo" ? "mt-12 lg:mt-0" : !sizesBeside && showSizePicker && "mt-12",
+      )}
     >
       {selected.decorSrc ? (
         <div className="overflow-hidden bg-gray-100">
@@ -185,7 +203,10 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
             key={selected.key}
             src={selected.decorSrc}
             alt={`${alt} — ${selected.label}`}
-            className="aspect-[4/3] w-full animate-fade-in object-cover motion-reduce:animate-none md:aspect-[16/9]"
+            className={cn(
+              "aspect-[4/3] w-full animate-fade-in object-cover motion-reduce:animate-none",
+              beside !== "photo" && "md:aspect-[16/9]",
+            )}
           />
         </div>
       ) : (
@@ -208,9 +229,7 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
       {(intro || chooseCategory) && (
         <div
           className={cn(
-            intro &&
-              (chooseCategory || sizesBeside) &&
-              "lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12",
+            beside && "lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12",
           )}
         >
           {intro}
@@ -284,19 +303,21 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
               {sizeSelector}
             </section>
           )}
+          {beside === "photo" && sizePhoto}
         </div>
       )}
 
       {selected &&
+        beside !== "photo" &&
         (sizesBeside ? (
           <div>{sizePhoto}</div>
         ) : (
           <section
             ref={sizesRef}
-            aria-labelledby={headingId}
+            aria-labelledby={showSizePicker ? headingId : undefined}
             className="scroll-mt-8"
           >
-            {sizeSelector}
+            {showSizePicker && sizeSelector}
             {sizePhoto}
           </section>
         ))}
