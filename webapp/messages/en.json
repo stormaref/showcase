@@ -122,8 +122,6 @@
     "specType": "Category",
     "specSizes": "Sizes",
     "specFinishes": "Finish",
-    "enquiryTitle": "Ask about price and availability",
-    "enquiryText": "Call us or send a WhatsApp message and we'll get back to you about this product.",
     "call": "Call",
     "whatsapp": "WhatsApp",
     "whatsappMessage": "Hello, I would like to ask about the price and availability of \"{title}\".\n{url}",

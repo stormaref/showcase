@@ -9,7 +9,6 @@ import {
 } from "@/components/design-size-wall";
 import {
   ProductContactBar,
-  ProductContactCard,
   productContactLinks,
 } from "@/components/product-contact";
 import type { Design, DesignImage } from "@/lib/api";
@@ -83,6 +82,84 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
     t("whatsappMessage", { title: design.title, url: productUrl }),
   );
 
+  const intro = (
+    <div className="max-w-3xl">
+      <h1 className="text-3xl font-light tracking-tight text-ink md:text-5xl rtl:leading-[1.35]">
+        {design.title}
+      </h1>
+      {design.caption && (
+        <p className="mt-4 text-lg font-light leading-relaxed text-gray-600">
+          {design.caption}
+        </p>
+      )}
+
+      {hasSpecs && (
+        <dl className="mt-8 divide-y divide-gray-200 border-y border-gray-200">
+          {design.brand && (
+            <SpecRow label={t("specBrand")}>
+              {design.brand.website_url ? (
+                <a
+                  href={design.brand.website_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-gray-300 underline-offset-4 transition hover:decoration-ink"
+                >
+                  {design.brand.name}
+                </a>
+              ) : (
+                design.brand.name
+              )}
+            </SpecRow>
+          )}
+          {types.length > 0 && (
+            <SpecRow label={t("specType")}>
+              <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                {types.map((type) => (
+                  <li key={type.id}>
+                    <Link
+                      href={`/products?type=${type.id}`}
+                      className="underline decoration-gray-300 underline-offset-4 transition hover:decoration-ink"
+                    >
+                      {type.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </SpecRow>
+          )}
+          {design.sizes.length > 0 && (
+            <SpecRow label={t("specSizes")}>
+              <ul className="flex flex-wrap gap-2">
+                {design.sizes.map((size) => (
+                  <li
+                    key={size.id}
+                    className="border border-gray-300 bg-white px-3 py-1 text-sm text-ink"
+                  >
+                    <bdi dir="ltr">{formatSizeLabel(size.label, locale)}</bdi>
+                  </li>
+                ))}
+              </ul>
+            </SpecRow>
+          )}
+          {finishes.length > 0 && (
+            <SpecRow label={t("specFinishes")}>
+              <ul className="flex flex-wrap gap-2">
+                {finishes.map((finish) => (
+                  <li
+                    key={finish.id}
+                    className="bg-clay-soft px-3 py-1 text-sm text-ink"
+                  >
+                    {finish.name}
+                  </li>
+                ))}
+              </ul>
+            </SpecRow>
+          )}
+        </dl>
+      )}
+    </div>
+  );
+
   return (
     <div>
       <div className="mx-auto max-w-7xl px-6 pb-16 pt-6 md:px-10 md:pb-24 md:pt-10">
@@ -117,97 +194,15 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
           </ol>
         </nav>
 
-        <div className="mt-6 lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12">
-          <div>
-            <h1 className="text-3xl font-light tracking-tight text-ink md:text-5xl rtl:leading-[1.35]">
-              {design.title}
-            </h1>
-            {design.caption && (
-              <p className="mt-4 text-lg font-light leading-relaxed text-gray-600">
-                {design.caption}
-              </p>
-            )}
-
-            {hasSpecs && (
-              <dl className="mt-8 divide-y divide-gray-200 border-y border-gray-200">
-                {design.brand && (
-                  <SpecRow label={t("specBrand")}>
-                    {design.brand.website_url ? (
-                      <a
-                        href={design.brand.website_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="underline decoration-gray-300 underline-offset-4 transition hover:decoration-ink"
-                      >
-                        {design.brand.name}
-                      </a>
-                    ) : (
-                      design.brand.name
-                    )}
-                  </SpecRow>
-                )}
-                {types.length > 0 && (
-                  <SpecRow label={t("specType")}>
-                    <ul className="flex flex-wrap gap-x-4 gap-y-1">
-                      {types.map((type) => (
-                        <li key={type.id}>
-                          <Link
-                            href={`/products?type=${type.id}`}
-                            className="underline decoration-gray-300 underline-offset-4 transition hover:decoration-ink"
-                          >
-                            {type.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </SpecRow>
-                )}
-                {design.sizes.length > 0 && (
-                  <SpecRow label={t("specSizes")}>
-                    <ul className="flex flex-wrap gap-2">
-                      {design.sizes.map((size) => (
-                        <li
-                          key={size.id}
-                          className="border border-gray-300 bg-white px-3 py-1 text-sm text-ink"
-                        >
-                          <bdi dir="ltr">{formatSizeLabel(size.label, locale)}</bdi>
-                        </li>
-                      ))}
-                    </ul>
-                  </SpecRow>
-                )}
-                {finishes.length > 0 && (
-                  <SpecRow label={t("specFinishes")}>
-                    <ul className="flex flex-wrap gap-2">
-                      {finishes.map((finish) => (
-                        <li
-                          key={finish.id}
-                          className="bg-clay-soft px-3 py-1 text-sm text-ink"
-                        >
-                          {finish.name}
-                        </li>
-                      ))}
-                    </ul>
-                  </SpecRow>
-                )}
-              </dl>
-            )}
-          </div>
-
-          {contact && (
-            <div className="mt-8 lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:mt-0">
-              <ProductContactCard links={contact} locale={locale} />
-            </div>
-          )}
-        </div>
-
-        {/* Sizes drawn to scale, each with its own tile and room photo. */}
-        <div className="mt-16 md:mt-24">
+        {/* The header, the category picker beside it, then the sizes drawn to
+            scale, each with its own tile and room photo. */}
+        <div className="mt-6">
           {tiles.length > 0 ? (
             <DesignSizeWall
               categories={categories}
               tiles={tiles}
               alt={alt}
+              intro={intro}
               labels={{
                 categoryHeading: t("chooseCategory"),
                 categoryHint: t("chooseCategoryHint"),
@@ -217,9 +212,12 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
               }}
             />
           ) : (
-            <p className="border border-gray-200 bg-cream px-6 py-14 text-center text-sm text-gray-600">
-              {t("noSizes")}
-            </p>
+            <>
+              {intro}
+              <p className="mt-16 border border-gray-200 bg-cream px-6 py-14 text-center text-sm text-gray-600 md:mt-24">
+                {t("noSizes")}
+              </p>
+            </>
           )}
         </div>
       </div>

@@ -1,13 +1,10 @@
 import { getTranslations } from "next-intl/server";
-import { Clock, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { phoneTelHref, whatsappHref, type BrandInfo } from "@/lib/brand-info";
-import { localizeDigits } from "@/lib/format";
 
 export type ProductContactLinks = {
   telHref: string;
   whatsappHref: string;
-  phone: string;
-  hours: string;
 };
 
 /** Call and WhatsApp links for a product enquiry; null when neither is set. */
@@ -22,8 +19,6 @@ export function productContactLinks(
   return {
     telHref,
     whatsappHref: waHref,
-    phone: brand.phone.trim(),
-    hours: brand.hours.trim(),
   };
 }
 
@@ -39,56 +34,6 @@ const callClass =
   "inline-flex h-12 flex-1 items-center justify-center gap-2 bg-clay px-5 text-sm font-medium text-white transition hover:bg-clay-dark";
 const whatsappClass =
   "inline-flex h-12 flex-1 items-center justify-center gap-2 border border-ink/20 bg-white px-5 text-sm font-medium text-ink transition hover:border-ink";
-
-type ProductContactCardProps = {
-  links: ProductContactLinks;
-  locale: string;
-};
-
-export async function ProductContactCard({ links, locale }: ProductContactCardProps) {
-  const t = await getTranslations("designDetail");
-  return (
-    <section
-      aria-labelledby="product-enquiry"
-      className="border border-gray-200 bg-cream p-6"
-    >
-      <h2 id="product-enquiry" className="text-lg font-medium text-ink">
-        {t("enquiryTitle")}
-      </h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-gray-600">
-        {t("enquiryText")}
-      </p>
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-        {links.telHref && (
-          <a href={links.telHref} className={callClass}>
-            <Phone className="size-4" aria-hidden />
-            <span>{t("call")}</span>
-            <bdi dir="ltr" className="font-normal opacity-90">
-              {localizeDigits(links.phone, locale)}
-            </bdi>
-          </a>
-        )}
-        {links.whatsappHref && (
-          <a
-            href={links.whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={whatsappClass}
-          >
-            <WhatsAppIcon className="size-4 text-[#1a9e4b]" />
-            {t("whatsapp")}
-          </a>
-        )}
-      </div>
-      {links.hours && (
-        <p className="mt-4 flex items-start gap-2 text-sm text-gray-600">
-          <Clock className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <span>{links.hours}</span>
-        </p>
-      )}
-    </section>
-  );
-}
 
 type ProductContactBarProps = {
   links: ProductContactLinks;

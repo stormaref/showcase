@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type SizeWallTile = {
@@ -23,6 +23,8 @@ type DesignSizeWallProps = {
   categories: SizeWallCategory[];
   tiles: SizeWallTile[];
   alt: string;
+  /** Product header (title, specs). The category picker sits beside it. */
+  intro?: ReactNode;
   labels: {
     categoryHeading: string;
     categoryHint: string;
@@ -54,7 +56,7 @@ function preload(src: string) {
  * decoration photo of the selected size underneath. When the design comes in
  * several categories, visitors pick one first and then see its sizes.
  */
-export function DesignSizeWall({ categories, tiles, alt, labels }: DesignSizeWallProps) {
+export function DesignSizeWall({ categories, tiles, alt, intro, labels }: DesignSizeWallProps) {
   const categoryHeadingId = useId();
   const headingId = useId();
   const panelId = useId();
@@ -92,65 +94,79 @@ export function DesignSizeWall({ categories, tiles, alt, labels }: DesignSizeWal
 
   return (
     <div className="space-y-16 md:space-y-20">
-      {chooseCategory && (
-        <section aria-labelledby={categoryHeadingId}>
-          <h2 id={categoryHeadingId} className={headingClass}>
-            {labels.categoryHeading}
-          </h2>
-          <p className="mt-2 text-sm font-light text-gray-500">{labels.categoryHint}</p>
-          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-            {categories.map((category) => {
-              const active = category.id === categoryId;
-              const sizes = tiles
-                .filter((tile) => tile.typeId === category.id)
-                .map((tile) => tile.label);
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => selectCategory(category.id)}
-                  className="group cursor-pointer text-start"
-                >
-                  <span
-                    className={cn(
-                      "block aspect-[4/3] overflow-hidden bg-gray-100 outline-1 outline-offset-4 transition",
-                      active
-                        ? "outline outline-ink"
-                        : "outline outline-transparent group-hover:outline-gray-300",
-                    )}
-                  >
-                    {category.previewSrc && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={category.previewSrc}
-                        alt=""
-                        loading="lazy"
-                        className="size-full object-cover transition duration-700 group-hover:scale-105"
-                      />
-                    )}
-                  </span>
-                  <span
-                    className={cn(
-                      "mt-4 block text-lg transition",
-                      active ? "font-normal text-ink" : "font-light text-gray-700 group-hover:text-ink",
-                    )}
-                  >
-                    {category.name}
-                  </span>
-                  <span className="mt-1 block text-xs font-light text-gray-500">
-                    {sizes.map((size, i) => (
-                      <span key={size}>
-                        {i > 0 && " · "}
-                        <bdi dir="ltr">{size}</bdi>
+      {(intro || chooseCategory) && (
+        <div
+          className={cn(
+            chooseCategory && intro && "lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12",
+          )}
+        >
+          {intro}
+          {chooseCategory && (
+            <section aria-labelledby={categoryHeadingId} className={cn(intro && "mt-12 lg:mt-0")}>
+              <h2 id={categoryHeadingId} className={headingClass}>
+                {labels.categoryHeading}
+              </h2>
+              <p className="mt-2 text-sm font-light text-gray-500">{labels.categoryHint}</p>
+              <div
+                className={cn(
+                  "mt-8 grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3",
+                  intro ? "lg:grid-cols-2" : "lg:grid-cols-4",
+                )}
+              >
+                {categories.map((category) => {
+                  const active = category.id === categoryId;
+                  const sizes = tiles
+                    .filter((tile) => tile.typeId === category.id)
+                    .map((tile) => tile.label);
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => selectCategory(category.id)}
+                      className="group cursor-pointer text-start"
+                    >
+                      <span
+                        className={cn(
+                          "block aspect-[4/3] overflow-hidden bg-gray-100 outline-1 outline-offset-4 transition",
+                          active
+                            ? "outline outline-ink"
+                            : "outline outline-transparent group-hover:outline-gray-300",
+                        )}
+                      >
+                        {category.previewSrc && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={category.previewSrc}
+                            alt=""
+                            loading="lazy"
+                            className="size-full object-cover transition duration-700 group-hover:scale-105"
+                          />
+                        )}
                       </span>
-                    ))}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                      <span
+                        className={cn(
+                          "mt-4 block text-lg transition",
+                          active ? "font-normal text-ink" : "font-light text-gray-700 group-hover:text-ink",
+                        )}
+                      >
+                        {category.name}
+                      </span>
+                      <span className="mt-1 block text-xs font-light text-gray-500">
+                        {sizes.map((size, i) => (
+                          <span key={size}>
+                            {i > 0 && " · "}
+                            <bdi dir="ltr">{size}</bdi>
+                          </span>
+                        ))}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </div>
       )}
 
       {selected && (
