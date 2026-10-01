@@ -18,13 +18,16 @@ type BrandGridProps = {
 const logoPlate =
   "object-contain transition-opacity duration-500 group-hover:opacity-85 dark:bg-ink";
 
-function VisitLink({ href, label }: { href: string; label: string }) {
+function VisitLink({ href, label, className }: { href: string; label: string; className?: string }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="mt-4 inline-flex items-center gap-1.5 text-[13px] text-gray-500 transition hover:text-ink"
+      className={cn(
+        "inline-flex items-center gap-1.5 text-[13px] text-gray-500 transition hover:text-ink",
+        className ?? "mt-4",
+      )}
     >
       {label}
       <ExternalLink className="size-3.5" aria-hidden />
@@ -39,46 +42,45 @@ export function BrandGrid({
   className,
   headingLevel: Heading = "h3",
 }: BrandGridProps) {
-  // A single brand gets a centred feature instead of a lonely card in a
-  // three-column grid.
+  // A single brand gets a compact horizontal card (logo beside its name and
+  // links) instead of a lonely card in a three-column grid.
   if (brands.length === 1) {
     const brand = brands[0];
     return (
-      <div className={cn("mx-auto max-w-2xl text-center", className)}>
-        <Link
-          href={`/products?brand=${brand.id}`}
-          className="group flex cursor-pointer flex-col items-center"
-        >
-          {brand.logo_url && (
-            <div className="flex h-28 items-center justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={brand.logo_url}
-                alt=""
-                loading="lazy"
-                className={cn(logoPlate, "max-h-24 max-w-[220px] dark:p-4")}
-              />
-            </div>
-          )}
-          <Heading
-            className={cn(
-              "text-3xl font-light tracking-tight text-ink md:text-4xl",
-              brand.logo_url && "mt-8",
-            )}
-          >
+      <div className={cn("flex items-center gap-6 md:gap-8", className)}>
+        {brand.logo_url && (
+          <div className="flex size-20 shrink-0 items-center justify-center md:size-24">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={brand.logo_url}
+              alt=""
+              loading="lazy"
+              className={cn(logoPlate, "max-h-full max-w-full dark:p-2")}
+            />
+          </div>
+        )}
+        <div className="min-w-0">
+          <Heading className="text-2xl font-light tracking-tight text-ink md:text-3xl rtl:leading-[1.35]">
             {brand.name}
           </Heading>
           {brand.description && (
-            <p className="mt-5 max-w-xl text-base font-light leading-loose text-gray-600 md:text-lg">
+            <p className="mt-1.5 text-sm leading-relaxed text-gray-600 md:text-base">
               {brand.description}
             </p>
           )}
-          <span className="mt-8 inline-flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-ink underline decoration-gray-300 underline-offset-8 transition group-hover:text-clay group-hover:decoration-clay">
-            {productsLabel}
-            <ArrowRight className="size-3.5 rtl:rotate-180" aria-hidden />
-          </span>
-        </Link>
-        {brand.website_url && <VisitLink href={brand.website_url} label={visitLabel} />}
+          <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link
+              href={`/products?brand=${brand.id}`}
+              className="inline-flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-ink underline decoration-gray-300 underline-offset-8 transition hover:text-clay hover:decoration-clay"
+            >
+              {productsLabel}
+              <ArrowRight className="size-3.5 rtl:rotate-180" aria-hidden />
+            </Link>
+            {brand.website_url && (
+              <VisitLink href={brand.website_url} label={visitLabel} className="mt-0" />
+            )}
+          </div>
+        </div>
       </div>
     );
   }

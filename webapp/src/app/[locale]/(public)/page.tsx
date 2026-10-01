@@ -251,16 +251,21 @@ export default async function HomePage({ params }: PageProps) {
         </ul>
       </section>
 
-      {/* Brands — stone band; a single brand gets a centred feature */}
+      {/* Brands — compact stone band; one brand sits beside the heading,
+          several sit below it */}
       {brands.length > 0 && (
         <section className="border-y border-gray-200 bg-cream">
-          <div className="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-32">
+          <div
+            className={`mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-16 ${
+              brands.length === 1 ? "lg:flex lg:items-center lg:justify-between lg:gap-16" : ""
+            }`}
+          >
             <SectionHeader title={t("brandsTitle")} subtitle={t("brandsSubtitle")} />
             <BrandGrid
               brands={brands}
               visitLabel={t("brandsVisit")}
               productsLabel={t("viewAll")}
-              className="mt-14"
+              className={brands.length === 1 ? "mt-8 lg:mt-0" : "mt-10"}
             />
           </div>
         </section>
