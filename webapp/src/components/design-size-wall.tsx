@@ -92,12 +92,107 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
   const minWidth = Math.min(idealWidth, MIN_TILE_PX * visible.length + gaps);
   const categoryName = categories.find((c) => c.id === categoryId)?.name;
 
+  // With one category there is nothing to pick, so the sizes take the
+  // picker's place beside the header and the room photo runs below.
+  const sizesBeside = !chooseCategory && Boolean(intro);
+  const sizeSelector = selected ? (
+    <>
+      <h2 id={headingId} className={headingClass}>
+        {chooseCategory && categoryName
+          ? `${labels.heading} · ${categoryName}`
+          : labels.heading}
+      </h2>
+      <p className="mt-2 text-sm font-light text-gray-500">{labels.hint}</p>
+
+      <div className="-mx-6 mt-10 overflow-x-auto px-6 pb-2 pt-2 md:-mx-2 md:px-2">
+        <div
+          className="mx-auto flex items-end"
+          style={{ gap: GAP_PX, width: `min(100%, ${idealWidth}px)`, minWidth }}
+        >
+          {visible.map((tile) => {
+            const active = tile.key === selected.key;
+            return (
+              <button
+                key={tile.key}
+                type="button"
+                aria-pressed={active}
+                aria-controls={panelId}
+                onClick={() => setSelectedKey(tile.key)}
+                onPointerEnter={() => preload(tile.decorSrc)}
+                onFocus={() => preload(tile.decorSrc)}
+                className="group flex min-w-0 cursor-pointer flex-col items-center"
+                style={{ flex: `${tile.widthMm} 1 0px` }}
+              >
+                <span
+                  className={cn(
+                    "block w-full overflow-hidden bg-gray-100 outline-1 outline-offset-4 transition",
+                    active
+                      ? "outline outline-ink"
+                      : "outline outline-transparent group-hover:outline-gray-300",
+                  )}
+                  style={{ aspectRatio: `${tile.widthMm} / ${tile.heightMm}` }}
+                >
+                  {tile.tileSrc && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={tile.tileSrc}
+                      alt={`${alt} — ${tile.label}`}
+                      className="size-full object-cover"
+                    />
+                  )}
+                </span>
+                <span
+                  className={cn(
+                    "mt-4 whitespace-nowrap text-xs transition",
+                    active
+                      ? "font-medium text-ink"
+                      : "font-light text-gray-500 group-hover:text-ink",
+                  )}
+                >
+                  <bdi dir="ltr">{tile.label}</bdi>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  ) : null;
+  const sizePhoto = selected ? (
+    <figure id={panelId} className={cn(!sizesBeside && "mt-12")}>
+      {selected.decorSrc ? (
+        <div className="overflow-hidden bg-gray-100">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={selected.key}
+            src={selected.decorSrc}
+            alt={`${alt} — ${selected.label}`}
+            className="aspect-[4/3] w-full animate-fade-in object-cover motion-reduce:animate-none md:aspect-[16/9]"
+          />
+        </div>
+      ) : (
+        <p className="border border-gray-200 bg-cream px-6 py-14 text-center text-sm font-light text-gray-500">
+          {labels.noDecor}
+        </p>
+      )}
+      <figcaption
+        aria-live="polite"
+        className="mt-4 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500"
+      >
+        <bdi dir="ltr">{selected.label}</bdi>
+        {categoryName && ` · ${categoryName}`}
+      </figcaption>
+    </figure>
+  ) : null;
+
   return (
     <div className="space-y-16 md:space-y-20">
       {(intro || chooseCategory) && (
         <div
           className={cn(
-            chooseCategory && intro && "lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12",
+            intro &&
+              (chooseCategory || sizesBeside) &&
+              "lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12",
           )}
         >
           {intro}
@@ -166,101 +261,27 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
               </div>
             </section>
           )}
+          {sizesBeside && sizeSelector && (
+            <section aria-labelledby={headingId} className="mt-12 lg:mt-0">
+              {sizeSelector}
+            </section>
+          )}
         </div>
       )}
 
-      {selected && (
-        <section
-          ref={sizesRef}
-          aria-labelledby={headingId}
-          className="scroll-mt-[calc(var(--header-h)+2rem)]"
-        >
-          <h2 id={headingId} className={headingClass}>
-            {chooseCategory && categoryName
-              ? `${labels.heading} · ${categoryName}`
-              : labels.heading}
-          </h2>
-          <p className="mt-2 text-sm font-light text-gray-500">{labels.hint}</p>
-
-          <div className="-mx-6 mt-10 overflow-x-auto px-6 pb-2 pt-2 md:-mx-2 md:px-2">
-            <div
-              className="mx-auto flex items-end"
-              style={{ gap: GAP_PX, width: `min(100%, ${idealWidth}px)`, minWidth }}
-            >
-              {visible.map((tile) => {
-                const active = tile.key === selected.key;
-                return (
-                  <button
-                    key={tile.key}
-                    type="button"
-                    aria-pressed={active}
-                    aria-controls={panelId}
-                    onClick={() => setSelectedKey(tile.key)}
-                    onPointerEnter={() => preload(tile.decorSrc)}
-                    onFocus={() => preload(tile.decorSrc)}
-                    className="group flex min-w-0 cursor-pointer flex-col items-center"
-                    style={{ flex: `${tile.widthMm} 1 0px` }}
-                  >
-                    <span
-                      className={cn(
-                        "block w-full overflow-hidden bg-gray-100 outline-1 outline-offset-4 transition",
-                        active
-                          ? "outline outline-ink"
-                          : "outline outline-transparent group-hover:outline-gray-300",
-                      )}
-                      style={{ aspectRatio: `${tile.widthMm} / ${tile.heightMm}` }}
-                    >
-                      {tile.tileSrc && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={tile.tileSrc}
-                          alt={`${alt} — ${tile.label}`}
-                          className="size-full object-cover"
-                        />
-                      )}
-                    </span>
-                    <span
-                      className={cn(
-                        "mt-4 whitespace-nowrap text-xs transition",
-                        active
-                          ? "font-medium text-ink"
-                          : "font-light text-gray-500 group-hover:text-ink",
-                      )}
-                    >
-                      <bdi dir="ltr">{tile.label}</bdi>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <figure id={panelId} className="mt-12">
-            {selected.decorSrc ? (
-              <div className="overflow-hidden bg-gray-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  key={selected.key}
-                  src={selected.decorSrc}
-                  alt={`${alt} — ${selected.label}`}
-                  className="aspect-[4/3] w-full animate-fade-in object-cover motion-reduce:animate-none md:aspect-[16/9]"
-                />
-              </div>
-            ) : (
-              <p className="border border-gray-200 bg-cream px-6 py-14 text-center text-sm font-light text-gray-500">
-                {labels.noDecor}
-              </p>
-            )}
-            <figcaption
-              aria-live="polite"
-              className="mt-4 text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500"
-            >
-              <bdi dir="ltr">{selected.label}</bdi>
-              {categoryName && ` · ${categoryName}`}
-            </figcaption>
-          </figure>
-        </section>
-      )}
+      {selected &&
+        (sizesBeside ? (
+          <div>{sizePhoto}</div>
+        ) : (
+          <section
+            ref={sizesRef}
+            aria-labelledby={headingId}
+            className="scroll-mt-[calc(var(--header-h)+2rem)]"
+          >
+            {sizeSelector}
+            {sizePhoto}
+          </section>
+        ))}
     </div>
   );
 }
