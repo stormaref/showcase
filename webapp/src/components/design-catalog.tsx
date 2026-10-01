@@ -1,17 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { SlidersHorizontal } from "lucide-react";
+import {
+  DesignActiveFilters,
+  type ActiveFilterChip,
+} from "@/components/design-active-filters";
 import { DesignBrandFilter } from "@/components/design-brand-filter";
+import type { FilterGroupVariant } from "@/components/design-filter-group";
+import { DesignFilterSheet } from "@/components/design-filter-sheet";
 import { DesignFinishFilter } from "@/components/design-finish-filter";
 import { DesignGrid } from "@/components/design-grid";
 import { DesignSizeFilter } from "@/components/design-size-filter";
-import { DesignSort } from "@/components/design-sort";
+import { DesignSort, DesignSortSelect } from "@/components/design-sort";
 import { DesignTypeFilter } from "@/components/design-type-filter";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Design } from "@/lib/api";
 import {
+  CATALOG_LAST_QUERY_KEY,
   buildFilterQuery,
   collectBrandsFromDesigns,
   collectFinishesFromDesigns,
@@ -26,6 +34,7 @@ import {
   sortDesigns,
   type SortOption,
 } from "@/lib/design-filter";
+import { formatSizeLabel } from "@/lib/format";
 
 type DesignCatalogProps = {
   items: Design[];
@@ -37,6 +46,22 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const closeFilters = useCallback(() => setFiltersOpen(false), []);
+
+  // Remember the query so the product page's back link can return here
+  // with the same filters and sort.
+  const queryString = searchParams.toString();
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        CATALOG_LAST_QUERY_KEY,
+        queryString ? `?${queryString}` : "",
+      );
+    } catch {
+      /* storage unavailable (private mode, blocked site data) */
+    }
+  }, [queryString]);
 
   const availableSizes = useMemo(() => collectSizesFromDesigns(items), [items]);
   const availableTypes = useMemo(() => collectTypesFromDesigns(items), [items]);
@@ -98,6 +123,21 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     [filteredItems, selectedSort, locale],
   );
 
+  const activeFilterCount =
+    selectedSizeIds.size +
+    selectedTypeIds.size +
+    selectedFinishIds.size +
+    selectedBrandIds.size;
+
+  // Groups with a single option are hidden, so only offer the filters
+  // button when at least one group has a real choice.
+  const hasFilterGroups = [
+    availableBrands,
+    availableSizes,
+    availableTypes,
+    availableFinishes,
+  ].some((options) => options.length > 1);
+
   function updateFilters(
     sizes: Set<string>,
     types: Set<string>,
@@ -120,44 +160,30 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     );
   }
 
-  function toggleSize(id: string) {
-    const next = new Set(selectedSizeIds);
+  function toggled(current: Set<string>, id: string): Set<string> {
+    const next = new Set(current);
     if (next.has(id)) {
       next.delete(id);
     } else {
       next.add(id);
     }
-    updateFilters(next, selectedTypeIds, selectedFinishIds, selectedBrandIds);
+    return next;
+  }
+
+  function toggleSize(id: string) {
+    updateFilters(toggled(selectedSizeIds, id), selectedTypeIds, selectedFinishIds, selectedBrandIds);
   }
 
   function toggleType(id: string) {
-    const next = new Set(selectedTypeIds);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    updateFilters(selectedSizeIds, next, selectedFinishIds, selectedBrandIds);
+    updateFilters(selectedSizeIds, toggled(selectedTypeIds, id), selectedFinishIds, selectedBrandIds);
   }
 
   function toggleFinish(id: string) {
-    const next = new Set(selectedFinishIds);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    updateFilters(selectedSizeIds, selectedTypeIds, next, selectedBrandIds);
+    updateFilters(selectedSizeIds, selectedTypeIds, toggled(selectedFinishIds, id), selectedBrandIds);
   }
 
   function toggleBrand(id: string) {
-    const next = new Set(selectedBrandIds);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    updateFilters(selectedSizeIds, selectedTypeIds, selectedFinishIds, next);
+    updateFilters(selectedSizeIds, selectedTypeIds, selectedFinishIds, toggled(selectedBrandIds, id));
   }
 
   function clearSizeFilters() {
@@ -176,76 +202,192 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
     updateFilters(selectedSizeIds, selectedTypeIds, selectedFinishIds, new Set());
   }
 
+  /** Drops every filter but keeps the chosen sort. */
+  function clearAllFilters() {
+    updateFilters(new Set(), new Set(), new Set(), new Set());
+  }
+
+  const chip = (
+    key: string,
+    label: ReactNode,
+    text: string,
+    onRemove: () => void,
+  ): ActiveFilterChip => ({
+    key,
+    label,
+    removeLabel: t("removeFilter", { label: text }),
+    onRemove,
+  });
+
+  const chips: ActiveFilterChip[] = [
+    ...availableBrands
+      .filter((b) => selectedBrandIds.has(b.id))
+      .map((b) => chip(`brand:${b.id}`, b.name, b.name, () => toggleBrand(b.id))),
+    ...availableSizes
+      .filter((s) => selectedSizeIds.has(s.id))
+      .map((s) => {
+        const label = formatSizeLabel(s.label, locale);
+        return chip(
+          `size:${s.id}`,
+          <bdi dir="ltr">{label}</bdi>,
+          label,
+          () => toggleSize(s.id),
+        );
+      }),
+    ...availableTypes
+      .filter((tp) => selectedTypeIds.has(tp.id))
+      .map((tp) => chip(`type:${tp.id}`, tp.name, tp.name, () => toggleType(tp.id))),
+    ...availableFinishes
+      .filter((f) => selectedFinishIds.has(f.id))
+      .map((f) => chip(`finish:${f.id}`, f.name, f.name, () => toggleFinish(f.id))),
+  ];
+
   const filterLabels = {
     clearFilters: t("clearFilters"),
   };
 
+  const sortLabels = {
+    sortBy: t("sortBy"),
+    options: {
+      newest: t("sortNewest"),
+      oldest: t("sortOldest"),
+      az: t("sortAZ"),
+      za: t("sortZA"),
+    },
+  };
+
+  // Rendered twice: boxed in the desktop sidebar and plain in the mobile sheet.
+  const filterGroups = (variant: FilterGroupVariant) => (
+    <>
+      <DesignBrandFilter
+        brands={availableBrands}
+        selectedIds={selectedBrandIds}
+        onToggle={toggleBrand}
+        onClear={clearBrandFilters}
+        variant={variant}
+        labels={{
+          filterByBrand: t("filterByBrand"),
+          ...filterLabels,
+        }}
+      />
+      <DesignSizeFilter
+        sizes={availableSizes}
+        selectedIds={selectedSizeIds}
+        onToggle={toggleSize}
+        onClear={clearSizeFilters}
+        variant={variant}
+        labels={{
+          filterBySize: t("filterBySize"),
+          ...filterLabels,
+        }}
+      />
+      <DesignTypeFilter
+        types={availableTypes}
+        selectedIds={selectedTypeIds}
+        onToggle={toggleType}
+        onClear={clearTypeFilters}
+        variant={variant}
+        labels={{
+          filterByType: t("filterByType"),
+          ...filterLabels,
+        }}
+      />
+      <DesignFinishFilter
+        finishes={availableFinishes}
+        selectedIds={selectedFinishIds}
+        onToggle={toggleFinish}
+        onClear={clearFinishFilters}
+        variant={variant}
+        labels={{
+          filterByFinish: t("filterByFinish"),
+          ...filterLabels,
+        }}
+      />
+    </>
+  );
+
   return (
-    <div className="mt-12 flex flex-col gap-8 lg:flex-row">
-      <div className="flex flex-col gap-6 lg:w-56 lg:shrink-0">
-        <DesignSort
-          value={selectedSort}
-          onChange={changeSort}
-          labels={{
-            sortBy: t("sortBy"),
-            options: {
-              newest: t("sortNewest"),
-              oldest: t("sortOldest"),
-              az: t("sortAZ"),
-              za: t("sortZA"),
-            },
-          }}
-        />
-        <DesignBrandFilter
-          brands={availableBrands}
-          selectedIds={selectedBrandIds}
-          onToggle={toggleBrand}
-          onClear={clearBrandFilters}
-          labels={{
-            filterByBrand: t("filterByBrand"),
-            ...filterLabels,
-          }}
-        />
-        <DesignSizeFilter
-          sizes={availableSizes}
-          selectedIds={selectedSizeIds}
-          onToggle={toggleSize}
-          onClear={clearSizeFilters}
-          labels={{
-            filterBySize: t("filterBySize"),
-            ...filterLabels,
-          }}
-        />
-        <DesignTypeFilter
-          types={availableTypes}
-          selectedIds={selectedTypeIds}
-          onToggle={toggleType}
-          onClear={clearTypeFilters}
-          labels={{
-            filterByType: t("filterByType"),
-            ...filterLabels,
-          }}
-        />
-        <DesignFinishFilter
-          finishes={availableFinishes}
-          selectedIds={selectedFinishIds}
-          onToggle={toggleFinish}
-          onClear={clearFinishFilters}
-          labels={{
-            filterByFinish: t("filterByFinish"),
-            ...filterLabels,
-          }}
-        />
-      </div>
-      <div className="min-w-0 flex-1">
-        {visibleItems.length === 0 ? (
-          <p className="text-gray-500">{t("noMatches")}</p>
-        ) : (
-          <DesignGrid
-            items={visibleItems}
-            className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3"
+    <div className="mt-10 lg:mt-12">
+      {/* Mobile toolbar: filters sheet trigger + compact sort. */}
+      <div className="sticky top-[var(--header-h)] z-30 -mx-6 border-b border-gray-200 bg-paper/95 px-6 backdrop-blur md:-mx-10 md:px-10 lg:hidden">
+        <div className="flex items-center justify-between gap-3 py-2">
+          {hasFilterGroups ? (
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={filtersOpen}
+              className="inline-flex min-h-10 shrink-0 cursor-pointer items-center gap-2 border border-gray-300 bg-white px-4 text-sm font-medium text-ink transition hover:border-clay"
+            >
+              <SlidersHorizontal className="size-4" aria-hidden />
+              {t("filtersButton", { count: activeFilterCount })}
+            </button>
+          ) : (
+            <span />
+          )}
+          <DesignSortSelect
+            value={selectedSort}
+            onChange={changeSort}
+            labels={sortLabels}
           />
-        )}
+        </div>
+      </div>
+      {hasFilterGroups && (
+        <DesignFilterSheet
+          open={filtersOpen}
+          onClose={closeFilters}
+          canClear={activeFilterCount > 0}
+          onClearAll={clearAllFilters}
+          labels={{
+            title: t("filtersTitle"),
+            close: t("closeFilters"),
+            clearAll: t("clearAll"),
+            showResults: t("showResults", { count: visibleItems.length }),
+          }}
+        >
+          {filterGroups("plain")}
+        </DesignFilterSheet>
+      )}
+
+      <div className="mt-6 flex gap-8 lg:mt-0">
+        <aside
+          aria-label={t("filtersTitle")}
+          className="hidden lg:flex lg:w-56 lg:shrink-0 lg:flex-col lg:gap-6"
+        >
+          <DesignSort
+            value={selectedSort}
+            onChange={changeSort}
+            labels={sortLabels}
+          />
+          {filterGroups("card")}
+        </aside>
+        <div className="min-w-0 flex-1">
+          <DesignActiveFilters
+            chips={chips}
+            onClearAll={clearAllFilters}
+            labels={{
+              resultCount: t("resultCount", { count: visibleItems.length }),
+              activeFilters: t("activeFilters"),
+              clearAll: t("clearAll"),
+            }}
+          />
+          {visibleItems.length === 0 ? (
+            <div className="border border-dashed border-gray-300 px-6 py-16 text-center">
+              <p className="text-gray-600">{t("noMatches")}</p>
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="mt-6 inline-flex min-h-11 cursor-pointer items-center bg-clay px-6 text-sm font-medium text-white transition hover:bg-clay-dark"
+                >
+                  {t("clearAllFilters")}
+                </button>
+              )}
+            </div>
+          ) : (
+            <DesignGrid items={visibleItems} />
+          )}
+        </div>
       </div>
     </div>
   );

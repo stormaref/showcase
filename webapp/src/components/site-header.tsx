@@ -3,8 +3,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import logoMark from "@/assets/images/logo-mark.png";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { MobileNav } from "@/components/mobile-nav";
+import { NavLink } from "@/components/nav-link";
 import { ProductsNavMenu } from "@/components/products-nav-menu";
-import { getBrandInfo } from "@/lib/brand-info";
+import { getBrandInfo, phoneTelHref, whatsappHref } from "@/lib/brand-info";
 import { getTileTypes } from "@/lib/tile-types";
 
 export async function SiteHeader() {
@@ -12,39 +14,42 @@ export async function SiteHeader() {
   const t = await getTranslations("nav");
   const brand = await getBrandInfo(locale);
   const tileTypes = await getTileTypes(locale);
+  const tel = phoneTelHref(brand.phone);
 
+  // Solid below md: backdrop-filter would trap the mobile sheet's fixed
+  // positioning inside the header.
   return (
-    <header className="sticky top-0 z-40 h-[var(--header-h)] border-b border-gray-200 bg-paper/95 backdrop-blur">
+    <header className="sticky top-0 z-40 h-[var(--header-h)] border-b border-gray-200 bg-paper md:bg-paper/95 md:backdrop-blur">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-10">
         {/* The logo mark carries the brand on its own; the wordmark beside it
             stays localised (the full lockup is Persian-only) and steps aside on
-            narrow phones. */}
+            narrow phones, so the link is named explicitly. */}
         <Link
           href="/"
+          aria-label={brand.name}
           className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.35em] text-ink transition hover:opacity-60"
         >
-          <Image src={logoMark} alt="" aria-hidden className="h-10 w-auto" />
+          <Image src={logoMark} alt="" aria-hidden loading="eager" className="h-10 w-auto" />
           <span className="hidden sm:inline">{brand.name}</span>
         </Link>
-        <div className="flex items-center gap-8">
-          <nav className="flex items-center gap-8 text-[13px] font-medium tracking-[0.18em] text-gray-500">
-            <Link href="/" className="transition hover:text-ink">
-              {t("home")}
-            </Link>
+        <div className="hidden items-center gap-8 md:flex">
+          <nav className="flex items-center gap-8 text-sm font-medium tracking-normal text-gray-600">
+            <NavLink href="/">{t("home")}</NavLink>
             <ProductsNavMenu
               label={t("designs")}
               allLabel={t("allProducts")}
               types={tileTypes}
             />
-            <Link href="/brands" className="transition hover:text-ink">
-              {t("brands")}
-            </Link>
-            <Link href="/blog" className="transition hover:text-ink">
-              {t("blog")}
-            </Link>
+            <NavLink href="/brands">{t("brands")}</NavLink>
+            <NavLink href="/blog">{t("blog")}</NavLink>
           </nav>
           <LocaleSwitcher />
         </div>
+        <MobileNav
+          types={tileTypes}
+          phoneHref={tel === "tel:" ? "" : tel}
+          whatsappHref={whatsappHref(brand.whatsapp)}
+        />
       </div>
     </header>
   );

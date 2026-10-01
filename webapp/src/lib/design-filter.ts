@@ -24,11 +24,19 @@ export type SortOption = (typeof SORT_OPTIONS)[number];
 
 export const DEFAULT_SORT: SortOption = "newest";
 
+/**
+ * sessionStorage key holding the catalog's last query string ("?size=…" or
+ * "" when unfiltered), so the product page's back link can restore it.
+ */
+export const CATALOG_LAST_QUERY_KEY = "catalog:lastQuery";
+
+export function isSortOption(value: string): value is SortOption {
+  return (SORT_OPTIONS as readonly string[]).includes(value);
+}
+
 export function parseSortParam(searchParams: URLSearchParams): SortOption {
   const raw = searchParams.get(SORT_PARAM) ?? "";
-  return (SORT_OPTIONS as readonly string[]).includes(raw)
-    ? (raw as SortOption)
-    : DEFAULT_SORT;
+  return isSortOption(raw) ? raw : DEFAULT_SORT;
 }
 
 export function parseSizeParam(

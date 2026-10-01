@@ -1,5 +1,8 @@
 import localFont from "next/font/local";
 
+// Persian is the main audience and the default locale, so only IRANYekan is
+// preloaded. next/font preloads per layout file, not per locale, so Work Sans
+// is discovered from the stylesheet on /en instead.
 export const workSans = localFont({
   src: [
     {
@@ -10,4 +13,5 @@ export const workSans = localFont({
   ],
   variable: "--font-worksans",
   display: "swap",
+  preload: false,
 });

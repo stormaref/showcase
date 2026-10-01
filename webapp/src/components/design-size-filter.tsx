@@ -1,10 +1,17 @@
+import { useLocale } from "next-intl";
+import {
+  DesignFilterGroup,
+  type FilterGroupVariant,
+} from "@/components/design-filter-group";
 import type { TileSize } from "@/lib/api";
+import { formatSizeLabel } from "@/lib/format";
 
 type DesignSizeFilterProps = {
   sizes: TileSize[];
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
   onClear: () => void;
+  variant?: FilterGroupVariant;
   labels: {
     filterBySize: string;
     clearFilters: string;
@@ -16,39 +23,23 @@ export function DesignSizeFilter({
   selectedIds,
   onToggle,
   onClear,
+  variant,
   labels,
 }: DesignSizeFilterProps) {
-  if (sizes.length === 0) return null;
+  const locale = useLocale();
 
   return (
-    <fieldset className="border border-gray-200 bg-white p-5">
-        <legend className="px-1 text-[13px] font-medium uppercase tracking-[0.18em] text-ink">
-          {labels.filterBySize}
-        </legend>
-        <ul className="mt-3 space-y-2">
-          {sizes.map((size) => (
-            <li key={size.id}>
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(size.id)}
-                  onChange={() => onToggle(size.id)}
-                  className="rounded border-gray-300 accent-clay"
-                />
-                {size.label}
-              </label>
-            </li>
-          ))}
-        </ul>
-        {selectedIds.size > 0 && (
-          <button
-            type="button"
-            onClick={onClear}
-            className="mt-4 cursor-pointer text-sm text-gray-500 transition hover:text-clay"
-          >
-            {labels.clearFilters}
-          </button>
-        )}
-      </fieldset>
+    <DesignFilterGroup
+      legend={labels.filterBySize}
+      options={sizes.map((size) => ({
+        id: size.id,
+        label: <bdi dir="ltr">{formatSizeLabel(size.label, locale)}</bdi>,
+      }))}
+      selectedIds={selectedIds}
+      onToggle={onToggle}
+      onClear={onClear}
+      clearLabel={labels.clearFilters}
+      variant={variant}
+    />
   );
 }
