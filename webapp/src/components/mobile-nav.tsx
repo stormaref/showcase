@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { isActivePath } from "@/components/nav-link";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { DesignType } from "@/lib/api";
 
 type MobileNavProps = {
@@ -171,7 +172,7 @@ export function MobileNav({ types, phoneHref, whatsappHref }: MobileNavProps) {
           {phoneHref && (
             <a
               href={phoneHref}
-              className="flex min-h-12 items-center justify-center gap-2 bg-clay px-5 text-base font-medium text-white transition hover:bg-clay-dark"
+              className="flex min-h-12 items-center justify-center gap-2 bg-clay px-5 text-base font-medium text-paper transition hover:bg-clay-dark"
             >
               <Phone className="size-5" strokeWidth={1.5} aria-hidden />
               {tc("call")}
@@ -182,13 +183,16 @@ export function MobileNav({ types, phoneHref, whatsappHref }: MobileNavProps) {
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-12 items-center justify-center gap-2 border border-ink px-5 text-base font-medium text-ink transition hover:bg-ink hover:text-white"
+              className="flex min-h-12 items-center justify-center gap-2 border border-ink px-5 text-base font-medium text-ink transition hover:bg-ink hover:text-paper"
             >
               <MessageCircle className="size-5" strokeWidth={1.5} aria-hidden />
               {tc("whatsapp")}
             </a>
           )}
-          <LocaleSwitcher onNavigate={close} className="mt-2 self-center text-base" />
+          <div className="mt-2 flex items-center justify-center gap-4">
+            <LocaleSwitcher onNavigate={close} className="text-base" />
+            <ThemeToggle label={t("darkMode")} />
+          </div>
         </div>
       </div>
     </div>

@@ -42,7 +42,7 @@ export default function AdminBrandsPage() {
         </div>
         <Link
           href="/admin/brands/new"
-          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white"
+          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper"
         >
           Add brand
         </Link>
@@ -50,7 +50,7 @@ export default function AdminBrandsPage() {
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      <div className="mt-8 overflow-hidden rounded-none border border-gray-200 bg-white">
+      <div className="mt-8 overflow-hidden rounded-none border border-gray-200 bg-shell">
         <table className="w-full text-sm">
           <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>
@@ -67,12 +67,13 @@ export default function AdminBrandsPage() {
             {brands.map((b) => (
               <tr key={b.id} className="border-b border-gray-50">
                 <td className="px-4 py-3">
+                  {/* Bone plate in dark mode so dark logos stay visible. */}
                   {b.logo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={b.logo_url}
                       alt=""
-                      className="size-10 rounded-none border border-gray-100 object-contain p-0.5"
+                      className="size-10 rounded-none border border-gray-100 object-contain p-0.5 dark:bg-ink"
                     />
                   ) : (
                     <span className="text-xs text-gray-300">—</span>

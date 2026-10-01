@@ -81,7 +81,7 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
       <ul
         id={listId}
         hidden={!open}
-        className="absolute start-0 top-full z-50 mt-4 min-w-[12rem] border border-gray-200 bg-white py-2 shadow-sm"
+        className="absolute start-0 top-full z-50 mt-4 min-w-[12rem] border border-gray-200 bg-shell py-2 shadow-sm"
       >
         <li>
           <Link

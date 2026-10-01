@@ -53,7 +53,7 @@ export function DesignGrid({
                 )}
                 {/* Hairline frame: most swatches are near-white on a near-white page. */}
                 <span
-                  className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-ink/10"
+                  className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-cocoa/10"
                   aria-hidden
                 />
               </div>

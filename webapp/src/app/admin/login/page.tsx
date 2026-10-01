@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm rounded-none border border-gray-200 bg-white p-8 shadow-sm"
+        className="w-full max-w-sm rounded-none border border-gray-200 bg-shell p-8 shadow-sm"
       >
         <h1 className="text-xl font-semibold tracking-tight">Admin sign in</h1>
         <p className="mt-1 text-sm text-gray-500">Showcase content management</p>
@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full rounded-none bg-ink py-2.5 text-sm font-medium text-white transition hover:bg-clay disabled:opacity-50"
+          className="mt-6 w-full rounded-none bg-ink py-2.5 text-sm font-medium text-paper transition hover:bg-clay disabled:opacity-50"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>

@@ -23,12 +23,12 @@ export default function AdminPostsPage() {
         </div>
         <Link
           href="/admin/posts/new"
-          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-clay"
+          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-clay"
         >
           New post
         </Link>
       </div>
-      <div className="mt-8 overflow-hidden rounded-none border border-gray-200 bg-white">
+      <div className="mt-8 overflow-hidden rounded-none border border-gray-200 bg-shell">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-gray-100 bg-gray-50/80 text-gray-500">
             <tr>

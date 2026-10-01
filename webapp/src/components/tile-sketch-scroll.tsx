@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 
 export type TileSketchStep = { number: string; title: string; description: string };
 
@@ -156,6 +156,19 @@ const STEP_STARTS = [0, 0.16, 0.3, 0.56, 0.8];
 const INK = "#2b2721";
 const GRAPHITE = "#8f897d";
 
+/* Dark theme. Hex attributes below are the light drawing; `dark:` classes
+   override them (CSS beats presentation attributes), so light mode is
+   untouched. The paper turns charcoal and its shadows go black. Graphite is a
+   mid grey that reads on both grounds. Ink is the catch: it must be light on
+   dark paper, yet the inked lines become part of the glazed tile, which keeps
+   its ceramic colours in both themes. So dark ink is mixed from bone to INK by
+   --tile-sketch-glaze, which tracks the base glaze fading in (0.57 → 0.63). */
+const GLAZE_IN = { s: 0.57, e: 0.63 };
+const svgVars = {
+  "--tile-sketch-glaze": 0,
+  "--tile-sketch-ink": `color-mix(in srgb, ${INK} calc(var(--tile-sketch-glaze) * 100%), var(--color-gray-800))`,
+} as CSSProperties;
+
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 const seg = (p: number, s: number, e: number) => clamp01((p - s) / (e - s));
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -228,6 +241,8 @@ export function TileSketchScroll({
         d.el.style.strokeDashoffset = String(1 - t);
         d.el.style.visibility = t > 0 ? "visible" : "hidden";
       }
+
+      svg.style.setProperty("--tile-sketch-glaze", String(round3(seg(p, GLAZE_IN.s, GLAZE_IN.e))));
 
       for (const f of fades) {
         const a = f.in ? seg(p, f.in.s, f.in.e) : 1;
@@ -382,12 +397,19 @@ export function TileSketchScroll({
               ref={svgRef}
               viewBox="0 0 600 600"
               className="h-full w-full"
+              style={svgVars}
               aria-hidden
               focusable="false"
             >
               <defs>
                 <pattern id="tile-sketch-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M20 0H0V20" fill="none" stroke="#ebe5d9" strokeWidth="0.6" />
+                  <path
+                    d="M20 0H0V20"
+                    fill="none"
+                    stroke="#ebe5d9"
+                    strokeWidth="0.6"
+                    className="dark:stroke-[#342d25]"
+                  />
                 </pattern>
                 <filter id="tile-sketch-blur" x="-20%" y="-20%" width="140%" height="140%">
                   <feGaussianBlur stdDeviation="12" />
@@ -411,7 +433,16 @@ export function TileSketchScroll({
 
               {/* Paper */}
               <g data-out="0.8 0.88">
-                <rect x="34" y="40" width="536" height="536" fill="#171310" opacity="0.08" filter="url(#tile-sketch-soft)" />
+                <rect
+                  x="34"
+                  y="40"
+                  width="536"
+                  height="536"
+                  fill="#171310"
+                  opacity="0.08"
+                  filter="url(#tile-sketch-soft)"
+                  className="dark:fill-black dark:opacity-40"
+                />
                 <rect
                   x="30"
                   y="30"
@@ -420,8 +451,9 @@ export function TileSketchScroll({
                   fill="#f7f2e9"
                   stroke="#e2dfd7"
                   transform="rotate(-3 300 300)"
+                  className="dark:fill-[#1f1b17] dark:stroke-gray-200"
                 />
-                <rect x="30" y="30" width="540" height="540" fill="#fffdf9" />
+                <rect x="30" y="30" width="540" height="540" fill="#fffdf9" className="dark:fill-[#241f1a]" />
                 <rect x="30" y="30" width="540" height="540" fill="url(#tile-sketch-grid)" />
               </g>
 
@@ -445,6 +477,7 @@ export function TileSketchScroll({
                   height="380"
                   fill="#171310"
                   filter="url(#tile-sketch-blur)"
+                  className="dark:fill-black"
                   style={{ opacity: 0 }}
                 />
 
@@ -478,7 +511,14 @@ export function TileSketchScroll({
                       data-draw="0.02 0.15"
                       style={hiddenStroke}
                     />
-                    <g fill="none" stroke={INK} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
+                    <g
+                      fill="none"
+                      stroke={INK}
+                      strokeWidth="2.2"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                      className="dark:stroke-(--tile-sketch-ink)"
+                    >
                       {PATTERN.map((d, i) => (
                         <path key={i} d={d} pathLength={1} data-draw={PATTERN_WINDOWS[i]} style={hiddenStroke} />
                       ))}
@@ -508,11 +548,13 @@ export function TileSketchScroll({
                   {/* Pencil — its tip sits at the group origin */}
                   <g ref={pencilRef} transform={`translate(${T0} ${T0})`} style={{ opacity: 0 }}>
                     <g transform="rotate(-38)">
-                      <path d="M4 6L20 1H109V11H20Z" fill="#171310" opacity="0.1" />
+                      <path d="M4 6L20 1H109V11H20Z" fill="#171310" opacity="0.1" className="dark:fill-black dark:opacity-40" />
                       <path d="M0 0L16 -5L16 5Z" fill="#e6c9a3" />
-                      <path d="M0 0L5.5 -1.7L5.5 1.7Z" fill={INK} />
-                      <rect x="16" y="-5" width="70" height="10" fill="#3a332c" />
-                      <rect x="16" y="-5" width="70" height="3" fill="#5c564c" />
+                      {/* The lead matches the line it lays down. */}
+                      <path d="M0 0L5.5 -1.7L5.5 1.7Z" fill={INK} className="dark:fill-(--tile-sketch-ink)" />
+                      {/* A charcoal barrel would sink into dark paper; lift it a step. */}
+                      <rect x="16" y="-5" width="70" height="10" fill="#3a332c" className="dark:fill-[#575047]" />
+                      <rect x="16" y="-5" width="70" height="3" fill="#5c564c" className="dark:fill-[#7a7367]" />
                       <rect x="86" y="-5" width="9" height="10" fill="#c9c5ba" />
                       <rect x="95" y="-5" width="10" height="10" rx="2" fill="#a1887f" />
                     </g>

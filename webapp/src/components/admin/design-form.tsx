@@ -46,7 +46,7 @@ const checkboxClass =
   "size-4 shrink-0 cursor-pointer rounded-none border-gray-300 accent-gray-900";
 
 const smallButtonClass =
-  "cursor-pointer rounded-none border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50";
+  "cursor-pointer rounded-none border border-gray-200 bg-shell px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50";
 
 // Preview frames are drawn inside this box, keeping the slot's aspect ratio.
 const PREVIEW_BOX_W = 200;
@@ -159,7 +159,7 @@ function FileUploadButton({
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-gray-200 bg-shell px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
       >
         <Upload className="size-4" aria-hidden />
         {label}
@@ -530,7 +530,7 @@ export function DesignForm({
         <select
           value={brandId}
           onChange={(e) => setBrandId(e.target.value)}
-          className="mt-1 w-full rounded-none border border-gray-200 bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-none border border-gray-200 bg-shell px-3 py-2 text-sm"
         >
           <option value="">No brand</option>
           {brands.map((b) => (
@@ -755,7 +755,7 @@ export function DesignForm({
       <button
         type="submit"
         disabled={saving || !translations.en.title}
-        className="cursor-pointer rounded-none bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="cursor-pointer rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper disabled:opacity-50"
       >
         {saving ? "Saving…" : submitLabel}
       </button>

@@ -317,7 +317,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
               onClick={() => setFiltersOpen(true)}
               aria-haspopup="dialog"
               aria-expanded={filtersOpen}
-              className="inline-flex min-h-10 shrink-0 cursor-pointer items-center gap-2 border border-gray-300 bg-white px-4 text-sm font-medium text-ink transition hover:border-clay"
+              className="inline-flex min-h-10 shrink-0 cursor-pointer items-center gap-2 border border-gray-300 bg-shell px-4 text-sm font-medium text-ink transition hover:border-clay"
             >
               <SlidersHorizontal className="size-4" aria-hidden />
               {t("filtersButton", { count: activeFilterCount })}
@@ -378,7 +378,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="mt-6 inline-flex min-h-11 cursor-pointer items-center bg-clay px-6 text-sm font-medium text-white transition hover:bg-clay-dark"
+                  className="mt-6 inline-flex min-h-11 cursor-pointer items-center bg-clay px-6 text-sm font-medium text-paper transition hover:bg-clay-dark"
                 >
                   {t("clearAllFilters")}
                 </button>

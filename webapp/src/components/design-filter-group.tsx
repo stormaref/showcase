@@ -35,7 +35,7 @@ export function DesignFilterGroup({
     <fieldset
       className={
         variant === "card"
-          ? "border border-gray-200 bg-white px-5 pt-4 pb-3"
+          ? "border border-gray-200 bg-shell px-5 pt-4 pb-3"
           : "border-b border-gray-200 py-5 last:border-b-0"
       }
     >

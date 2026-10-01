@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import logo from "@/assets/images/logo.png";
+import logoDark from "@/assets/images/logo-dark.png";
 import {
   getBrandInfo,
   instagramHref,
@@ -108,7 +109,10 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t border-gray-200 bg-cream">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-3 md:px-10">
         <div>
-          <Image src={logo} alt={brand.name} className="h-20 w-auto" />
+          {/* display:none drops the hidden variant from the a11y tree, so
+              only one alt is ever exposed. */}
+          <Image src={logo} alt={brand.name} className="h-20 w-auto dark:hidden" />
+          <Image src={logoDark} alt={brand.name} className="hidden h-20 w-auto dark:block" />
           {brand.tagline && (
             <p className="mt-4 max-w-xs text-sm font-light leading-relaxed text-gray-600">
               {brand.tagline}
@@ -173,7 +177,7 @@ export async function SiteFooter() {
           </div>
         )}
       </div>
-      <div className="bg-ink">
+      <div className="bg-cocoa">
         <p className="mx-auto max-w-7xl px-6 py-4 text-xs font-light text-white/70 md:px-10">
           © {localizeDigits(String(new Date().getFullYear()), locale)} {brand.name}. {t("rights")}
         </p>

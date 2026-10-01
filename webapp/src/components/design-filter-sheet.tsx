@@ -71,7 +71,7 @@ export function DesignFilterSheet({
         // Clicks on the dialog element itself land on the backdrop.
         if (e.target === e.currentTarget) onClose();
       }}
-      className="inset-x-0 top-auto bottom-0 m-0 h-auto max-h-[85dvh] w-full max-w-none overflow-hidden bg-paper p-0 text-ink backdrop:bg-ink/40"
+      className="inset-x-0 top-auto bottom-0 m-0 h-auto max-h-[85dvh] w-full max-w-none overflow-hidden bg-paper p-0 text-ink backdrop:bg-cocoa/40"
     >
       <div className="flex max-h-[85dvh] flex-col">
         <div className="flex items-center justify-between gap-4 border-b border-gray-200 py-2 ps-6 pe-3">
@@ -102,7 +102,7 @@ export function DesignFilterSheet({
           <button
             type="button"
             onClick={onClose}
-            className="min-h-11 flex-1 cursor-pointer bg-clay px-5 text-sm font-medium text-white transition hover:bg-clay-dark"
+            className="min-h-11 flex-1 cursor-pointer bg-clay px-5 text-sm font-medium text-paper transition hover:bg-clay-dark"
           >
             {labels.showResults}
           </button>

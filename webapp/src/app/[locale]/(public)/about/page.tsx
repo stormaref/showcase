@@ -97,7 +97,7 @@ export default async function AboutPage() {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   allowFullScreen
-                  className="absolute inset-0 size-full border-0"
+                  className="absolute inset-0 size-full border-0 dark:brightness-90"
                 />
               </div>
             )}
@@ -112,7 +112,7 @@ export default async function AboutPage() {
           </h2>
           <Link
             href="/products"
-            className="group inline-flex items-center gap-3 bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-clay-dark"
+            className="group inline-flex items-center gap-3 bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-paper transition hover:bg-clay-dark"
           >
             {t("ctaButton")}
             <ArrowRight

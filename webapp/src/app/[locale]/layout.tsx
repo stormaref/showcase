@@ -6,6 +6,8 @@ import { iranYekan } from "@/lib/fonts/iranyekan";
 import { workSans } from "@/lib/fonts/worksans";
 import { getSiteName } from "@/lib/brand-info";
 import { metadataBase } from "@/lib/metadata";
+import { ThemeFallback } from "@/components/theme-fallback";
+import { ThemeScript, themeColor } from "@/lib/theme";
 import "../globals.css";
 
 type Props = {
@@ -16,6 +18,8 @@ type Props = {
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+export const viewport = { themeColor };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -55,8 +59,13 @@ export default async function LocaleLayout({ children, params }: Props) {
       lang={locale}
       dir={dir}
       className={`h-full antialiased ${iranYekan.variable} ${workSans.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className={`min-h-full flex flex-col ${fontClass}`}>
+        <ThemeFallback />
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>

@@ -106,7 +106,7 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
           <Link
             href="/products"
-            className="cursor-pointer bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-white transition duration-300 hover:bg-clay-dark"
+            className="cursor-pointer bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-paper transition duration-300 hover:bg-clay-dark"
           >
             {t("ctaButton")}
           </Link>

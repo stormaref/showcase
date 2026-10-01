@@ -101,7 +101,7 @@ export default function AdminTypesPage() {
       <form
         ref={formRef}
         onSubmit={onSubmit}
-        className="mt-8 max-w-lg space-y-4 rounded-none border border-gray-200 bg-white p-6"
+        className="mt-8 max-w-lg space-y-4 rounded-none border border-gray-200 bg-shell p-6"
       >
         <h2 className="text-sm font-medium text-gray-900">
           {editId ? "Edit category" : "Add category"}
@@ -137,7 +137,7 @@ export default function AdminTypesPage() {
         <div className="flex gap-2">
           <button
             type="submit"
-            className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white"
+            className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper"
           >
             {editId ? "Save changes" : "Add category"}
           </button>
@@ -153,7 +153,7 @@ export default function AdminTypesPage() {
         </div>
       </form>
 
-      <div className="mt-12 overflow-hidden rounded-none border border-gray-200 bg-white">
+      <div className="mt-12 overflow-hidden rounded-none border border-gray-200 bg-shell">
         <table className="w-full text-sm">
           <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>

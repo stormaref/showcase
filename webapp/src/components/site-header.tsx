@@ -2,10 +2,12 @@ import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import logoMark from "@/assets/images/logo-mark.png";
+import logoMarkDark from "@/assets/images/logo-mark-dark.png";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { NavLink } from "@/components/nav-link";
 import { ProductsNavMenu } from "@/components/products-nav-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getBrandInfo, phoneTelHref, whatsappHref } from "@/lib/brand-info";
 import { getTileTypes } from "@/lib/tile-types";
 
@@ -29,7 +31,16 @@ export async function SiteHeader() {
           aria-label={brand.name}
           className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.35em] text-ink transition hover:opacity-60"
         >
-          <Image src={logoMark} alt="" aria-hidden loading="eager" className="h-10 w-auto" />
+          {/* Both variants render; CSS picks one so first paint is right
+              without waiting for JS. */}
+          <Image src={logoMark} alt="" aria-hidden loading="eager" className="h-10 w-auto dark:hidden" />
+          <Image
+            src={logoMarkDark}
+            alt=""
+            aria-hidden
+            loading="eager"
+            className="hidden h-10 w-auto dark:block"
+          />
           <span className="hidden sm:inline">{brand.name}</span>
         </Link>
         <div className="hidden items-center gap-8 md:flex">
@@ -44,7 +55,10 @@ export async function SiteHeader() {
             <NavLink href="/blog">{t("blog")}</NavLink>
             <NavLink href="/about">{t("about")}</NavLink>
           </nav>
-          <LocaleSwitcher />
+          <div className="flex items-center gap-2">
+            <LocaleSwitcher />
+            <ThemeToggle label={t("darkMode")} />
+          </div>
         </div>
         <MobileNav
           types={tileTypes}

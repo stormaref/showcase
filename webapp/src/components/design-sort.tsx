@@ -16,7 +16,7 @@ type DesignSortProps = {
 /** Radio list for the desktop sidebar. */
 export function DesignSort({ value, onChange, labels }: DesignSortProps) {
   return (
-    <fieldset className="border border-gray-200 bg-white px-5 pt-4 pb-3">
+    <fieldset className="border border-gray-200 bg-shell px-5 pt-4 pb-3">
       <legend className="px-1 text-[13px] font-medium uppercase tracking-[0.18em] text-ink">
         {labels.sortBy}
       </legend>
@@ -51,7 +51,7 @@ export function DesignSortSelect({ value, onChange, labels }: DesignSortProps) {
         onChange={(e) => {
           if (isSortOption(e.target.value)) onChange(e.target.value);
         }}
-        className="min-h-10 min-w-0 cursor-pointer border border-gray-300 bg-white px-3 text-sm text-ink"
+        className="min-h-10 min-w-0 cursor-pointer border border-gray-300 bg-shell px-3 text-sm text-ink"
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option} value={option}>
