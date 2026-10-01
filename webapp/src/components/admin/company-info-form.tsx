@@ -5,7 +5,7 @@ import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
 import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { adminFetch } from "@/lib/admin-api";
-import type { BrandInfoResponse, BrandInfoTranslations } from "@/lib/api";
+import type { BrandInfoResponse, BrandInfoTranslations, HeroTextTone } from "@/lib/api";
 
 type Tab = "en" | "fa";
 
@@ -54,6 +54,7 @@ export function CompanyInfoForm() {
   const [fa, setFa] = useState<BrandFields>(emptyFields());
   const [heroKey, setHeroKey] = useState("");
   const [heroUrl, setHeroUrl] = useState("");
+  const [heroTone, setHeroTone] = useState<HeroTextTone>("dark");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -70,6 +71,7 @@ export function CompanyInfoForm() {
         const row = data.translations.en ?? data.translations.fa;
         setHeroKey(row?.hero_image_object_key ?? "");
         setHeroUrl(row?.hero_image_url ?? "");
+        setHeroTone(row?.hero_text_tone === "light" ? "light" : "dark");
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load brand info");
@@ -110,10 +112,14 @@ export function CompanyInfoForm() {
         method: "PUT",
         body: JSON.stringify({
           translations: {
-            en: { ...en, hero_image_object_key: heroKey },
+            en: { ...en, hero_image_object_key: heroKey, hero_text_tone: heroTone },
             // Leave fa untouched when it is unused so the public API keeps
             // falling back to the English row.
-            fa: { ...fa, hero_image_object_key: fa.name.trim() ? heroKey : "" },
+            fa: {
+              ...fa,
+              hero_image_object_key: fa.name.trim() ? heroKey : "",
+              hero_text_tone: heroTone,
+            },
           },
         }),
       });
@@ -182,6 +188,35 @@ export function CompanyInfoForm() {
             )}
           </div>
           {uploadError && <p className="mt-2 text-sm text-red-600">{uploadError}</p>}
+        </div>
+        <div className="mt-6">
+          <p className="text-sm font-medium">Text colour on the image</p>
+          <p className="text-xs text-gray-500">
+            Pick dark text for a light photo and light text for a dark one.
+          </p>
+          <div className="mt-2 flex gap-6">
+            {(
+              [
+                ["dark", "Dark text"],
+                ["light", "Light text"],
+              ] as const
+            ).map(([value, label]) => (
+              <label key={value} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name="hero-text-tone"
+                  value={value}
+                  checked={heroTone === value}
+                  onChange={() => {
+                    setHeroTone(value);
+                    setSaved(false);
+                  }}
+                  className="accent-clay"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
         </div>
       </fieldset>
 

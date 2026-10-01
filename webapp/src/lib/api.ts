@@ -183,7 +183,10 @@ export type BrandInfoResponse = {
   email: string;
   hero_image_object_key?: string;
   hero_image_url?: string;
+  hero_text_tone?: HeroTextTone;
 };
+
+export type HeroTextTone = "dark" | "light";
 
 export type BrandInfoTranslations = Record<string, BrandInfoResponse>;
 

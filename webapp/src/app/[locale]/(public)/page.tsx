@@ -102,6 +102,8 @@ export default async function HomePage({ params }: PageProps) {
   }
 
   const dateLocale = locale === "fa" ? "fa-IR" : "en-US";
+  // Admin picks the hero type colour to suit the photo: dark on light images.
+  const heroDark = brand.heroTextTone === "dark";
 
   return (
     <>
@@ -121,10 +123,9 @@ export default async function HomePage({ params }: PageProps) {
         />
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-7xl px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] md:px-10 md:pb-20">
-            <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-white/80 sm:text-[13px]">
-              {t("eyebrow")}
-            </p>
-            <h1 className="mt-4 max-w-3xl text-[2rem] font-extralight leading-[1.08] tracking-tight text-white sm:text-4xl md:mt-5 md:text-5xl lg:text-6xl">
+            <h1
+              className={`max-w-3xl text-[2rem] font-extralight leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl ${heroDark ? "text-ink" : "text-white"}`}
+            >
               {brand.tagline}
             </h1>
             <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4 md:mt-9">
@@ -136,7 +137,7 @@ export default async function HomePage({ params }: PageProps) {
               </Link>
               <Link
                 href="/blog"
-                className="group inline-flex cursor-pointer items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-white transition hover:text-clay-soft"
+                className={`group inline-flex cursor-pointer items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] transition ${heroDark ? "text-ink hover:text-clay" : "text-white hover:text-clay-soft"}`}
               >
                 {t("readBlog")}
                 <ArrowRight

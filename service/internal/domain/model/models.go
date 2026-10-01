@@ -20,6 +20,13 @@ const (
 	LocaleFA = "fa"
 )
 
+// Text colour over the home hero image: dark type for light photos, light
+// type for dark ones.
+const (
+	HeroTextToneDark  = "dark"
+	HeroTextToneLight = "light"
+)
+
 type Admin struct {
 	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	Email        string    `gorm:"uniqueIndex;size:255;not null" json:"email"`
@@ -298,6 +305,7 @@ type BrandInfoTranslation struct {
 	Phone              string    `gorm:"size:50" json:"phone"`
 	Email              string    `gorm:"size:255" json:"email"`
 	HeroImageObjectKey string    `gorm:"size:500" json:"hero_image_object_key"`
+	HeroTextTone       string    `gorm:"size:10;not null;default:'dark'" json:"hero_text_tone"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 }

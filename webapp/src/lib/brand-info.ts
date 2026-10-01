@@ -1,4 +1,4 @@
-import { apiFetch, type BrandInfoResponse } from "@/lib/api";
+import { apiFetch, type BrandInfoResponse, type HeroTextTone } from "@/lib/api";
 
 export type BrandInfo = {
   name: string;
@@ -11,6 +11,8 @@ export type BrandInfo = {
   email: string;
   /** Admin-managed home hero image; empty string falls back to the bundled default. */
   heroImageUrl: string;
+  /** Colour of the type over the hero image: dark for light photos, light for dark ones. */
+  heroTextTone: HeroTextTone;
 };
 
 const fallbacks: Record<string, BrandInfo> = {
@@ -25,6 +27,7 @@ const fallbacks: Record<string, BrandInfo> = {
     phone: "+1 (555) 123-4567",
     email: "hello@artceramic.example",
     heroImageUrl: "",
+    heroTextTone: "dark",
   },
   fa: {
     name: "آرت سرامیک",
@@ -37,6 +40,7 @@ const fallbacks: Record<string, BrandInfo> = {
     phone: "+1 (555) 123-4567",
     email: "hello@artceramic.example",
     heroImageUrl: "",
+    heroTextTone: "dark",
   },
 };
 
@@ -51,6 +55,7 @@ function mapResponse(row: BrandInfoResponse): BrandInfo {
     phone: row.phone,
     email: row.email,
     heroImageUrl: row.hero_image_url ?? "",
+    heroTextTone: row.hero_text_tone === "light" ? "light" : "dark",
   };
 }
 

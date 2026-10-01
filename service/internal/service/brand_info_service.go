@@ -32,6 +32,7 @@ type BrandInfoInput struct {
 	Phone              string `json:"phone"`
 	Email              string `json:"email"`
 	HeroImageObjectKey string `json:"hero_image_object_key"`
+	HeroTextTone       string `json:"hero_text_tone"`
 }
 
 type BrandInfoResponse struct {
@@ -46,6 +47,7 @@ type BrandInfoResponse struct {
 	Email              string `json:"email"`
 	HeroImageObjectKey string `json:"hero_image_object_key"`
 	HeroImageURL       string `json:"hero_image_url,omitempty"`
+	HeroTextTone       string `json:"hero_text_tone"`
 }
 
 type BrandInfoUpdateInput struct {
@@ -64,6 +66,7 @@ func (s *BrandInfoService) toResponse(row *model.BrandInfoTranslation) BrandInfo
 		Phone:              row.Phone,
 		Email:              row.Email,
 		HeroImageObjectKey: row.HeroImageObjectKey,
+		HeroTextTone:       normalizeHeroTextTone(row.HeroTextTone),
 	}
 	if row.HeroImageObjectKey != "" {
 		resp.HeroImageURL = s.store.PublicURL(row.HeroImageObjectKey)
@@ -104,6 +107,11 @@ func validateBrandInfoInput(locale string, in BrandInfoInput) error {
 			return errors.New("english email is required")
 		}
 	}
+	switch strings.TrimSpace(in.HeroTextTone) {
+	case "", model.HeroTextToneDark, model.HeroTextToneLight:
+	default:
+		return errors.New("hero text tone must be dark or light")
+	}
 	email := strings.TrimSpace(in.Email)
 	if email != "" {
 		if _, err := mail.ParseAddress(email); err != nil {
@@ -111,6 +119,14 @@ func validateBrandInfoInput(locale string, in BrandInfoInput) error {
 		}
 	}
 	return nil
+}
+
+// normalizeHeroTextTone maps anything but "light" to the dark default.
+func normalizeHeroTextTone(tone string) string {
+	if strings.TrimSpace(tone) == model.HeroTextToneLight {
+		return model.HeroTextToneLight
+	}
+	return model.HeroTextToneDark
 }
 
 func inputToModel(locale string, in BrandInfoInput) *model.BrandInfoTranslation {
@@ -125,6 +141,7 @@ func inputToModel(locale string, in BrandInfoInput) *model.BrandInfoTranslation 
 		Phone:              strings.TrimSpace(in.Phone),
 		Email:              strings.TrimSpace(in.Email),
 		HeroImageObjectKey: strings.TrimSpace(in.HeroImageObjectKey),
+		HeroTextTone:       normalizeHeroTextTone(in.HeroTextTone),
 	}
 }
 
