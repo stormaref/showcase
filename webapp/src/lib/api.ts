@@ -196,6 +196,7 @@ export type BrandInfoResponse = {
   instagram?: string;
   telegram?: string;
   map_url?: string;
+  map_embed_url?: string;
   hours?: string;
 };
 

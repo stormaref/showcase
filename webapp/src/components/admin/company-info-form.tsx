@@ -27,9 +27,16 @@ type Channels = {
   instagram: string;
   telegram: string;
   map_url: string;
+  map_embed_url: string;
 };
 
-const emptyChannels = (): Channels => ({ whatsapp: "", instagram: "", telegram: "", map_url: "" });
+const emptyChannels = (): Channels => ({
+  whatsapp: "",
+  instagram: "",
+  telegram: "",
+  map_url: "",
+  map_embed_url: "",
+});
 
 const emptyFields = (): BrandFields => ({
   name: "",
@@ -91,6 +98,7 @@ export function CompanyInfoForm() {
           instagram: row?.instagram ?? "",
           telegram: row?.telegram ?? "",
           map_url: row?.map_url ?? "",
+          map_embed_url: row?.map_embed_url ?? "",
         });
       })
       .catch((err) => {
@@ -293,6 +301,21 @@ export function CompanyInfoForm() {
               onChange={(e) => updateChannel("map_url", e.target.value)}
               className={inputClass}
             />
+          </label>
+          <label className="block text-sm font-medium">
+            Google Maps embed (About page)
+            <textarea
+              rows={3}
+              dir="ltr"
+              placeholder='<iframe src="https://www.google.com/maps/embed?pb=…"></iframe>'
+              value={channels.map_embed_url}
+              onChange={(e) => updateChannel("map_embed_url", e.target.value)}
+              className={`${inputClass} font-mono text-xs`}
+            />
+            <span className="mt-1 block text-xs font-normal text-gray-500">
+              In Google Maps, open your location → Share → Embed a map → Copy HTML, and paste
+              it here. The map shows on the About page only when this is set.
+            </span>
           </label>
         </div>
       </fieldset>

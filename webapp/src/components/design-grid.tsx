@@ -51,6 +51,11 @@ export function DesignGrid({
                     className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-105"
                   />
                 )}
+                {/* Hairline frame: most swatches are near-white on a near-white page. */}
+                <span
+                  className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-ink/10"
+                  aria-hidden
+                />
               </div>
               <figcaption className="mt-3 sm:mt-5">
                 {item.brand?.name && (

@@ -33,6 +33,7 @@ export async function SiteFooter() {
     { href: "/products" as const, label: nav("designs") },
     { href: "/brands" as const, label: nav("brands") },
     { href: "/blog" as const, label: nav("blog") },
+    { href: "/about" as const, label: nav("about") },
   ];
 
   const address = [brand.addressLine1, brand.addressLine2, brand.addressLine3]

@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"html"
 	"net/mail"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -38,6 +40,7 @@ type BrandInfoInput struct {
 	Instagram          string `json:"instagram"`
 	Telegram           string `json:"telegram"`
 	MapURL             string `json:"map_url"`
+	MapEmbedURL        string `json:"map_embed_url"`
 	Hours              string `json:"hours"`
 }
 
@@ -58,6 +61,7 @@ type BrandInfoResponse struct {
 	Instagram          string `json:"instagram"`
 	Telegram           string `json:"telegram"`
 	MapURL             string `json:"map_url"`
+	MapEmbedURL        string `json:"map_embed_url"`
 	Hours              string `json:"hours"`
 }
 
@@ -82,6 +86,7 @@ func (s *BrandInfoService) toResponse(row *model.BrandInfoTranslation) BrandInfo
 		Instagram:          row.Instagram,
 		Telegram:           row.Telegram,
 		MapURL:             row.MapURL,
+		MapEmbedURL:        row.MapEmbedURL,
 		Hours:              row.Hours,
 	}
 	if row.HeroImageObjectKey != "" {
@@ -134,6 +139,9 @@ func validateBrandInfoInput(locale string, in BrandInfoInput) error {
 			return errors.New("map link must be an http(s) URL")
 		}
 	}
+	if embed := normalizeMapEmbed(in.MapEmbedURL); embed != "" && !isGoogleMapsEmbed(embed) {
+		return errors.New("map embed must be a Google Maps embed link or iframe")
+	}
 	email := strings.TrimSpace(in.Email)
 	if email != "" {
 		if _, err := mail.ParseAddress(email); err != nil {
@@ -141,6 +149,32 @@ func validateBrandInfoInput(locale string, in BrandInfoInput) error {
 		}
 	}
 	return nil
+}
+
+var iframeSrc = regexp.MustCompile(`(?i)\bsrc\s*=\s*["']([^"']+)["']`)
+
+// normalizeMapEmbed accepts the iframe code Google Maps' "Embed a map" gives,
+// or just its src, and returns the URL.
+func normalizeMapEmbed(value string) string {
+	v := strings.TrimSpace(value)
+	if m := iframeSrc.FindStringSubmatch(v); m != nil {
+		v = strings.TrimSpace(m[1])
+	}
+	return html.UnescapeString(v)
+}
+
+// isGoogleMapsEmbed keeps the About page iframe to Google Maps only.
+func isGoogleMapsEmbed(raw string) bool {
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme != "https" {
+		return false
+	}
+	switch strings.ToLower(u.Host) {
+	case "www.google.com", "google.com", "maps.google.com":
+	default:
+		return false
+	}
+	return strings.HasPrefix(u.Path, "/maps")
 }
 
 // normalizeHeroTextTone maps anything but "light" to the dark default.
@@ -168,6 +202,7 @@ func inputToModel(locale string, in BrandInfoInput) *model.BrandInfoTranslation 
 		Instagram:          strings.TrimSpace(in.Instagram),
 		Telegram:           strings.TrimSpace(in.Telegram),
 		MapURL:             strings.TrimSpace(in.MapURL),
+		MapEmbedURL:        normalizeMapEmbed(in.MapEmbedURL),
 		Hours:              strings.TrimSpace(in.Hours),
 	}
 }

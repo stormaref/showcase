@@ -42,6 +42,7 @@ export async function SiteHeader() {
             />
             <NavLink href="/brands">{t("brands")}</NavLink>
             <NavLink href="/blog">{t("blog")}</NavLink>
+            <NavLink href="/about">{t("about")}</NavLink>
           </nav>
           <LocaleSwitcher />
         </div>

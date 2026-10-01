@@ -21,6 +21,8 @@ export type BrandInfo = {
   telegram: string;
   /** Map link (Neshan, Balad, Google Maps…). */
   mapUrl: string;
+  /** Google Maps embed URL for the About page iframe. */
+  mapEmbedUrl: string;
   /** Free-text opening hours, localised. */
   hours: string;
 };
@@ -48,6 +50,7 @@ function emptyBrand(name: string): BrandInfo {
     instagram: "",
     telegram: "",
     mapUrl: "",
+    mapEmbedUrl: "",
     hours: "",
   };
 }
@@ -68,6 +71,7 @@ function mapResponse(row: BrandInfoResponse): BrandInfo {
     instagram: row.instagram ?? "",
     telegram: row.telegram ?? "",
     mapUrl: row.map_url ?? "",
+    mapEmbedUrl: row.map_embed_url ?? "",
     hours: row.hours ?? "",
   };
 }

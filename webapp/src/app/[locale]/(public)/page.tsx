@@ -1,32 +1,18 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import {
-  ArrowRight,
-  Camera,
-  Clock,
-  MapPin,
-  MapPinned,
-  MessageCircle,
-  Phone,
-  Send,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 import Image from "next/image";
 import { routing, type Locale } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import heroImage from "@/assets/images/home-hero.jpg";
 import { BrandGrid } from "@/components/brand-grid";
+import { ContactList, ContactPrimary, hasContactDetails } from "@/components/contact-details";
+import { DesignGrid } from "@/components/design-grid";
 import { TileSketchScroll } from "@/components/tile-sketch-scroll";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
-import {
-  getBrandInfo,
-  getSiteName,
-  instagramHref,
-  phoneTelHref,
-  telegramHref,
-  whatsappHref,
-} from "@/lib/brand-info";
+import { getBrandInfo, getSiteName, phoneTelHref } from "@/lib/brand-info";
 import { getBrands } from "@/lib/brands";
+import { sortDesigns } from "@/lib/design-filter";
 import { formatDate, localizeDigits } from "@/lib/format";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -71,7 +57,13 @@ function SectionHeader({
   );
 }
 
-function QuietLink({ href, children }: { href: "/products" | "/blog"; children: React.ReactNode }) {
+function QuietLink({
+  href,
+  children,
+}: {
+  href: "/products" | "/blog" | "/about";
+  children: React.ReactNode;
+}) {
   return (
     <Link
       href={href}
@@ -85,27 +77,6 @@ function QuietLink({ href, children }: { href: "/products" | "/blog"; children: 
     </Link>
   );
 }
-
-/** "@handle" for display, whether the admin entered a handle or a profile URL. */
-function handleLabel(value: string): string {
-  const v = value.trim();
-  if (!/^https?:\/\//i.test(v)) return v.startsWith("@") ? v : `@${v}`;
-  try {
-    const first = new URL(v).pathname.split("/").filter(Boolean)[0];
-    return first ? `@${first}` : v;
-  } catch {
-    return v;
-  }
-}
-
-type ContactItem = {
-  key: string;
-  icon: LucideIcon;
-  label: string;
-  value: React.ReactNode;
-  href?: string;
-  wide?: boolean;
-};
 
 export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
@@ -138,9 +109,12 @@ export default async function HomePage({ params }: PageProps) {
       "/api/v1/public/designs",
       { locale: locale as string, next: { revalidate: 60 } },
     );
-    designs = designData.items
-      .filter((design) => design.primary_image_url || design.primary_thumb_url)
-      .slice(0, 4);
+    // Newest first, so the section really shows what was added lately.
+    designs = sortDesigns(
+      designData.items.filter((design) => design.primary_image_url || design.primary_thumb_url),
+      "newest",
+      locale,
+    ).slice(0, 4);
   } catch {
     /* API may be offline during dev */
   }
@@ -161,70 +135,7 @@ export default async function HomePage({ params }: PageProps) {
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
 
-  const address = [brand.addressLine1, brand.addressLine2, brand.addressLine3]
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .join(locale === "fa" ? "، " : ", ");
-
-  // Each row shows only when the admin filled it in.
-  const contactItems: ContactItem[] = [];
-  if (address) {
-    contactItems.push({
-      key: "address",
-      icon: MapPin,
-      label: c("address"),
-      value: <address className="not-italic">{localizeDigits(address, locale)}</address>,
-      wide: true,
-    });
-  }
-  const whatsapp = whatsappHref(brand.whatsapp);
-  if (whatsapp) {
-    contactItems.push({
-      key: "whatsapp",
-      icon: MessageCircle,
-      label: c("whatsapp"),
-      value: <bdi dir="ltr">{localizeDigits(brand.whatsapp, locale)}</bdi>,
-      href: whatsapp,
-    });
-  }
-  const instagram = instagramHref(brand.instagram);
-  if (instagram) {
-    contactItems.push({
-      key: "instagram",
-      icon: Camera,
-      label: c("instagram"),
-      value: <bdi dir="ltr">{handleLabel(brand.instagram)}</bdi>,
-      href: instagram,
-    });
-  }
-  const telegram = telegramHref(brand.telegram);
-  if (telegram) {
-    contactItems.push({
-      key: "telegram",
-      icon: Send,
-      label: c("telegram"),
-      value: <bdi dir="ltr">{handleLabel(brand.telegram)}</bdi>,
-      href: telegram,
-    });
-  }
-  if (brand.mapUrl.trim()) {
-    contactItems.push({
-      key: "map",
-      icon: MapPinned,
-      label: c("map"),
-      value: c("viewOnMap"),
-      href: brand.mapUrl.trim(),
-    });
-  }
-  if (brand.hours.trim()) {
-    contactItems.push({
-      key: "hours",
-      icon: Clock,
-      label: c("hours"),
-      value: <span className="whitespace-pre-line">{localizeDigits(brand.hours.trim(), locale)}</span>,
-    });
-  }
-  const hasContact = Boolean(brand.phone || brand.email || contactItems.length);
+  const hasContact = hasContactDetails(brand);
 
   return (
     <>
@@ -274,40 +185,22 @@ export default async function HomePage({ params }: PageProps) {
       {/* Scroll-scrubbed story: a tile sketched, inked, glazed, and laid */}
       <TileSketchScroll eyebrow={t("craft.eyebrow")} steps={craftSteps} />
 
-      {/* Collection mosaic — full-bleed tiles under a regular section header */}
+      {/* Newest designs as catalog cards: framed swatches, text below */}
       {designs.length > 0 && (
         <section>
-          <div className="mx-auto max-w-7xl px-6 pb-12 pt-24 md:px-10 md:pb-14 md:pt-32">
+          <div className="mx-auto max-w-7xl px-6 pb-10 pt-24 md:px-10 md:pb-14 md:pt-32">
             <SectionHeader
               title={t("designsTitle")}
               subtitle={t("designsSubtitle")}
               action={<QuietLink href="/products">{t("viewAll")}</QuietLink>}
             />
           </div>
-          <div className="grid grid-cols-2 gap-px bg-paper lg:grid-cols-4">
-            {designs.map((design) => (
-              <Link
-                key={design.id}
-                href={`/products/${design.id}`}
-                className="group relative block aspect-[3/4] cursor-pointer overflow-hidden bg-gray-100"
-              >
-                <Image
-                  src={design.primary_image_url || design.primary_thumb_url}
-                  alt={design.alt_text || design.title}
-                  fill
-                  sizes="(min-width:1024px) 25vw, 50vw"
-                  className="object-cover motion-safe:transition motion-safe:duration-700 motion-safe:group-hover:scale-105"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 via-ink/25 to-transparent p-5 pt-14">
-                  {design.brand?.name && (
-                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/80">
-                      {design.brand.name}
-                    </p>
-                  )}
-                  <p className="mt-1 text-lg font-light text-white">{design.title}</p>
-                </div>
-              </Link>
-            ))}
+          <div className="mx-auto max-w-7xl px-6 pb-24 md:px-10 md:pb-32">
+            <DesignGrid
+              items={designs}
+              compact
+              className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-8 lg:grid-cols-4"
+            />
           </div>
         </section>
       )}
@@ -334,6 +227,9 @@ export default async function HomePage({ params }: PageProps) {
                     {paragraph}
                   </p>
                 ))}
+              </div>
+              <div className="mt-10">
+                <QuietLink href="/about">{t("aboutMore")}</QuietLink>
               </div>
             </div>
           </div>
@@ -420,59 +316,9 @@ export default async function HomePage({ params }: PageProps) {
               <h2 className="mt-5 text-3xl font-light tracking-tight text-ink md:text-4xl rtl:leading-[1.35]">
                 {c("heading")}
               </h2>
-              {brand.phone && (
-                <p className="mt-8">
-                  <a
-                    href={phoneTelHref(brand.phone)}
-                    aria-label={c("callAria", { phone: phoneDisplay })}
-                    className="text-3xl font-extralight tracking-tight text-ink transition hover:text-clay md:text-4xl"
-                  >
-                    <bdi dir="ltr">{phoneDisplay}</bdi>
-                  </a>
-                </p>
-              )}
-              {brand.email && (
-                <p className="mt-5">
-                  <a
-                    href={`mailto:${brand.email}`}
-                    className="text-base text-ink underline decoration-gray-300 underline-offset-8 transition hover:text-clay hover:decoration-clay"
-                  >
-                    <bdi dir="ltr">{brand.email}</bdi>
-                  </a>
-                </p>
-              )}
+              <ContactPrimary brand={brand} locale={locale} />
             </div>
-            {contactItems.length > 0 && (
-              <ul className="grid content-start gap-x-10 gap-y-8 sm:grid-cols-2">
-                {contactItems.map((item) => (
-                  <li
-                    key={item.key}
-                    className={`flex gap-4 border-t border-gray-200 pt-6 ${item.wide ? "sm:col-span-2" : ""}`}
-                  >
-                    <item.icon className="mt-0.5 size-5 shrink-0 text-clay" strokeWidth={1.5} aria-hidden />
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-gray-500">
-                        {item.label}
-                      </p>
-                      <div className="mt-2 text-base leading-relaxed text-ink">
-                        {item.href ? (
-                          <a
-                            href={item.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="break-words underline decoration-gray-300 underline-offset-4 transition hover:text-clay hover:decoration-clay"
-                          >
-                            {item.value}
-                          </a>
-                        ) : (
-                          item.value
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ContactList brand={brand} locale={locale} />
           </div>
         </section>
       )}

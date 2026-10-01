@@ -2,7 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 
-type NavHref = "/" | "/products" | "/brands" | "/blog";
+type NavHref = "/" | "/products" | "/brands" | "/blog" | "/about";
 
 /** Shared look for the header's top-level items, so links and the Products button match. */
 export const navItemClass = "transition hover:text-ink";

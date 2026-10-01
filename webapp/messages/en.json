@@ -10,7 +10,9 @@
     "blogTitle": "Blog",
     "blogDescription": "News, trends and tiling tips from {name}.",
     "postNotFound": "Post not found",
-    "designNotFound": "Product not found"
+    "designNotFound": "Product not found",
+    "aboutTitle": "About us",
+    "aboutDescription": "Who {name} is, how to reach us and where to find us."
   },
   "nav": {
     "home": "Home",
@@ -23,7 +25,8 @@
     "localeEn": "English",
     "localeFa": "فارسی",
     "changeLanguage": "Change language",
-    "supportedLanguages": "Supported languages"
+    "supportedLanguages": "Supported languages",
+    "about": "About us"
   },
   "home": {
     "viewDesigns": "Browse products",
@@ -34,7 +37,7 @@
     "servicesTitle": "Why choose us",
     "servicesSubtitle": "Tiles, sizes, and service you can count on.",
     "contactTitle": "Contact",
-    "designsTitle": "Products",
+    "designsTitle": "Latest designs",
     "designsSubtitle": "Explore patterns and available tile sizes.",
     "viewAll": "View all",
     "latestPosts": "Latest posts",
@@ -78,7 +81,8 @@
         }
       ]
     },
-    "readBlog": "Read blog"
+    "readBlog": "Read blog",
+    "aboutMore": "More about us"
   },
   "designs": {
     "eyebrow": "Product catalog",
@@ -167,5 +171,12 @@
     "products": "Browse products",
     "home": "Back to home",
     "callPrompt": "Looking for something specific? Call us:"
+  },
+  "about": {
+    "eyebrow": "About us",
+    "contactEyebrow": "Contact & location",
+    "mapTitle": "Map showing the location of {name}",
+    "ctaTitle": "Find the right tile for your project",
+    "ctaButton": "Browse products"
   }
 }

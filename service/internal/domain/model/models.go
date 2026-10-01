@@ -321,6 +321,7 @@ type BrandInfoTranslation struct {
 	Instagram          string    `gorm:"size:255" json:"instagram"`
 	Telegram           string    `gorm:"size:255" json:"telegram"`
 	MapURL             string    `gorm:"size:1000" json:"map_url"`
+	MapEmbedURL        string    `gorm:"size:2000" json:"map_embed_url"`
 	Hours              string    `gorm:"size:255" json:"hours"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`

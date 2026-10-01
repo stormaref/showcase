@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const FETCH_TIMEOUT_MS = 10_000;
 
 function staticRoutesFor(base: string): MetadataRoute.Sitemap {
-  const staticPaths = ["", "/products", "/brands", "/blog"];
+  const staticPaths = ["", "/products", "/brands", "/blog", "/about"];
   const routes: MetadataRoute.Sitemap = [];
 
   for (const locale of routing.locales) {

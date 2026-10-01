@@ -154,6 +154,16 @@ export function MobileNav({ types, phoneHref, whatsappHref }: MobileNavProps) {
                 {t("blog")}
               </Link>
             </li>
+            <li>
+              <Link
+                href="/about"
+                onClick={close}
+                aria-current={current("/about")}
+                className={linkClass("/about")}
+              >
+                {t("about")}
+              </Link>
+            </li>
           </ul>
         </nav>
 

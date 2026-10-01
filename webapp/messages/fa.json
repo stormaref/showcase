@@ -10,7 +10,9 @@
     "blogTitle": "وبلاگ",
     "blogDescription": "اخبار، ترندها و نکته‌های کاشی‌کاری از {name}.",
     "postNotFound": "مطلب یافت نشد",
-    "designNotFound": "محصول یافت نشد"
+    "designNotFound": "محصول یافت نشد",
+    "aboutTitle": "درباره ما",
+    "aboutDescription": "آشنایی با {name}، راه‌های ارتباط و نشانی ما."
   },
   "nav": {
     "home": "خانه",
@@ -23,7 +25,8 @@
     "localeEn": "English",
     "localeFa": "فارسی",
     "changeLanguage": "تغییر زبان",
-    "supportedLanguages": "زبان‌های پشتیبانی‌شده"
+    "supportedLanguages": "زبان‌های پشتیبانی‌شده",
+    "about": "درباره ما"
   },
   "home": {
     "viewDesigns": "مرور محصولات",
@@ -34,7 +37,7 @@
     "servicesTitle": "چرا ما را انتخاب کنید",
     "servicesSubtitle": "کاشی، سایز و خدماتی که می‌توانید روی آن حساب کنید.",
     "contactTitle": "تماس",
-    "designsTitle": "محصولات",
+    "designsTitle": "جدیدترین طرح‌ها",
     "designsSubtitle": "نقش‌ها و سایزهای موجود کاشی را ببینید.",
     "viewAll": "مشاهده همه",
     "latestPosts": "آخرین مطالب",
@@ -78,7 +81,8 @@
         }
       ]
     },
-    "readBlog": "خواندن وبلاگ"
+    "readBlog": "خواندن وبلاگ",
+    "aboutMore": "بیشتر درباره ما"
   },
   "designs": {
     "eyebrow": "کاتالوگ محصولات",
@@ -167,5 +171,12 @@
     "products": "مرور محصولات",
     "home": "بازگشت به صفحه اصلی",
     "callPrompt": "دنبال محصول خاصی هستید؟ با ما تماس بگیرید:"
+  },
+  "about": {
+    "eyebrow": "درباره ما",
+    "contactEyebrow": "تماس و نشانی",
+    "mapTitle": "نقشه محل {name}",
+    "ctaTitle": "کاشی مناسب پروژه‌تان را پیدا کنید",
+    "ctaButton": "مرور محصولات"
   }
 }
