@@ -105,15 +105,12 @@
   },
   "designDetail": {
     "backToCatalog": "Back to products",
-    "showcase": "Showcase",
     "availableIn": "Available sizes",
-    "noShowcaseImages": "No showcase images for this product.",
-    "noSizeImages": "No images for this size yet.",
-    "noVariantImages": "No images for this size and type yet.",
-    "notFound": "Product not found",
-    "previousImage": "Previous image",
-    "nextImage": "Next image",
-    "slide": "Slide"
+    "sizesHint": "Shown to scale. Select a size to see it installed.",
+    "categories": "Category",
+    "noDecorImage": "No installation photo for this size yet.",
+    "noSizes": "Sizes for this product are coming soon.",
+    "notFound": "Product not found"
   },
   "blog": {
     "title": "Blog",

@@ -1,7 +1,7 @@
 "use client";
 
 import { Upload } from "lucide-react";
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, type ReactNode, useRef, useState } from "react";
 import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
 import { useUploadProgress } from "@/components/admin/upload-progress-context";
 import { TranslationTabs } from "@/components/admin/translation-tabs";
@@ -10,6 +10,7 @@ import type {
   AdminDesignType,
   AdminSurfaceFinish,
   Design,
+  DesignImageKind,
   DesignTranslation,
   TileSize,
 } from "@/lib/api";
@@ -23,10 +24,13 @@ export type PendingImage = {
   thumb_object_key: string;
   size_id: string | null;
   type_id: string | null;
+  kind: DesignImageKind;
   sort_order: number;
   preview_url: string;
   thumb_url: string;
 };
+
+type SlotKind = Exclude<DesignImageKind, "">;
 
 type DesignFormProps = {
   sizes: TileSize[];
@@ -40,6 +44,19 @@ type DesignFormProps = {
 
 const checkboxClass =
   "size-4 shrink-0 cursor-pointer rounded-none border-gray-300 accent-gray-900";
+
+const smallButtonClass =
+  "cursor-pointer rounded-none border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50";
+
+// Preview frames are drawn inside this box, keeping the slot's aspect ratio.
+const PREVIEW_BOX_W = 200;
+const PREVIEW_BOX_H = 160;
+
+// Public decoration images are shown at 16:9 on desktop.
+const DECOR_ASPECT = 16 / 9;
+
+// Tolerated difference between a tile image's and its size's aspect ratio.
+const ASPECT_TOLERANCE = 0.02;
 
 function typeLabel(t: AdminDesignType): string {
   return t.translations?.en?.name ?? t.name;
@@ -57,6 +74,27 @@ function variantKey(typeId: string, sizeId: string): string {
   return `${typeId}:${sizeId}`;
 }
 
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
+/** "1:2 portrait" for a 300×600 mm size. */
+function aspectLabel(size: TileSize): string {
+  const d = gcd(size.width_mm, size.height_mm) || 1;
+  const ratio = `${size.width_mm / d}:${size.height_mm / d}`;
+  if (size.width_mm === size.height_mm) return `${ratio} square`;
+  return `${ratio} ${size.width_mm > size.height_mm ? "landscape" : "portrait"}`;
+}
+
+function aspectWarning(size: TileSize, imageRatio: number): string | null {
+  const expected = size.width_mm / size.height_mm;
+  if (Math.abs(imageRatio / expected - 1) <= ASPECT_TOLERANCE) return null;
+  if (Math.abs(imageRatio * expected - 1) <= ASPECT_TOLERANCE) {
+    return "This image looks rotated. Turn it to match the size before uploading.";
+  }
+  return `This image is ${imageRatio.toFixed(2)}:1 but ${size.label} needs ${aspectLabel(size)}, so visitors see it cropped.`;
+}
+
 function imagesFromDesign(design?: Design): PendingImage[] {
   if (!design) return [];
   return design.images.map((img) => ({
@@ -64,6 +102,7 @@ function imagesFromDesign(design?: Design): PendingImage[] {
     thumb_object_key: img.thumb_object_key || "",
     size_id: img.size_id ?? null,
     type_id: img.type_id ?? null,
+    kind: img.kind ?? "",
     sort_order: img.sort_order,
     preview_url: img.image_url || "",
     thumb_url: img.thumb_url || img.image_url || "",
@@ -94,34 +133,115 @@ function selectedFinishIdsFromDesign(design?: Design): string[] {
 function FileUploadButton({
   disabled,
   onChange,
-  label = "Upload images",
+  label,
 }: {
   disabled?: boolean;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  label?: string;
+  onChange: (file: File) => void;
+  label: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="mt-2">
+    <>
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
-        multiple
         disabled={disabled}
-        onChange={onChange}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) onChange(file);
+        }}
         className="sr-only"
       />
       <button
         type="button"
         disabled={disabled}
         onClick={() => inputRef.current?.click()}
-        className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
       >
         <Upload className="size-4" aria-hidden />
         {label}
       </button>
+    </>
+  );
+}
+
+function ImageSlot({
+  title,
+  hint,
+  aspect,
+  image,
+  disabled,
+  warningFor,
+  onUpload,
+  onRemove,
+}: {
+  title: string;
+  hint: string;
+  aspect: number;
+  image?: PendingImage;
+  disabled?: boolean;
+  warningFor?: (imageRatio: number) => string | null;
+  onUpload: (file: File) => void;
+  onRemove: () => void;
+}) {
+  const [measured, setMeasured] = useState<{ src: string; ratio: number } | null>(null);
+  const src = image ? image.thumb_url || image.preview_url : "";
+  const ratio = measured?.src === src ? measured.ratio : null;
+  const warning = ratio !== null && warningFor ? warningFor(ratio) : null;
+
+  const frameW = Math.min(PREVIEW_BOX_W, PREVIEW_BOX_H * aspect);
+  const frameH = frameW / aspect;
+
+  return (
+    <div>
+      <p className="text-sm font-medium text-gray-900">{title}</p>
+      <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
+      <div
+        className="mt-3 flex items-end"
+        style={{ height: PREVIEW_BOX_H }}
+      >
+        <div
+          className={
+            src
+              ? "overflow-hidden bg-gray-100"
+              : "flex items-center justify-center border border-dashed border-gray-300 bg-gray-50 text-xs text-gray-400"
+          }
+          style={{ width: frameW, height: frameH }}
+        >
+          {src ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={src}
+              alt=""
+              onLoad={(e) => {
+                const { naturalWidth, naturalHeight } = e.currentTarget;
+                if (naturalHeight > 0) {
+                  setMeasured({ src, ratio: naturalWidth / naturalHeight });
+                }
+              }}
+              className="size-full object-cover"
+            />
+          ) : (
+            "No image"
+          )}
+        </div>
+      </div>
+      {warning && <p className="mt-2 text-xs text-amber-700">{warning}</p>}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <FileUploadButton
+          disabled={disabled}
+          onChange={onUpload}
+          label={image ? "Replace" : "Upload"}
+        />
+        {image && (
+          <button type="button" onClick={onRemove} className={smallButtonClass}>
+            Remove
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -183,43 +303,66 @@ export function DesignForm({
     );
   }
 
-  async function handleUpload(
-    files: FileList | null,
-    sizeId: string | null,
-    typeId: string | null,
-  ) {
-    if (!files?.length) return;
+  function inSlot(img: PendingImage, typeId: string, sizeId: string, kind: DesignImageKind) {
+    return img.type_id === typeId && img.size_id === sizeId && img.kind === kind;
+  }
+
+  async function uploadToSlot(file: File, typeId: string, sizeId: string, kind: SlotKind) {
     setUploadError("");
-    const existing = images.filter(
-      (img) => img.size_id === sizeId && img.type_id === typeId,
-    ).length;
-    for (let i = 0; i < files.length; i++) {
-      try {
-        const data = await uploadImage(files[i]);
-        setImages((prev) => [
-          ...prev,
-          {
-            object_key: data.object_key,
-            thumb_object_key: data.thumb_object_key,
-            size_id: sizeId,
-            type_id: typeId,
-            sort_order: existing + i,
-            preview_url: data.url,
-            thumb_url: data.thumb_url,
-          },
-        ]);
-      } catch (err) {
-        setUploadError(err instanceof Error ? err.message : "Upload failed");
-        break;
-      }
+    try {
+      const data = await uploadImage(file);
+      // The new upload replaces whatever filled the slot before.
+      setImages((prev) => [
+        ...prev.filter((img) => !inSlot(img, typeId, sizeId, kind)),
+        {
+          object_key: data.object_key,
+          thumb_object_key: data.thumb_object_key,
+          size_id: sizeId,
+          type_id: typeId,
+          kind,
+          sort_order: 0,
+          preview_url: data.url,
+          thumb_url: data.thumb_url,
+        },
+      ]);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
     }
   }
 
-  function removeImage(index: number) {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  function removeFromSlot(typeId: string, sizeId: string, kind: SlotKind) {
+    setImages((prev) => prev.filter((img) => !inSlot(img, typeId, sizeId, kind)));
   }
 
+  /** Moves an older image into a slot; the slot's previous image becomes an older image. */
+  function assignOlderImage(objectKey: string, kind: SlotKind) {
+    setImages((prev) => {
+      const target = prev.find((img) => img.object_key === objectKey);
+      if (!target?.type_id || !target.size_id) return prev;
+      return prev.map((img) => {
+        if (img.object_key === objectKey) return { ...img, kind };
+        if (inSlot(img, target.type_id!, target.size_id!, kind)) return { ...img, kind: "" };
+        return img;
+      });
+    });
+  }
+
+  function removeImage(objectKey: string) {
+    setImages((prev) => prev.filter((img) => img.object_key !== objectKey));
+  }
+
+  const variantSections = types.flatMap((tp) =>
+    sizes
+      .filter((size) => variantKeys.has(variantKey(tp.id, size.id)))
+      .map((size) => ({ type: tp, size })),
+  );
+
   function buildPayload() {
+    // Tile and decoration images follow variant order so the first variant's
+    // decoration becomes the catalog cover.
+    const variantOrder = new Map(
+      variantSections.map(({ type: tp, size }, i) => [variantKey(tp.id, size.id), i]),
+    );
     const payload: Record<string, unknown> = {
       sort_order: sortOrder,
       is_published: isPublished,
@@ -235,7 +378,11 @@ export function DesignForm({
         thumb_object_key: img.thumb_object_key,
         size_id: img.size_id,
         type_id: img.type_id,
-        sort_order: img.sort_order,
+        kind: img.kind,
+        sort_order:
+          img.kind && img.type_id && img.size_id
+            ? (variantOrder.get(variantKey(img.type_id, img.size_id)) ?? img.sort_order)
+            : img.sort_order,
       })),
     };
     if (translations.fa.title) {
@@ -262,42 +409,30 @@ export function DesignForm({
   }
 
   const t = translations[tab];
-  const showcaseImages = images.filter((img) => !img.size_id && !img.type_id);
-
-  const variantSections = types.flatMap((tp) =>
-    sizes
-      .filter((size) => variantKeys.has(variantKey(tp.id, size.id)))
-      .map((size) => ({ type: tp, size })),
+  const olderShowcaseImages = images.filter(
+    (img) => !img.size_id && !img.type_id && !img.kind,
   );
 
-  function renderImageGrid(list: PendingImage[], globalIndices: number[]) {
-    if (list.length === 0) return null;
+  function renderOlderImages(
+    list: PendingImage[],
+    actions: (img: PendingImage) => ReactNode,
+  ) {
     return (
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        {list.map((img, i) => (
-          <div key={`${img.object_key}-${i}`} className="relative">
+      <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
+        {list.map((img) => (
+          <div key={img.object_key}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={img.thumb_url || img.preview_url}
               alt=""
               className="aspect-square w-full rounded-none object-cover"
             />
-            <button
-              type="button"
-              onClick={() => removeImage(globalIndices[i])}
-              className="absolute end-1 top-1 cursor-pointer rounded-none bg-black/60 px-1.5 py-0.5 text-xs text-white"
-            >
-              Remove
-            </button>
+            <div className="mt-1.5 flex flex-wrap gap-1">{actions(img)}</div>
           </div>
         ))}
       </div>
     );
   }
-
-  const showcaseIndices = images
-    .map((img, i) => (!img.size_id && !img.type_id ? i : -1))
-    .filter((i) => i >= 0);
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
@@ -449,30 +584,19 @@ export function DesignForm({
         )}
       </fieldset>
 
-      <fieldset className="rounded-none border border-gray-200 p-4">
-        <legend className="px-1 text-sm font-medium">Showcase images</legend>
+      {variantSections.length > 0 && (
         <p className="text-xs text-gray-500">
-          Room shots and marketing photos not tied to a specific size or type.
+          Each size needs a tile image (the design itself, cropped to the
+          size&apos;s aspect ratio so the sizes compare correctly on the site)
+          and a decoration image (the size installed in a room). The first
+          size&apos;s decoration image is the product&apos;s cover in the catalog.
         </p>
-        <FileUploadButton
-          disabled={isUploading}
-          onChange={(e) => {
-            handleUpload(e.target.files, null, null);
-            e.target.value = "";
-          }}
-        />
-        {renderImageGrid(showcaseImages, showcaseIndices)}
-      </fieldset>
+      )}
 
       {variantSections.map(({ type: tp, size }) => {
-        const comboImages = images.filter(
-          (img) => img.size_id === size.id && img.type_id === tp.id,
-        );
-        const comboIndices = images
-          .map((img, i) =>
-            img.size_id === size.id && img.type_id === tp.id ? i : -1,
-          )
-          .filter((i) => i >= 0);
+        const tile = images.find((img) => inSlot(img, tp.id, size.id, "tile"));
+        const decor = images.find((img) => inSlot(img, tp.id, size.id, "decor"));
+        const older = images.filter((img) => inSlot(img, tp.id, size.id, ""));
         return (
           <fieldset
             key={`${tp.id}-${size.id}`}
@@ -481,17 +605,84 @@ export function DesignForm({
             <legend className="px-1 text-sm font-medium">
               {typeLabel(tp)} — {size.label}
             </legend>
-            <FileUploadButton
-              disabled={isUploading}
-              onChange={(e) => {
-                handleUpload(e.target.files, size.id, tp.id);
-                e.target.value = "";
-              }}
-            />
-            {renderImageGrid(comboImages, comboIndices)}
+            <div className="grid gap-6 sm:grid-cols-2">
+              <ImageSlot
+                title="Tile image"
+                hint={`Crop to ${aspectLabel(size)}.`}
+                aspect={size.width_mm / size.height_mm}
+                image={tile}
+                disabled={isUploading}
+                warningFor={(ratio) => aspectWarning(size, ratio)}
+                onUpload={(file) => uploadToSlot(file, tp.id, size.id, "tile")}
+                onRemove={() => removeFromSlot(tp.id, size.id, "tile")}
+              />
+              <ImageSlot
+                title="Decoration image"
+                hint="Installed in a room. Shown wide (16:9)."
+                aspect={DECOR_ASPECT}
+                image={decor}
+                disabled={isUploading}
+                onUpload={(file) => uploadToSlot(file, tp.id, size.id, "decor")}
+                onRemove={() => removeFromSlot(tp.id, size.id, "decor")}
+              />
+            </div>
+            {older.length > 0 && (
+              <div className="mt-6 border-t border-gray-100 pt-4">
+                <p className="text-sm font-medium text-gray-900">Older images</p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Uploaded before tile and decoration images existed. Use them
+                  for a slot above or remove them. Until then the first one is
+                  shown as the decoration.
+                </p>
+                {renderOlderImages(older, (img) => (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => assignOlderImage(img.object_key, "tile")}
+                      className={smallButtonClass}
+                    >
+                      Use as tile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => assignOlderImage(img.object_key, "decor")}
+                      className={smallButtonClass}
+                    >
+                      Use as decoration
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(img.object_key)}
+                      className={smallButtonClass}
+                    >
+                      Remove
+                    </button>
+                  </>
+                ))}
+              </div>
+            )}
           </fieldset>
         );
       })}
+
+      {olderShowcaseImages.length > 0 && (
+        <fieldset className="rounded-none border border-gray-200 p-4">
+          <legend className="px-1 text-sm font-medium">Older showcase images</legend>
+          <p className="text-xs text-gray-500">
+            These photos aren&apos;t tied to a size and no longer appear on the
+            product page. Remove them once every size has its own images.
+          </p>
+          {renderOlderImages(olderShowcaseImages, (img) => (
+            <button
+              type="button"
+              onClick={() => removeImage(img.object_key)}
+              className={smallButtonClass}
+            >
+              Remove
+            </button>
+          ))}
+        </fieldset>
+      )}
 
       {isUploading && percent !== null && (
         <UploadProgressBar percent={percent} label="Uploading image…" />

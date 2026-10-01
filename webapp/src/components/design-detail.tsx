@@ -1,38 +1,58 @@
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { ImageCarousel } from "@/components/image-carousel";
-import type { Design } from "@/lib/api";
 import {
-  carouselSlides,
-  imagesForSizeAndType,
-  showcaseImages,
-} from "@/lib/design-images";
+  DesignSizeWall,
+  type SizeWallCategory,
+  type SizeWallTile,
+} from "@/components/design-size-wall";
+import type { Design } from "@/lib/api";
+import { imageSrc, legacyVariantImages, variantImage } from "@/lib/design-images";
 
 type DesignDetailProps = {
   design: Design;
 };
 
-export async function DesignDetail({ design }: DesignDetailProps) {
-  const t = await getTranslations("designDetail");
-  const showcase = showcaseImages(design.images);
-  const alt = design.alt_text || design.title;
-  const showcaseSlides = carouselSlides(showcase, alt);
-  const types = design.types ?? [];
-  const finishes = design.finishes ?? [];
+function sizeWall(design: Design) {
   // Explicit category x size combinations; older cached responses without a
   // variant list fall back to the full cartesian product.
   const variantSet = design.variants
     ? new Set(design.variants.map((v) => `${v.type_id}:${v.size_id}`))
     : null;
-  const typeSections = types
-    .map((type) => ({
-      type,
-      sizes: design.sizes.filter(
-        (size) => !variantSet || variantSet.has(`${type.id}:${size.id}`),
-      ),
-    }))
-    .filter((section) => section.sizes.length > 0);
+  const categories: SizeWallCategory[] = [];
+  const tiles: SizeWallTile[] = [];
+  for (const type of design.types ?? []) {
+    const sizes = design.sizes.filter(
+      (size) => !variantSet || variantSet.has(`${type.id}:${size.id}`),
+    );
+    if (sizes.length === 0) continue;
+    categories.push({ id: type.id, name: type.name });
+    for (const size of sizes) {
+      const tile = variantImage(design.images, size.id, type.id, "tile");
+      // Until an admin sorts older images into tile and decoration, show the
+      // first of them as the decoration.
+      const decor =
+        variantImage(design.images, size.id, type.id, "decor") ??
+        legacyVariantImages(design.images, size.id, type.id)[0];
+      tiles.push({
+        key: `${type.id}:${size.id}`,
+        typeId: type.id,
+        label: size.label,
+        widthMm: size.width_mm,
+        heightMm: size.height_mm,
+        tileSrc: tile ? imageSrc(tile) : "",
+        decorSrc: decor ? imageSrc(decor) : "",
+      });
+    }
+  }
+  return { categories, tiles };
+}
+
+export async function DesignDetail({ design }: DesignDetailProps) {
+  const t = await getTranslations("designDetail");
+  const alt = design.alt_text || design.title;
+  const finishes = design.finishes ?? [];
+  const { categories, tiles } = sizeWall(design);
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-20">
@@ -79,78 +99,25 @@ export async function DesignDetail({ design }: DesignDetailProps) {
         )}
       </header>
 
-      <section className="mt-12">
-        <h2 className="sr-only">{t("showcase")}</h2>
-        {showcaseSlides.length > 0 ? (
-          <div className="overflow-hidden bg-gray-100">
-            <ImageCarousel
-              images={showcaseSlides}
-              labels={{
-                previous: t("previousImage"),
-                next: t("nextImage"),
-                slide: t("slide"),
-              }}
-            />
-          </div>
+      <div className="mt-14 md:mt-20">
+        {tiles.length > 0 ? (
+          <DesignSizeWall
+            categories={categories}
+            tiles={tiles}
+            alt={alt}
+            labels={{
+              heading: t("availableIn"),
+              hint: t("sizesHint"),
+              categories: t("categories"),
+              noDecor: t("noDecorImage"),
+            }}
+          />
         ) : (
           <p className="border border-gray-200 bg-cream px-6 py-14 text-center text-sm font-light text-gray-500">
-            {t("noShowcaseImages")}
+            {t("noSizes")}
           </p>
         )}
-      </section>
-
-      {typeSections.length > 0 && (
-        <section className="mt-20 md:mt-28">
-          <h2 className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500">
-            {t("availableIn")}
-          </h2>
-          <div className="mt-10 space-y-20">
-            {typeSections.map(({ type, sizes }) => (
-              <div key={type.id}>
-                <h3 className="border-t border-gray-200 pt-6 text-2xl font-light tracking-tight text-ink md:text-3xl">
-                  {type.name}
-                </h3>
-                <div className="mt-10 space-y-14">
-                  {sizes.map((size) => {
-                    const sizeImgs = imagesForSizeAndType(
-                      design.images,
-                      size.id,
-                      type.id,
-                    );
-                    const slides = carouselSlides(sizeImgs, alt);
-                    return (
-                      <article key={`${type.id}-${size.id}`}>
-                        <header className="mb-5 flex flex-wrap items-baseline gap-x-5 gap-y-1">
-                          <h4 className="text-lg font-medium text-ink">{size.label}</h4>
-                          <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-gray-400">
-                            {design.title}
-                          </p>
-                        </header>
-                        {slides.length > 0 ? (
-                          <div className="overflow-hidden bg-gray-100">
-                            <ImageCarousel
-                              images={slides}
-                              labels={{
-                                previous: t("previousImage"),
-                                next: t("nextImage"),
-                                slide: t("slide"),
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <p className="text-sm font-light text-gray-500">
-                            {t("noVariantImages")}
-                          </p>
-                        )}
-                      </article>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      </div>
     </div>
   );
 }

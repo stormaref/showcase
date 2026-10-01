@@ -46,6 +46,7 @@ type DesignImageInput struct {
 	ThumbObjectKey string     `json:"thumb_object_key"`
 	SizeID         *uuid.UUID `json:"size_id"`
 	TypeID         *uuid.UUID `json:"type_id"`
+	Kind           string     `json:"kind"`
 	SortOrder      int        `json:"sort_order"`
 }
 
@@ -119,6 +120,7 @@ type DesignImageResponse struct {
 	ID             uuid.UUID  `json:"id"`
 	SizeID         *uuid.UUID `json:"size_id"`
 	TypeID         *uuid.UUID `json:"type_id"`
+	Kind           string     `json:"kind"`
 	ObjectKey      string     `json:"object_key,omitempty"`
 	ThumbObjectKey string     `json:"thumb_object_key,omitempty"`
 	ImageURL       string     `json:"image_url"`
@@ -184,6 +186,7 @@ func (s *DesignService) imageResponse(img *model.DesignImage) DesignImageRespons
 		ID:             img.ID,
 		SizeID:         img.SizeID,
 		TypeID:         img.TypeID,
+		Kind:           img.Kind,
 		ObjectKey:      img.ObjectKey,
 		ThumbObjectKey: img.ThumbObjectKey,
 		SortOrder:      img.SortOrder,
@@ -216,8 +219,21 @@ func (s *DesignService) sizeResponses(sizes []model.TileSize) []SizeResponse {
 	return out
 }
 
-func isShowcaseImage(img model.DesignImage) bool {
-	return img.SizeID == nil && img.TypeID == nil
+// coverRank orders candidates for a design's cover (catalog card, social
+// preview): decoration photos first, then tile images, then older images,
+// preferring showcase shots among those. Keep in sync with
+// DesignRepository.PrimaryImagesByDesignIDs.
+func coverRank(img model.DesignImage) int {
+	switch {
+	case img.Kind == model.DesignImageKindDecor:
+		return 0
+	case img.Kind == model.DesignImageKindTile:
+		return 1
+	case img.SizeID == nil && img.TypeID == nil:
+		return 2
+	default:
+		return 3
+	}
 }
 
 func (s *DesignService) primaryImage(images []model.DesignImage) (string, string) {
@@ -226,10 +242,8 @@ func (s *DesignService) primaryImage(images []model.DesignImage) (string, string
 	}
 	sorted := append([]model.DesignImage(nil), images...)
 	sort.Slice(sorted, func(i, j int) bool {
-		aShowcase := isShowcaseImage(sorted[i])
-		bShowcase := isShowcaseImage(sorted[j])
-		if aShowcase != bShowcase {
-			return aShowcase
+		if a, b := coverRank(sorted[i]), coverRank(sorted[j]); a != b {
+			return a < b
 		}
 		if sorted[i].SortOrder != sorted[j].SortOrder {
 			return sorted[i].SortOrder < sorted[j].SortOrder
@@ -406,12 +420,27 @@ func (s *DesignService) validateInput(ctx context.Context, in DesignInput, rel d
 	for _, v := range rel.variants {
 		comboSet[variantKey(v.TypeID, v.SizeID)] = struct{}{}
 	}
+	kindSeen := make(map[string]struct{})
 	for _, img := range in.Images {
 		if img.ObjectKey == "" {
 			return errors.New("image object_key is required")
 		}
 		hasSize := img.SizeID != nil
 		hasType := img.TypeID != nil
+		switch img.Kind {
+		case model.DesignImageKindLegacy:
+		case model.DesignImageKindTile, model.DesignImageKindDecor:
+			if !hasSize || !hasType {
+				return errors.New("tile and decoration images must specify both size and type")
+			}
+			key := variantKey(*img.TypeID, *img.SizeID) + ":" + img.Kind
+			if _, ok := kindSeen[key]; ok {
+				return errors.New("each size may have only one tile image and one decoration image")
+			}
+			kindSeen[key] = struct{}{}
+		default:
+			return errors.New("image kind is invalid")
+		}
 		if hasSize && !hasType {
 			if _, ok := sizeSet[*img.SizeID]; !ok {
 				return errors.New("image references a size not assigned to this design")
@@ -556,6 +585,7 @@ func (s *DesignService) applyRelations(ctx context.Context, designID uuid.UUID, 
 			ThumbObjectKey: imgIn.ThumbObjectKey,
 			SizeID:         imgIn.SizeID,
 			TypeID:         imgIn.TypeID,
+			Kind:           imgIn.Kind,
 			SortOrder:      imgIn.SortOrder,
 		}
 	}

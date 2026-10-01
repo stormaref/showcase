@@ -130,10 +130,18 @@ export type DesignVariantRef = {
   size_id: string;
 };
 
+/**
+ * What an image shows within a variant: the design at that size ("tile") or
+ * that size installed in a room ("decor"). "" marks images uploaded before
+ * kinds existed.
+ */
+export type DesignImageKind = "tile" | "decor" | "";
+
 export type DesignImage = {
   id?: string;
   size_id?: string | null;
   type_id?: string | null;
+  kind?: DesignImageKind;
   object_key?: string;
   thumb_object_key?: string;
   image_url?: string;
