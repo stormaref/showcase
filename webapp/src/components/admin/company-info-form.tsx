@@ -18,7 +18,18 @@ type BrandFields = {
   address_line_3: string;
   phone: string;
   email: string;
+  hours: string;
 };
+
+/** Contact channels shared by every locale, saved on each row like the hero. */
+type Channels = {
+  whatsapp: string;
+  instagram: string;
+  telegram: string;
+  map_url: string;
+};
+
+const emptyChannels = (): Channels => ({ whatsapp: "", instagram: "", telegram: "", map_url: "" });
 
 const emptyFields = (): BrandFields => ({
   name: "",
@@ -29,6 +40,7 @@ const emptyFields = (): BrandFields => ({
   address_line_3: "",
   phone: "",
   email: "",
+  hours: "",
 });
 
 function fieldsFromResponse(row?: BrandInfoResponse): BrandFields {
@@ -42,6 +54,7 @@ function fieldsFromResponse(row?: BrandInfoResponse): BrandFields {
     address_line_3: row.address_line_3,
     phone: row.phone,
     email: row.email,
+    hours: row.hours ?? "",
   };
 }
 
@@ -55,6 +68,7 @@ export function CompanyInfoForm() {
   const [heroKey, setHeroKey] = useState("");
   const [heroUrl, setHeroUrl] = useState("");
   const [heroTone, setHeroTone] = useState<HeroTextTone>("dark");
+  const [channels, setChannels] = useState<Channels>(emptyChannels());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -72,6 +86,12 @@ export function CompanyInfoForm() {
         setHeroKey(row?.hero_image_object_key ?? "");
         setHeroUrl(row?.hero_image_url ?? "");
         setHeroTone(row?.hero_text_tone === "light" ? "light" : "dark");
+        setChannels({
+          whatsapp: row?.whatsapp ?? "",
+          instagram: row?.instagram ?? "",
+          telegram: row?.telegram ?? "",
+          map_url: row?.map_url ?? "",
+        });
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load brand info");
@@ -84,6 +104,11 @@ export function CompanyInfoForm() {
 
   function updateField(key: keyof BrandFields, value: string) {
     setFields((prev) => ({ ...prev, [key]: value }));
+    setSaved(false);
+  }
+
+  function updateChannel(key: keyof Channels, value: string) {
+    setChannels((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
   }
 
@@ -112,11 +137,12 @@ export function CompanyInfoForm() {
         method: "PUT",
         body: JSON.stringify({
           translations: {
-            en: { ...en, hero_image_object_key: heroKey, hero_text_tone: heroTone },
+            en: { ...en, ...channels, hero_image_object_key: heroKey, hero_text_tone: heroTone },
             // Leave fa untouched when it is unused so the public API keeps
             // falling back to the English row.
             fa: {
               ...fa,
+              ...channels,
               hero_image_object_key: fa.name.trim() ? heroKey : "",
               hero_text_tone: heroTone,
             },
@@ -220,6 +246,57 @@ export function CompanyInfoForm() {
         </div>
       </fieldset>
 
+      <fieldset className="rounded-none border border-gray-200 bg-white p-6">
+        <legend className="px-1 text-sm font-medium">Contact channels</legend>
+        <p className="text-xs text-gray-500">
+          Shared by both languages. Leave a field empty to hide it on the site.
+        </p>
+        <div className="mt-4 space-y-4">
+          <label className="block text-sm font-medium">
+            WhatsApp number
+            <input
+              type="tel"
+              dir="ltr"
+              placeholder="0912 345 6789"
+              value={channels.whatsapp}
+              onChange={(e) => updateChannel("whatsapp", e.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            Instagram
+            <input
+              dir="ltr"
+              placeholder="@yourpage or https://instagram.com/yourpage"
+              value={channels.instagram}
+              onChange={(e) => updateChannel("instagram", e.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            Telegram
+            <input
+              dir="ltr"
+              placeholder="@yourchannel or https://t.me/yourchannel"
+              value={channels.telegram}
+              onChange={(e) => updateChannel("telegram", e.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            Map link
+            <input
+              type="url"
+              dir="ltr"
+              placeholder="https://nshn.ir/… or a Google Maps link"
+              value={channels.map_url}
+              onChange={(e) => updateChannel("map_url", e.target.value)}
+              className={inputClass}
+            />
+          </label>
+        </div>
+      </fieldset>
+
       <TranslationTabs active={tab} onChange={setTab} hasFa={Boolean(fa.name)} />
 
       <div className="space-y-4 rounded-none border border-gray-200 bg-white p-6">
@@ -289,6 +366,15 @@ export function CompanyInfoForm() {
             required={tab === "en"}
             value={fields.email}
             onChange={(e) => updateField("email", e.target.value)}
+            className={inputClass}
+          />
+        </label>
+        <label className="block text-sm font-medium">
+          Opening hours
+          <input
+            placeholder={tab === "en" ? "Sat–Wed 9:00–17:00" : "شنبه تا چهارشنبه ۹ تا ۱۷"}
+            value={fields.hours}
+            onChange={(e) => updateField("hours", e.target.value)}
             className={inputClass}
           />
         </label>
