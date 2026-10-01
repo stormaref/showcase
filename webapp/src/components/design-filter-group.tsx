@@ -35,7 +35,7 @@ export function DesignFilterGroup({
     <fieldset
       className={
         variant === "card"
-          ? "border border-gray-200 bg-white px-5 pt-4 pb-3"
+          ? "border border-gray-200 bg-white px-4 pt-3 pb-2"
           : "border-b border-gray-200 py-5 last:border-b-0"
       }
     >
@@ -48,10 +48,14 @@ export function DesignFilterGroup({
       >
         {legend}
       </legend>
-      <ul className="mt-2">
+      <ul className={variant === "card" ? "mt-0.5" : "mt-2"}>
         {options.map((option) => (
           <li key={option.id}>
-            <label className="flex min-h-10 cursor-pointer items-center gap-3 py-2 text-sm text-gray-700 hover:text-ink">
+            <label
+              className={`flex cursor-pointer items-center gap-3 text-sm text-gray-700 hover:text-ink ${
+                variant === "card" ? "min-h-9 py-1.5" : "min-h-10 py-2"
+              }`}
+            >
               <input
                 type="checkbox"
                 checked={selectedIds.has(option.id)}

@@ -16,14 +16,14 @@ type DesignSortProps = {
 /** Radio list for the desktop sidebar. */
 export function DesignSort({ value, onChange, labels }: DesignSortProps) {
   return (
-    <fieldset className="border border-gray-200 bg-white px-5 pt-4 pb-3">
+    <fieldset className="border border-gray-200 bg-white px-4 pt-3 pb-2">
       <legend className="px-1 text-[13px] font-medium uppercase tracking-[0.18em] text-ink">
         {labels.sortBy}
       </legend>
-      <ul className="mt-2">
+      <ul className="mt-0.5">
         {SORT_OPTIONS.map((option) => (
           <li key={option}>
-            <label className="flex min-h-10 cursor-pointer items-center gap-3 py-2 text-sm text-gray-700 hover:text-ink">
+            <label className="flex min-h-9 cursor-pointer items-center gap-3 py-1.5 text-sm text-gray-700 hover:text-ink">
               <input
                 type="radio"
                 name="design-sort"

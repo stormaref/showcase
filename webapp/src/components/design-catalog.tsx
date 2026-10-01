@@ -307,7 +307,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
   );
 
   return (
-    <div className="mt-10 lg:mt-12">
+    <div className="mt-6 lg:mt-8">
       {/* Mobile toolbar: filters sheet trigger + compact sort. */}
       <div className="sticky top-[var(--header-h)] z-30 -mx-6 border-b border-gray-200 bg-paper/95 px-6 backdrop-blur md:-mx-10 md:px-10 lg:hidden">
         <div className="flex items-center justify-between gap-3 py-2">
@@ -352,7 +352,7 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
       <div className="mt-6 flex gap-8 lg:mt-0">
         <aside
           aria-label={t("filtersTitle")}
-          className="hidden lg:flex lg:w-56 lg:shrink-0 lg:flex-col lg:gap-6"
+          className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:flex lg:max-h-[calc(100svh-var(--header-h)-3rem)] lg:w-56 lg:shrink-0 lg:flex-col lg:gap-4 lg:self-start lg:overflow-y-auto"
         >
           <DesignSort
             value={selectedSort}
@@ -385,7 +385,10 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
               )}
             </div>
           ) : (
-            <DesignGrid items={visibleItems} />
+            <DesignGrid
+              items={visibleItems}
+              className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 xl:grid-cols-4"
+            />
           )}
         </div>
       </div>

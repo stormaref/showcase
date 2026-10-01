@@ -34,22 +34,24 @@ export default async function ProductsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-24">
-      <header>
-        <p className="text-[13px] font-medium uppercase tracking-[0.25em] text-gray-600">
-          {t("eyebrow")}
-        </p>
-        <h1 className="mt-5 text-4xl font-extralight tracking-tight text-ink md:text-6xl">
-          {t("title")}
-        </h1>
-        <p className="mt-5 max-w-xl text-sm leading-relaxed text-gray-600">
+    // Compact header: the catalog is the content, so products should start
+    // near the top of the screen.
+    <div className="mx-auto max-w-7xl px-6 pb-16 pt-8 md:px-10 md:pb-24 md:pt-12">
+      <header className="md:flex md:items-end md:justify-between md:gap-10">
+        <div>
+          <p className="eyebrow">{t("eyebrow")}</p>
+          <h1 className="mt-2 text-3xl font-light tracking-tight text-ink md:text-4xl rtl:leading-[1.35]">
+            {t("title")}
+          </h1>
+        </div>
+        <p className="mt-3 max-w-md text-sm leading-relaxed text-gray-600 md:mt-0">
           {t("subtitle")}
         </p>
       </header>
       {items.length === 0 ? (
         <p className="mt-16 text-gray-600">{t("empty")}</p>
       ) : (
-        <Suspense fallback={<div className="mt-10 h-64 animate-pulse bg-gray-100 lg:mt-12" />}>
+        <Suspense fallback={<div className="mt-6 h-64 animate-pulse bg-gray-100 lg:mt-8" />}>
           <DesignCatalog items={items} />
         </Suspense>
       )}
