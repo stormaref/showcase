@@ -66,6 +66,12 @@ export async function getBrandInfo(locale: string): Promise<BrandInfo> {
   }
 }
 
+/** Site title: always the English company name from the admin company info, on every locale. */
+export async function getSiteName(): Promise<string> {
+  const brand = await getBrandInfo("en");
+  return brand.name.trim() || fallbacks.en.name;
+}
+
 export function phoneTelHref(phone: string): string {
   const trimmed = phone.trim();
   if (!trimmed) return "tel:";

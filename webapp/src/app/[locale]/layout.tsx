@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { iranYekan } from "@/lib/fonts/iranyekan";
 import { workSans } from "@/lib/fonts/worksans";
+import { getSiteName } from "@/lib/brand-info";
 import { metadataBase } from "@/lib/metadata";
 import "../globals.css";
 
@@ -19,16 +20,17 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
+  const siteName = await getSiteName();
   return {
     metadataBase: metadataBase(),
     title: {
-      default: t("siteTitle"),
-      template: t("titleTemplate"),
+      default: siteName,
+      template: `%s | ${siteName}`,
     },
     description: t("siteDescription"),
     openGraph: {
       type: "website",
-      siteName: t("siteTitle"),
+      siteName,
       locale: locale === "fa" ? "fa_IR" : "en_US",
       alternateLocale: locale === "fa" ? ["en_US"] : ["fa_IR"],
     },

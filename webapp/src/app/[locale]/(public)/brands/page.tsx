@@ -1,20 +1,19 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { BrandGrid } from "@/components/brand-grid";
-import { getBrandInfo } from "@/lib/brand-info";
+import { getSiteName } from "@/lib/brand-info";
 import { getBrands } from "@/lib/brands";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("metadata");
-  const brand = await getBrandInfo(locale);
   return buildPageMetadata({
     locale,
     path: "/brands",
     title: t("brandsTitle"),
     description: t("brandsDescription"),
-    siteName: brand.name,
+    siteName: await getSiteName(),
   });
 }
 

@@ -7,7 +7,7 @@ import { Link } from "@/i18n/navigation";
 import heroImage from "@/assets/images/home-hero.jpg";
 import { BrandGrid } from "@/components/brand-grid";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
-import { getBrandInfo, phoneTelHref } from "@/lib/brand-info";
+import { getBrandInfo, getSiteName, phoneTelHref } from "@/lib/brand-info";
 import { getBrands } from "@/lib/brands";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -16,13 +16,12 @@ type PageProps = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const brand = await getBrandInfo(locale);
   return buildPageMetadata({
     locale,
     path: "/",
     title: t("homeTitle"),
     description: t("homeDescription"),
-    siteName: brand.name,
+    siteName: await getSiteName(),
   });
 }
 

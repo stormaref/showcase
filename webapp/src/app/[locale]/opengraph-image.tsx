@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { getSiteName } from "@/lib/brand-info";
 import {
   renderSocialImage,
   socialImageContentType,
@@ -17,7 +18,7 @@ export default async function Image({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
   return renderSocialImage({
-    title: t("siteTitle"),
+    title: await getSiteName(),
     tagline: t("siteDescription"),
     locale,
   });
