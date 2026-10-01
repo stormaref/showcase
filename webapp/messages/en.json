@@ -106,8 +106,9 @@
   "designDetail": {
     "backToCatalog": "Back to products",
     "availableIn": "Available sizes",
+    "chooseCategory": "Choose a category",
+    "chooseCategoryHint": "Select a category to see its sizes.",
     "sizesHint": "Shown to scale. Select a size to see it installed.",
-    "categories": "Category",
     "noDecorImage": "No installation photo for this size yet.",
     "noSizes": "Sizes for this product are coming soon.",
     "notFound": "Product not found"

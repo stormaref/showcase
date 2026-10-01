@@ -6,7 +6,7 @@ import {
   type SizeWallCategory,
   type SizeWallTile,
 } from "@/components/design-size-wall";
-import type { Design } from "@/lib/api";
+import type { Design, DesignImage } from "@/lib/api";
 import { imageSrc, legacyVariantImages, variantImage } from "@/lib/design-images";
 
 type DesignDetailProps = {
@@ -26,7 +26,10 @@ function sizeWall(design: Design) {
       (size) => !variantSet || variantSet.has(`${type.id}:${size.id}`),
     );
     if (sizes.length === 0) continue;
-    categories.push({ id: type.id, name: type.name });
+    const category: SizeWallCategory = { id: type.id, name: type.name, previewSrc: "" };
+    categories.push(category);
+    let firstDecor: DesignImage | undefined;
+    let firstTile: DesignImage | undefined;
     for (const size of sizes) {
       const tile = variantImage(design.images, size.id, type.id, "tile");
       // Until an admin sorts older images into tile and decoration, show the
@@ -43,7 +46,12 @@ function sizeWall(design: Design) {
         tileSrc: tile ? imageSrc(tile) : "",
         decorSrc: decor ? imageSrc(decor) : "",
       });
+      firstDecor ??= decor;
+      firstTile ??= tile;
     }
+    // A category card previews the category in a room, else its tile.
+    const preview = firstDecor ?? firstTile;
+    category.previewSrc = preview ? imageSrc(preview, true) : "";
   }
   return { categories, tiles };
 }
@@ -106,9 +114,10 @@ export async function DesignDetail({ design }: DesignDetailProps) {
             tiles={tiles}
             alt={alt}
             labels={{
+              categoryHeading: t("chooseCategory"),
+              categoryHint: t("chooseCategoryHint"),
               heading: t("availableIn"),
               hint: t("sizesHint"),
-              categories: t("categories"),
               noDecor: t("noDecorImage"),
             }}
           />

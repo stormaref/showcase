@@ -351,6 +351,44 @@ export function DesignForm({
     setImages((prev) => prev.filter((img) => img.object_key !== objectKey));
   }
 
+  function isProductsPageImage(img: PendingImage) {
+    return !img.size_id && !img.type_id;
+  }
+
+  // Images not tied to a size are products page images; the first one is used.
+  async function uploadProductsPageImage(file: File) {
+    setUploadError("");
+    try {
+      const data = await uploadImage(file);
+      setImages((prev) => {
+        const current = prev.find(isProductsPageImage);
+        return [
+          {
+            object_key: data.object_key,
+            thumb_object_key: data.thumb_object_key,
+            size_id: null,
+            type_id: null,
+            kind: "",
+            sort_order: 0,
+            preview_url: data.url,
+            thumb_url: data.thumb_url,
+          },
+          ...prev.filter((img) => img !== current),
+        ];
+      });
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    }
+  }
+
+  function promoteToProductsPageImage(objectKey: string) {
+    setImages((prev) => {
+      const target = prev.find((img) => img.object_key === objectKey);
+      if (!target) return prev;
+      return [target, ...prev.filter((img) => img !== target)];
+    });
+  }
+
   const variantSections = types.flatMap((tp) =>
     sizes
       .filter((size) => variantKeys.has(variantKey(tp.id, size.id)))
@@ -359,9 +397,13 @@ export function DesignForm({
 
   function buildPayload() {
     // Tile and decoration images follow variant order so the first variant's
-    // decoration becomes the catalog cover.
+    // decoration stands in on the products page when no products page image
+    // is set; products page images keep their order here, the first one used.
     const variantOrder = new Map(
       variantSections.map(({ type: tp, size }, i) => [variantKey(tp.id, size.id), i]),
+    );
+    const productsPageOrder = new Map(
+      images.filter(isProductsPageImage).map((img, i) => [img.object_key, i]),
     );
     const payload: Record<string, unknown> = {
       sort_order: sortOrder,
@@ -379,8 +421,9 @@ export function DesignForm({
         size_id: img.size_id,
         type_id: img.type_id,
         kind: img.kind,
-        sort_order:
-          img.kind && img.type_id && img.size_id
+        sort_order: isProductsPageImage(img)
+          ? (productsPageOrder.get(img.object_key) ?? img.sort_order)
+          : img.kind && img.type_id && img.size_id
             ? (variantOrder.get(variantKey(img.type_id, img.size_id)) ?? img.sort_order)
             : img.sort_order,
       })),
@@ -409,9 +452,7 @@ export function DesignForm({
   }
 
   const t = translations[tab];
-  const olderShowcaseImages = images.filter(
-    (img) => !img.size_id && !img.type_id && !img.kind,
-  );
+  const [productsPageImage, ...otherProductsPageImages] = images.filter(isProductsPageImage);
 
   function renderOlderImages(
     list: PendingImage[],
@@ -584,12 +625,52 @@ export function DesignForm({
         )}
       </fieldset>
 
+      <fieldset className="rounded-none border border-gray-200 p-4">
+        <legend className="px-1 text-sm font-medium">Products page image</legend>
+        <ImageSlot
+          title="Product card"
+          hint="Shown only on this product's card on the products page and home page, not on the product's own page. If empty, the first size's decoration image is used."
+          aspect={1}
+          image={productsPageImage}
+          disabled={isUploading}
+          onUpload={uploadProductsPageImage}
+          onRemove={() => productsPageImage && removeImage(productsPageImage.object_key)}
+        />
+        {otherProductsPageImages.length > 0 && (
+          <div className="mt-6 border-t border-gray-100 pt-4">
+            <p className="text-sm font-medium text-gray-900">Other images</p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Uploaded earlier and not shown anywhere. Use one for the product
+              card instead or remove them.
+            </p>
+            {renderOlderImages(otherProductsPageImages, (img) => (
+              <>
+                <button
+                  type="button"
+                  onClick={() => promoteToProductsPageImage(img.object_key)}
+                  className={smallButtonClass}
+                >
+                  Use for product card
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeImage(img.object_key)}
+                  className={smallButtonClass}
+                >
+                  Remove
+                </button>
+              </>
+            ))}
+          </div>
+        )}
+      </fieldset>
+
       {variantSections.length > 0 && (
         <p className="text-xs text-gray-500">
-          Each size needs a tile image (the design itself, cropped to the
-          size&apos;s aspect ratio so the sizes compare correctly on the site)
-          and a decoration image (the size installed in a room). The first
-          size&apos;s decoration image is the product&apos;s cover in the catalog.
+          These images appear on the product&apos;s own page. Each size needs a
+          tile image (the design itself, cropped to the size&apos;s aspect ratio
+          so the sizes compare correctly on the site) and a decoration image
+          (the size installed in a room).
         </p>
       )}
 
@@ -664,25 +745,6 @@ export function DesignForm({
           </fieldset>
         );
       })}
-
-      {olderShowcaseImages.length > 0 && (
-        <fieldset className="rounded-none border border-gray-200 p-4">
-          <legend className="px-1 text-sm font-medium">Older showcase images</legend>
-          <p className="text-xs text-gray-500">
-            These photos aren&apos;t tied to a size and no longer appear on the
-            product page. Remove them once every size has its own images.
-          </p>
-          {renderOlderImages(olderShowcaseImages, (img) => (
-            <button
-              type="button"
-              onClick={() => removeImage(img.object_key)}
-              className={smallButtonClass}
-            >
-              Remove
-            </button>
-          ))}
-        </fieldset>
-      )}
 
       {isUploading && percent !== null && (
         <UploadProgressBar percent={percent} label="Uploading image…" />

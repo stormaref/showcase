@@ -219,17 +219,17 @@ func (s *DesignService) sizeResponses(sizes []model.TileSize) []SizeResponse {
 	return out
 }
 
-// coverRank orders candidates for a design's cover (catalog card, social
-// preview): decoration photos first, then tile images, then older images,
-// preferring showcase shots among those. Keep in sync with
-// DesignRepository.PrimaryImagesByDesignIDs.
+// coverRank orders candidates for a design's cover (products page card,
+// social preview): the products page image (one not tied to a size), then
+// decoration photos, then tile images, then older variant images. Keep in
+// sync with DesignRepository.PrimaryImagesByDesignIDs.
 func coverRank(img model.DesignImage) int {
 	switch {
-	case img.Kind == model.DesignImageKindDecor:
-		return 0
-	case img.Kind == model.DesignImageKindTile:
-		return 1
 	case img.SizeID == nil && img.TypeID == nil:
+		return 0
+	case img.Kind == model.DesignImageKindDecor:
+		return 1
+	case img.Kind == model.DesignImageKindTile:
 		return 2
 	default:
 		return 3
