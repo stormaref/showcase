@@ -6,7 +6,7 @@ import {
   socialImageSize,
 } from "@/lib/social-image";
 
-export const alt = "Art Ceramic";
+export const alt = "Aseman Roshan Tejarat";
 export const size = socialImageSize;
 export const contentType = socialImageContentType;
 

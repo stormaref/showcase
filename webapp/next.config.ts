@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:locale(en|fa)/gallery",
-        destination: "/:locale/designs",
+        destination: "/:locale/products",
         permanent: true,
       },
     ];

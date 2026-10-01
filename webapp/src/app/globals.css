@@ -15,13 +15,15 @@
   --color-shell: #ffffff;
   --color-cocoa: #171310;
 
-  /* Stone gray scale — neutral with a faint warm undertone. */
+  /* Stone gray scale — neutral with a faint warm undertone. 500 is the
+     lightest step for text: 5.5:1 on paper and 5.2:1 on cream (WCAG AA).
+     400 and lighter are for rules, borders and decoration only. */
   --color-gray-50: #f8f7f4;
   --color-gray-100: #f0eee9;
   --color-gray-200: #e2dfd7;
   --color-gray-300: #c9c5ba;
   --color-gray-400: #a19c90;
-  --color-gray-500: #7a7468;
+  --color-gray-500: #6b6559;
   --color-gray-600: #5c564c;
   --color-gray-700: #46413a;
   --color-gray-800: #2b2721;
@@ -43,6 +45,11 @@
   --header-h: 4.75rem;
 }
 
+/* Keep in-page anchors clear of the sticky header. */
+html {
+  scroll-padding-top: var(--header-h);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -60,24 +67,114 @@ body {
   outline-offset: 2px;
 }
 
+/* Programmatic focus targets (the skip link's <main tabindex="-1">) must not
+   draw a ring around the whole page. */
+main:focus,
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Small tracked label above a heading. Use instead of repeating the utility
+   string; RTL gets its own treatment below. */
+@layer components {
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--color-gray-500);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Persian typography
+   IRANYekan ships only 300/400/700, and RTL drops letter-spacing and case, so
+   the Latin label recipe (13px, medium, uppercase, tracked) collapses into
+   body text. These rules restore the hierarchy with weight, size and colour.
+   The proper fix for the weight is IRANYekan-Medium.woff2 (500).
+   ------------------------------------------------------------------------ */
+
 /* Letter-spacing breaks Perso-Arabic cursive joining — disable every
    tracking utility in the RTL locale. */
 [dir="rtl"] * {
   letter-spacing: 0 !important;
 }
 
+/* Small medium-weight labels would fall back to 400: make them bold, and a
+   touch larger since there is no uppercase or tracking to set them apart. */
+[dir="rtl"] .font-medium:is(.text-\[11px\], .text-\[12px\], .text-\[13px\], .text-xs, .text-sm, .text-base),
+[dir="rtl"] .eyebrow {
+  font-weight: 700;
+}
+
+[dir="rtl"] .font-medium.text-\[13px\],
+[dir="rtl"] .eyebrow {
+  font-size: 14px;
+}
+
+/* Light body copy (300) is too faint in IRANYekan; display sizes stay light. */
+[dir="rtl"] p.font-light,
+[dir="rtl"] address.font-light,
+[dir="rtl"] .font-light:is(.text-xs, .text-sm, .text-base) {
+  font-weight: 400;
+}
+
+/* Eyebrows: with no case or tracking to lean on, colour carries the cue. */
+[dir="rtl"] .eyebrow,
+[dir="rtl"] .uppercase.tracking-\[0\.25em\]:is(.text-gray-500, .text-gray-600) {
+  color: var(--color-clay);
+}
+
+/* ---------------------------------------------------------------------------
+   Long-form content (blog posts, admin editor preview)
+   Preflight resets headings and lists, so everything is restated here.
+   ------------------------------------------------------------------------ */
+
 .prose-showcase {
   line-height: 1.85;
+  color: var(--color-gray-600);
+}
+
+.prose-showcase > :first-child {
+  margin-top: 0;
 }
 
 .prose-showcase h1,
 .prose-showcase h2,
-.prose-showcase h3 {
+.prose-showcase h3,
+.prose-showcase h4 {
   font-weight: 400;
+  line-height: 1.3;
   letter-spacing: -0.01em;
   margin-top: 1.8em;
   margin-bottom: 0.6em;
   color: var(--color-ink);
+}
+
+.prose-showcase h1 {
+  font-size: 2em;
+}
+
+.prose-showcase h2 {
+  font-size: 1.6em;
+}
+
+.prose-showcase h3 {
+  font-size: 1.25em;
+  font-weight: 500;
+}
+
+.prose-showcase h4 {
+  font-size: 1.05em;
+  font-weight: 500;
+}
+
+[dir="rtl"] .prose-showcase :is(h1, h2, h3, h4) {
+  line-height: 1.5;
+}
+
+[dir="rtl"] .prose-showcase :is(h3, h4) {
+  font-weight: 700;
 }
 
 .prose-showcase p {
@@ -97,11 +194,57 @@ body {
   text-decoration-color: var(--color-clay);
 }
 
+.prose-showcase strong,
+.prose-showcase b {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.prose-showcase ul,
+.prose-showcase ol {
+  margin-bottom: 1.25em;
+  padding-inline-start: 1.5em;
+}
+
+.prose-showcase ul {
+  list-style-type: disc;
+}
+
+.prose-showcase ol {
+  list-style-type: decimal;
+}
+
+/* Persian numerals for ordered lists on the Persian site. */
+:lang(fa) .prose-showcase ol {
+  list-style-type: persian;
+}
+
+.prose-showcase li {
+  margin-bottom: 0.4em;
+  padding-inline-start: 0.25em;
+}
+
+.prose-showcase li::marker {
+  color: var(--color-gray-400);
+}
+
+.prose-showcase li > :is(ul, ol) {
+  margin-top: 0.4em;
+  margin-bottom: 0;
+}
+
+.prose-showcase hr {
+  margin: 2.5em 0;
+  border: 0;
+  border-top: 1px solid var(--color-gray-200);
+}
+
 .prose-showcase img {
   margin: 2em 0;
 }
 
 .prose-showcase blockquote {
+  margin: 1.5em 0;
   border-inline-start: 1px solid var(--color-gray-300);
   padding-inline-start: 1.25rem;
   font-weight: 300;
@@ -109,9 +252,68 @@ body {
   color: var(--color-gray-600);
 }
 
+[dir="rtl"] .prose-showcase blockquote {
+  font-weight: 400;
+}
+
+.prose-showcase table {
+  display: block;
+  width: 100%;
+  margin: 1.5em 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.prose-showcase th,
+.prose-showcase td {
+  padding: 0.6em 0.9em;
+  border-bottom: 1px solid var(--color-gray-200);
+  text-align: start;
+  vertical-align: top;
+}
+
+.prose-showcase th {
+  font-weight: 500;
+  color: var(--color-ink);
+  border-bottom-color: var(--color-gray-300);
+}
+
+[dir="rtl"] .prose-showcase th {
+  font-weight: 700;
+}
+
+.prose-showcase code {
+  font-size: 0.9em;
+  background: var(--color-gray-100);
+  padding: 0.1em 0.35em;
+}
+
 .prose-showcase pre {
+  margin: 1.5em 0;
   background: var(--color-gray-50);
   border: 1px solid var(--color-gray-200);
   padding: 1rem;
   overflow-x: auto;
+}
+
+.prose-showcase pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Honour the OS setting: no smooth scrolling, no transitions or animation. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

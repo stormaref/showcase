@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "siteDescription": "Art Ceramic — ceramic tiles in a wide range of designs and sizes for residential and commercial projects.",
-    "homeTitle": "Welcome",
-    "homeDescription": "Art Ceramic — explore our tile product catalog, available sizes, and project inspiration.",
+    "siteDescription": "Aseman Roshan Tejarat — Rosanna ceramic and porcelain tiles in a wide range of designs and sizes for homes and commercial projects.",
+    "homeTitle": "Ceramic & porcelain tiles",
+    "homeDescription": "{name} — explore the Rosanna tile catalog: designs, available sizes and ideas for your project.",
     "designsTitle": "Products",
-    "designsDescription": "Browse tile products, patterns, and available sizes from Art Ceramic.",
+    "designsDescription": "Browse Rosanna tiles from Aseman Roshan Tejarat: designs, finishes and available sizes.",
     "brandsTitle": "Brands",
-    "brandsDescription": "The family of brands owned by Art Ceramic.",
+    "brandsDescription": "Rosanna, the tile brand of {name}.",
     "blogTitle": "Blog",
-    "blogDescription": "News, trends, and updates from Art Ceramic.",
+    "blogDescription": "News, trends and tiling tips from {name}.",
     "postNotFound": "Post not found",
     "designNotFound": "Product not found"
   },
@@ -18,17 +18,14 @@
     "allProducts": "All products",
     "brands": "Brands",
     "blog": "Blog",
-    "localeEn": "English",
-    "localeFa": "فارسی",
-    "changeLanguage": "Change language",
-    "supportedLanguages": "Supported languages"
+    "menu": "Menu",
+    "skipToContent": "Skip to content"
   },
   "home": {
     "viewDesigns": "Browse products",
-    "readBlog": "Read blog",
     "aboutTitle": "About us",
     "brandsTitle": "Our brands",
-    "brandsSubtitle": "The family of brands behind our work.",
+    "brandsSubtitle": "Tiles we offer under our own name.",
     "brandsVisit": "Visit website",
     "servicesTitle": "Why choose us",
     "servicesSubtitle": "Tiles, sizes, and service you can count on.",
@@ -42,8 +39,8 @@
       "designsDesc": "A broad catalog of tile designs, from timeless classics to contemporary patterns.",
       "sizesTitle": "Every design, multiple sizes",
       "sizesDesc": "Each design comes in a range of sizes to suit floors, walls, and any layout.",
-      "brandsTitle": "Trusted brands",
-      "brandsDesc": "Tiles from reputable manufacturers, selected for quality and consistency.",
+      "brandsTitle": "Our own brand",
+      "brandsDesc": "Rosanna is our own tile brand, so we answer for the quality of every design we sell.",
       "applicationsTitle": "Floors and walls",
       "applicationsDesc": "Tiles for kitchens, bathrooms, living areas, and commercial spaces.",
       "guidanceTitle": "Expert guidance",
@@ -68,35 +65,82 @@
     "sortOldest": "Oldest first",
     "sortAZ": "Title A–Z",
     "sortZA": "Title Z–A",
-    "noMatches": "No products match the selected filters."
+    "noMatches": "No products match the selected filters.",
+    "filtersButton": "{count, plural, =0 {Filters} other {Filters (#)}}",
+    "filtersTitle": "Filters",
+    "closeFilters": "Close filters",
+    "clearAll": "Clear all",
+    "clearAllFilters": "Clear all filters",
+    "showResults": "{count, plural, =0 {No matching products} one {Show # product} other {Show # products}}",
+    "resultCount": "{count, plural, one {# product} other {# products}}",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter: {label}"
   },
   "brands": {
     "eyebrow": "Our brands",
     "title": "Brands",
-    "subtitle": "The family of brands owned by the company.",
+    "subtitle": "The tile brands owned by {name}.",
     "empty": "No brands published yet.",
     "visit": "Visit website",
     "viewProducts": "View products"
   },
   "designDetail": {
-    "backToCatalog": "Back to products",
     "showcase": "Showcase",
-    "availableIn": "Available sizes",
     "noShowcaseImages": "No showcase images for this product.",
-    "noSizeImages": "No images for this size yet.",
-    "noVariantImages": "No images for this size and type yet.",
     "notFound": "Product not found",
     "previousImage": "Previous image",
     "nextImage": "Next image",
-    "slide": "Slide"
+    "slide": "Slide",
+    "products": "Products",
+    "breadcrumb": "Breadcrumb",
+    "specBrand": "Brand",
+    "specType": "Category",
+    "specSizes": "Sizes",
+    "specFinishes": "Finish",
+    "enquiryTitle": "Ask about price and availability",
+    "enquiryText": "Call us or send a WhatsApp message and we'll get back to you about this product.",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "whatsappMessage": "Hello, I would like to ask about the price and availability of \"{title}\".\n{url}",
+    "photosBySize": "Photos by size",
+    "size": "Size",
+    "enlargeImage": "View larger",
+    "closeImage": "Close",
+    "loading": "Loading product…"
   },
   "blog": {
     "title": "Blog",
     "subtitle": "News, trends, and updates from the world of tile.",
     "empty": "No posts published yet.",
-    "contentUnavailable": "Content unavailable."
+    "contentUnavailable": "Content unavailable.",
+    "backToBlog": "Back to blog",
+    "ctaTitle": "Planning a project?",
+    "ctaText": "Browse our tiles by design and size, or call us for advice.",
+    "ctaButton": "Browse products"
   },
   "footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "explore": "Explore",
+    "contact": "Contact us"
+  },
+  "contact": {
+    "call": "Call us",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "telegram": "Telegram",
+    "viewOnMap": "View on map",
+    "hours": "Opening hours",
+    "heading": "Get in touch",
+    "callAria": "Call {phone}",
+    "address": "Address",
+    "map": "Map"
+  },
+  "notFound": {
+    "metaTitle": "Page not found",
+    "title": "We couldn't find that page",
+    "text": "The link may be broken, or the page may have moved. Browse our tiles or head back to the home page.",
+    "products": "Browse products",
+    "home": "Back to home",
+    "callPrompt": "Looking for something specific? Call us:"
   }
 }

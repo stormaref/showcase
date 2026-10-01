@@ -2,7 +2,8 @@
 
 import { ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { NavLink, isActivePath, navItemActiveClass, navItemClass } from "@/components/nav-link";
 import type { DesignType } from "@/lib/api";
 
 type ProductsNavMenuProps = {
@@ -11,10 +12,14 @@ type ProductsNavMenuProps = {
   types: DesignType[];
 };
 
+// Disclosure pattern (button + list of links), not an ARIA menu: Tab moves
+// through the links, Escape or tabbing out closes it.
 export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const menuId = useId();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listId = useId();
+  const active = isActivePath(usePathname(), "/products");
 
   useEffect(() => {
     if (!open) return;
@@ -26,7 +31,10 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
     }
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
     }
 
     document.addEventListener("pointerdown", onPointerDown);
@@ -38,22 +46,29 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
   }, [open]);
 
   if (types.length === 0) {
-    return (
-      <Link href="/products" className="transition hover:text-clay">
-        {label}
-      </Link>
-    );
+    return <NavLink href="/products">{label}</NavLink>;
   }
 
   return (
-    <div ref={rootRef} className="relative">
+    <div
+      ref={rootRef}
+      className="relative"
+      onBlur={(e) => {
+        // A null relatedTarget means a click on something unfocusable (Safari
+        // doesn't focus links on click); pointerdown above handles those.
+        const next = e.relatedTarget as Node | null;
+        if (next && !e.currentTarget.contains(next)) setOpen(false);
+      }}
+    >
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-haspopup="menu"
-        aria-controls={menuId}
-        className="flex cursor-pointer items-center gap-1 transition hover:text-clay"
+        aria-controls={listId}
+        className={`flex cursor-pointer items-center gap-1 ${navItemClass} ${
+          active ? navItemActiveClass : ""
+        }`}
       >
         {label}
         <ChevronDown
@@ -63,37 +78,33 @@ export function ProductsNavMenu({ label, allLabel, types }: ProductsNavMenuProps
         />
       </button>
 
-      {open && (
-        <ul
-          id={menuId}
-          role="menu"
-          className="absolute start-0 top-full z-50 mt-4 min-w-[12rem] border border-gray-200 bg-white py-2 shadow-sm"
-        >
-          <li role="none">
+      <ul
+        id={listId}
+        hidden={!open}
+        className="absolute start-0 top-full z-50 mt-4 min-w-[12rem] border border-gray-200 bg-white py-2 shadow-sm"
+      >
+        <li>
+          <Link
+            href="/products"
+            onClick={() => setOpen(false)}
+            className="block px-5 py-2.5 text-sm font-normal text-ink transition hover:bg-gray-50 hover:text-clay"
+          >
+            {allLabel}
+          </Link>
+        </li>
+        <li aria-hidden className="my-1.5 border-t border-gray-100" />
+        {types.map((tp) => (
+          <li key={tp.id}>
             <Link
-              role="menuitem"
-              href="/products"
+              href={`/products?type=${tp.id}`}
               onClick={() => setOpen(false)}
-              className="block px-5 py-2.5 text-sm font-normal normal-case tracking-normal text-ink transition hover:bg-gray-50 hover:text-clay"
+              className="block px-5 py-2.5 text-sm font-light text-gray-600 transition hover:bg-gray-50 hover:text-clay"
             >
-              {allLabel}
+              {tp.name}
             </Link>
           </li>
-          <li role="none" className="my-1.5 border-t border-gray-100" />
-          {types.map((tp) => (
-            <li key={tp.id} role="none">
-              <Link
-                role="menuitem"
-                href={`/products?type=${tp.id}`}
-                onClick={() => setOpen(false)}
-                className="block px-5 py-2.5 text-sm font-light normal-case tracking-normal text-gray-600 transition hover:bg-gray-50 hover:text-clay"
-              >
-                {tp.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+        ))}
+      </ul>
     </div>
   );
 }
