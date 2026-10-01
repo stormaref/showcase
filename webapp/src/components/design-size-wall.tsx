@@ -45,6 +45,12 @@ const MIN_TILE_PX = 56;
 
 const headingClass = "text-[13px] font-medium uppercase tracking-[0.25em] text-gray-500";
 
+function scrollToSection(el: HTMLElement | null) {
+  if (!el) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+}
+
 function preload(src: string) {
   if (!src) return;
   const img = new Image();
@@ -61,6 +67,7 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
   const headingId = useId();
   const panelId = useId();
   const sizesRef = useRef<HTMLElement>(null);
+  const photoRef = useRef<HTMLElement>(null);
   const pickedByVisitor = useRef(false);
   const chooseCategory = categories.length > 1;
   const [categoryId, setCategoryId] = useState(chooseCategory ? "" : (categories[0]?.id ?? ""));
@@ -68,19 +75,26 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
   const [selectedKey, setSelectedKey] = useState(visible[0]?.key ?? "");
   const selected = visible.find((tile) => tile.key === selectedKey) ?? visible[0];
 
-  // Bring the sizes into view after a category pick, unless they already are.
+  // A category pick leads to its sizes; the sizes section may only render
+  // after this pick, so the scroll waits for the commit.
   useEffect(() => {
-    const el = sizesRef.current;
-    if (!pickedByVisitor.current || !el) return;
-    if (el.getBoundingClientRect().top < window.innerHeight * 0.75) return;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    if (pickedByVisitor.current) scrollToSection(sizesRef.current);
   }, [categoryId]);
 
   function selectCategory(id: string) {
+    if (id === categoryId) {
+      scrollToSection(sizesRef.current);
+      return;
+    }
     pickedByVisitor.current = true;
     setCategoryId(id);
     setSelectedKey(tiles.find((tile) => tile.typeId === id)?.key ?? "");
+  }
+
+  // A size pick leads to its room photo, which is already on the page.
+  function selectSize(key: string) {
+    setSelectedKey(key);
+    scrollToSection(photoRef.current);
   }
 
   // One scale across all categories, so switching between them keeps sizes
@@ -117,7 +131,7 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
                 type="button"
                 aria-pressed={active}
                 aria-controls={panelId}
-                onClick={() => setSelectedKey(tile.key)}
+                onClick={() => selectSize(tile.key)}
                 onPointerEnter={() => preload(tile.decorSrc)}
                 onFocus={() => preload(tile.decorSrc)}
                 className="group flex min-w-0 cursor-pointer flex-col items-center"
@@ -159,7 +173,11 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
     </>
   ) : null;
   const sizePhoto = selected ? (
-    <figure id={panelId} className={cn(!sizesBeside && "mt-12")}>
+    <figure
+      ref={photoRef}
+      id={panelId}
+      className={cn("scroll-mt-6", !sizesBeside && "mt-12")}
+    >
       {selected.decorSrc ? (
         <div className="overflow-hidden bg-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -276,7 +294,7 @@ export function DesignSizeWall({ categories, tiles, alt, intro, labels }: Design
           <section
             ref={sizesRef}
             aria-labelledby={headingId}
-            className="scroll-mt-[calc(var(--header-h)+2rem)]"
+            className="scroll-mt-8"
           >
             {sizeSelector}
             {sizePhoto}
