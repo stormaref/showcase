@@ -119,10 +119,6 @@ export default async function HomePage({ params }: PageProps) {
           sizes="100vw"
           className="object-cover object-center"
         />
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/12 to-transparent"
-          aria-hidden
-        />
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-7xl px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] md:px-10 md:pb-20">
             <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-white/80 sm:text-[13px]">
@@ -134,7 +130,7 @@ export default async function HomePage({ params }: PageProps) {
             <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4 md:mt-9">
               <Link
                 href="/products"
-                className="cursor-pointer bg-white px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-ink transition duration-300 hover:bg-clay hover:text-white md:px-10 md:py-4 md:text-sm"
+                className="cursor-pointer bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-white transition duration-300 hover:bg-clay-dark md:px-10 md:py-4 md:text-sm"
               >
                 {t("viewDesigns")}
               </Link>
