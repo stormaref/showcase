@@ -1,12 +1,15 @@
 import Image from "next/image";
-import { Camera, Clock, Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
+import { Briefcase, Camera, Clock, Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import logo from "@/assets/images/logo.png";
+import { MapLink } from "@/components/map-link";
 import {
   getBrandInfo,
   instagramHref,
+  linkedinHref,
+  mapLinks,
   phoneTelHref,
   telegramHref,
   whatsappHref,
@@ -44,6 +47,8 @@ export async function SiteFooter() {
   const whatsapp = whatsappHref(brand.whatsapp);
   const instagram = instagramHref(brand.instagram);
   const telegram = telegramHref(brand.telegram);
+  const linkedin = linkedinHref(brand.linkedin);
+  const map = mapLinks(brand);
   const email = brand.email.trim();
   const hours = brand.hours.trim();
 
@@ -89,6 +94,15 @@ export async function SiteFooter() {
       content: contact("telegram"),
     });
   }
+  if (linkedin) {
+    channels.push({
+      key: "linkedin",
+      icon: Briefcase,
+      href: linkedin,
+      external: true,
+      content: contact("linkedin"),
+    });
+  }
   if (hours) {
     channels.push({
       key: "hours",
@@ -102,7 +116,7 @@ export async function SiteFooter() {
     });
   }
 
-  const hasContact = address || brand.mapUrl.trim() || channels.length > 0;
+  const hasContact = address || map || channels.length > 0;
 
   return (
     <footer className="mt-auto border-t border-gray-200 bg-cream">
@@ -130,22 +144,20 @@ export async function SiteFooter() {
         {hasContact && (
           <div className="text-sm font-light leading-relaxed text-gray-600">
             <h2 className="text-xs font-medium text-gray-600">{t("contact")}</h2>
-            {(address || brand.mapUrl.trim()) && (
+            {(address || map) && (
               <div className="mt-4 flex gap-3">
                 <MapPin className="mt-1 size-4 shrink-0 text-clay" strokeWidth={1.5} aria-hidden />
                 <div>
                   {address && (
                     <address className="not-italic">{localizeDigits(address, locale)}</address>
                   )}
-                  {brand.mapUrl.trim() && (
-                    <a
-                      href={brand.mapUrl.trim()}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {map && (
+                    <MapLink
+                      links={map}
                       className="mt-1 inline-block text-ink underline decoration-gray-300 underline-offset-4 transition hover:text-clay hover:decoration-clay"
                     >
                       {contact("viewOnMap")}
-                    </a>
+                    </MapLink>
                   )}
                 </div>
               </div>

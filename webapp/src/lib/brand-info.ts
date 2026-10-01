@@ -19,6 +19,8 @@ export type BrandInfo = {
   instagram: string;
   /** Telegram handle or t.me URL. */
   telegram: string;
+  /** LinkedIn company page URL or slug. */
+  linkedin: string;
   /** Map link (Neshan, Balad, Google Maps…). */
   mapUrl: string;
   /** Google Maps embed URL for the About page iframe. */
@@ -49,6 +51,7 @@ function emptyBrand(name: string): BrandInfo {
     whatsapp: "",
     instagram: "",
     telegram: "",
+    linkedin: "",
     mapUrl: "",
     mapEmbedUrl: "",
     hours: "",
@@ -70,6 +73,7 @@ function mapResponse(row: BrandInfoResponse): BrandInfo {
     whatsapp: row.whatsapp ?? "",
     instagram: row.instagram ?? "",
     telegram: row.telegram ?? "",
+    linkedin: row.linkedin ?? "",
     mapUrl: row.map_url ?? "",
     mapEmbedUrl: row.map_embed_url ?? "",
     hours: row.hours ?? "",
@@ -146,4 +150,71 @@ export function telegramHref(value: string): string {
   if (!v) return "";
   if (/^https?:\/\//i.test(v)) return v;
   return `https://t.me/${v.replace(/^@/, "")}`;
+}
+
+/** Accepts a full URL or a company slug ("aseman-roshan"). "" when empty. */
+export function linkedinHref(value: string): string {
+  const v = value.trim();
+  if (!v) return "";
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://www.linkedin.com/company/${v.replace(/^@/, "")}`;
+}
+
+export type MapCoordinates = { lat: number; lng: number };
+
+function validCoordinates(lat: number, lng: number): MapCoordinates | null {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat, lng };
+}
+
+/**
+ * Pull coordinates out of a map URL: "q=" / "ll=" / "query=" pairs, "@lat,lng"
+ * paths, or the "!3d<lat>!4d<lng>" (or "!2d<lng>!3d<lat>") parts of Google's
+ * "Embed a map" links. Null when the URL holds none (e.g. a named place link).
+ */
+export function coordinatesFromUrl(value: string): MapCoordinates | null {
+  let v = value.trim();
+  if (!v) return null;
+  try {
+    v = decodeURIComponent(v);
+  } catch {
+    // Keep the raw string; coordinates are rarely percent-encoded anyway.
+  }
+  const num = String.raw`(-?\d{1,3}(?:\.\d+)?)`;
+  const pair = new RegExp(String.raw`(?:[?&](?:q|ll|query|center)=|@)` + num + String.raw`\s*,\s*` + num);
+  const m = v.match(pair);
+  if (m) return validCoordinates(Number(m[1]), Number(m[2]));
+  const lat = v.match(new RegExp(String.raw`!3d` + num));
+  const lng = v.match(new RegExp(String.raw`!4d` + num)) ?? v.match(new RegExp(String.raw`!2d` + num));
+  if (lat && lng) return validCoordinates(Number(lat[1]), Number(lng[1]));
+  return null;
+}
+
+/** The company's map position, from whichever admin map field carries it. */
+export function mapCoordinates(brand: BrandInfo): MapCoordinates | null {
+  return coordinatesFromUrl(brand.mapEmbedUrl) ?? coordinatesFromUrl(brand.mapUrl);
+}
+
+/** Links for the "View on map" control; each device picks the one it handles. */
+export type MapLinks = {
+  /** Android: geo: URI, so the system offers the visitor's map apps. */
+  geo: string;
+  /** iPhone, iPad and Mac: Apple Maps, opened by the system Maps app. */
+  apple: string;
+  /** Everything else (Windows/Linux browsers): the admin's link, else Google Maps. */
+  web: string;
+};
+
+export function mapLinks(brand: BrandInfo): MapLinks | null {
+  const admin = brand.mapUrl.trim();
+  const at = mapCoordinates(brand);
+  if (!at) return admin ? { geo: admin, apple: admin, web: admin } : null;
+  const ll = `${at.lat},${at.lng}`;
+  const label = encodeURIComponent(brand.name);
+  return {
+    geo: `geo:${ll}?q=${ll}(${label})`,
+    apple: `https://maps.apple.com/?ll=${ll}&q=${label}`,
+    web: admin || `https://www.google.com/maps/search/?api=1&query=${ll}`,
+  };
 }

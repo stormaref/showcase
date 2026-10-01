@@ -26,6 +26,7 @@ type Channels = {
   whatsapp: string;
   instagram: string;
   telegram: string;
+  linkedin: string;
   map_url: string;
   map_embed_url: string;
 };
@@ -34,6 +35,7 @@ const emptyChannels = (): Channels => ({
   whatsapp: "",
   instagram: "",
   telegram: "",
+  linkedin: "",
   map_url: "",
   map_embed_url: "",
 });
@@ -97,6 +99,7 @@ export function CompanyInfoForm() {
           whatsapp: row?.whatsapp ?? "",
           instagram: row?.instagram ?? "",
           telegram: row?.telegram ?? "",
+          linkedin: row?.linkedin ?? "",
           map_url: row?.map_url ?? "",
           map_embed_url: row?.map_embed_url ?? "",
         });
@@ -292,6 +295,16 @@ export function CompanyInfoForm() {
             />
           </label>
           <label className="block text-sm font-medium">
+            LinkedIn
+            <input
+              dir="ltr"
+              placeholder="https://www.linkedin.com/company/yourcompany"
+              value={channels.linkedin}
+              onChange={(e) => updateChannel("linkedin", e.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <label className="block text-sm font-medium">
             Map link
             <input
               type="url"
@@ -301,6 +314,11 @@ export function CompanyInfoForm() {
               onChange={(e) => updateChannel("map_url", e.target.value)}
               className={inputClass}
             />
+            <span className="mt-1 block text-xs font-normal text-gray-500">
+              Used by &quot;View on map&quot; on Windows and Linux computers. Phones and Macs open the
+              location from the coordinates in the Google Maps embed below in the visitor&apos;s own
+              map app.
+            </span>
           </label>
           <label className="block text-sm font-medium">
             Google Maps embed (About page)

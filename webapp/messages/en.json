@@ -162,7 +162,9 @@
     "heading": "Get in touch",
     "callAria": "Call {phone}",
     "address": "Address",
-    "map": "Map"
+    "map": "Map",
+    "linkedin": "LinkedIn",
+    "linkedinPage": "Company page"
   },
   "notFound": {
     "metaTitle": "Page not found",

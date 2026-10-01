@@ -320,6 +320,7 @@ type BrandInfoTranslation struct {
 	WhatsApp           string    `gorm:"size:50" json:"whatsapp"`
 	Instagram          string    `gorm:"size:255" json:"instagram"`
 	Telegram           string    `gorm:"size:255" json:"telegram"`
+	LinkedIn           string    `gorm:"size:255" json:"linkedin"`
 	MapURL             string    `gorm:"size:1000" json:"map_url"`
 	MapEmbedURL        string    `gorm:"size:2000" json:"map_embed_url"`
 	Hours              string    `gorm:"size:255" json:"hours"`

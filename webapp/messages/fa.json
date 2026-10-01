@@ -162,7 +162,9 @@
     "heading": "با ما در تماس باشید",
     "callAria": "تماس با {phone}",
     "address": "نشانی",
-    "map": "نقشه"
+    "map": "نقشه",
+    "linkedin": "لینکدین",
+    "linkedinPage": "صفحه شرکت"
   },
   "notFound": {
     "metaTitle": "صفحه پیدا نشد",

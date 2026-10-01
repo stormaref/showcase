@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import {
+  Briefcase,
   Camera,
   Clock,
   MapPin,
@@ -8,12 +9,16 @@ import {
   Send,
   type LucideIcon,
 } from "lucide-react";
+import { MapLink } from "@/components/map-link";
 import {
   instagramHref,
+  linkedinHref,
+  mapLinks,
   phoneTelHref,
   telegramHref,
   whatsappHref,
   type BrandInfo,
+  type MapLinks,
 } from "@/lib/brand-info";
 import { localizeDigits } from "@/lib/format";
 
@@ -47,7 +52,9 @@ export function hasContactDetails(brand: BrandInfo): boolean {
     brand.whatsapp,
     brand.instagram,
     brand.telegram,
+    brand.linkedin,
     brand.mapUrl,
+    brand.mapEmbedUrl,
     brand.hours,
   ].some((value) => value.trim());
 }
@@ -89,6 +96,8 @@ type ContactItem = {
   label: string;
   value: React.ReactNode;
   href?: string;
+  /** Device-aware map link instead of a plain href. */
+  map?: MapLinks;
   wide?: boolean;
 };
 
@@ -144,13 +153,24 @@ export async function ContactList({ brand, locale, columns = 2, className }: Con
       href: telegram,
     });
   }
-  if (brand.mapUrl.trim()) {
+  const linkedin = linkedinHref(brand.linkedin);
+  if (linkedin) {
+    items.push({
+      key: "linkedin",
+      icon: Briefcase,
+      label: c("linkedin"),
+      value: c("linkedinPage"),
+      href: linkedin,
+    });
+  }
+  const map = mapLinks(brand);
+  if (map) {
     items.push({
       key: "map",
       icon: MapPinned,
       label: c("map"),
       value: c("viewOnMap"),
-      href: brand.mapUrl.trim(),
+      map,
     });
   }
   if (brand.hours.trim()) {
@@ -178,7 +198,14 @@ export async function ContactList({ brand, locale, columns = 2, className }: Con
               {item.label}
             </p>
             <div className="mt-2 text-base leading-relaxed text-ink">
-              {item.href ? (
+              {item.map ? (
+                <MapLink
+                  links={item.map}
+                  className="underline decoration-gray-300 underline-offset-4 transition hover:text-clay hover:decoration-clay"
+                >
+                  {item.value}
+                </MapLink>
+              ) : item.href ? (
                 <a
                   href={item.href}
                   target="_blank"

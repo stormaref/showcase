@@ -195,6 +195,7 @@ export type BrandInfoResponse = {
   whatsapp?: string;
   instagram?: string;
   telegram?: string;
+  linkedin?: string;
   map_url?: string;
   map_embed_url?: string;
   hours?: string;

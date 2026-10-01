@@ -39,6 +39,7 @@ type BrandInfoInput struct {
 	WhatsApp           string `json:"whatsapp"`
 	Instagram          string `json:"instagram"`
 	Telegram           string `json:"telegram"`
+	LinkedIn           string `json:"linkedin"`
 	MapURL             string `json:"map_url"`
 	MapEmbedURL        string `json:"map_embed_url"`
 	Hours              string `json:"hours"`
@@ -60,6 +61,7 @@ type BrandInfoResponse struct {
 	WhatsApp           string `json:"whatsapp"`
 	Instagram          string `json:"instagram"`
 	Telegram           string `json:"telegram"`
+	LinkedIn           string `json:"linkedin"`
 	MapURL             string `json:"map_url"`
 	MapEmbedURL        string `json:"map_embed_url"`
 	Hours              string `json:"hours"`
@@ -85,6 +87,7 @@ func (s *BrandInfoService) toResponse(row *model.BrandInfoTranslation) BrandInfo
 		WhatsApp:           row.WhatsApp,
 		Instagram:          row.Instagram,
 		Telegram:           row.Telegram,
+		LinkedIn:           row.LinkedIn,
 		MapURL:             row.MapURL,
 		MapEmbedURL:        row.MapEmbedURL,
 		Hours:              row.Hours,
@@ -201,6 +204,7 @@ func inputToModel(locale string, in BrandInfoInput) *model.BrandInfoTranslation 
 		WhatsApp:           strings.TrimSpace(in.WhatsApp),
 		Instagram:          strings.TrimSpace(in.Instagram),
 		Telegram:           strings.TrimSpace(in.Telegram),
+		LinkedIn:           strings.TrimSpace(in.LinkedIn),
 		MapURL:             strings.TrimSpace(in.MapURL),
 		MapEmbedURL:        normalizeMapEmbed(in.MapEmbedURL),
 		Hours:              strings.TrimSpace(in.Hours),
