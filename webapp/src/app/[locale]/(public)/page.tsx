@@ -156,14 +156,14 @@ export default async function HomePage({ params }: PageProps) {
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-7xl px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] md:px-10 md:pb-20">
             <h1
-              className={`max-w-3xl text-[2rem] font-extralight leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl rtl:leading-[1.35] ${heroDark ? "text-ink" : "text-white"}`}
+              className={`max-w-3xl text-[2rem] font-extralight leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl rtl:leading-[1.35] ${heroDark ? "text-cocoa" : "text-white"}`}
             >
               {brand.tagline}
             </h1>
             <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4 md:mt-9">
               <Link
                 href="/products"
-                className="cursor-pointer bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-white transition duration-300 hover:bg-clay-dark md:px-10 md:py-4 md:text-sm"
+                className="cursor-pointer bg-clay px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.2em] text-paper transition duration-300 hover:bg-clay-dark md:px-10 md:py-4 md:text-sm"
               >
                 {t("viewDesigns")}
               </Link>
@@ -171,7 +171,7 @@ export default async function HomePage({ params }: PageProps) {
                 <a
                   href={phoneTelHref(brand.phone)}
                   aria-label={c("callAria", { phone: phoneDisplay })}
-                  className={`inline-flex cursor-pointer items-center gap-2.5 text-[13px] font-medium tracking-[0.12em] transition ${heroDark ? "text-ink hover:text-clay" : "text-white hover:text-clay-soft"}`}
+                  className={`inline-flex cursor-pointer items-center gap-2.5 text-[13px] font-medium tracking-[0.12em] transition ${heroDark ? "text-cocoa hover:text-cocoa/70" : "text-white hover:text-white/75"}`}
                 >
                   <Phone className="size-4" aria-hidden />
                   <bdi dir="ltr">{phoneDisplay}</bdi>

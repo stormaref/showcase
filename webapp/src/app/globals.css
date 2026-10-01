@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* `dark:` follows the resolved theme on <html data-theme>, which the inline
+   script from lib/theme.tsx sets before first paint. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   /* Porcelain-minimal palette. Warm white ground, near-black ink, stone
      neutrals, and one restrained warm-brown accent used sparingly. */
@@ -44,13 +48,59 @@
 }
 
 :root {
-  --background: #fbfaf7;
-  --foreground: #171310;
+  color-scheme: light;
 
   /* Height of the sticky site header. The header is pinned to this value and
      the home hero subtracts it from the viewport, so the hero fills exactly
      what is left of the screen on load. Keep the two in sync via this token. */
   --header-h: 4.75rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Dark theme
+   The same porcelain palette after dark: warm charcoal ground, bone ink and a
+   lighter clay that still reads as the accent. Every token keeps its role, so
+   `bg-paper`, `text-ink`, `border-gray-200` etc. flip with no per-component
+   changes. Contrast mirrors the light scale: gray-500 is again the lightest
+   text step (6.9:1 on paper), clay text is 7.3:1, and `text-paper` on
+   `bg-ink` / `bg-clay` buttons reads in both themes — use it there, not
+   `text-white`. `shell` is the raised surface (cards, menus, inputs); `cocoa`
+   stays near-black in both themes for anything that must remain dark (the
+   footer bar, scrims, type over photos).
+   ------------------------------------------------------------------------ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-ink: #f0ebe3;
+  --color-paper: #15120f;
+  --color-cream: #1c1814;
+  --color-sand: #29241e;
+  --color-shell: #1e1a16;
+  --color-cocoa: #0e0c0a;
+
+  --color-clay: #c29a86;
+  --color-clay-dark: #d8b6a4;
+  --color-clay-soft: #33281f;
+  --color-clay-light: #8d7064;
+
+  --color-gray-50: #1a1612;
+  --color-gray-100: #221d18;
+  --color-gray-200: #2f2a23;
+  --color-gray-300: #423b33;
+  --color-gray-400: #6b6459;
+  --color-gray-500: #a39d91;
+  --color-gray-600: #b9b3a7;
+  --color-gray-700: #cfc9bd;
+  --color-gray-800: #e2ddd3;
+  --color-gray-900: #f0ebe3;
+
+  /* Status colours: the dark shades used on paper become light shades. */
+  --color-red-50: oklch(25.8% 0.092 26.042);
+  --color-red-600: oklch(70.4% 0.191 22.216);
+  --color-red-700: oklch(80.8% 0.114 19.571);
+  --color-red-800: oklch(88.5% 0.062 18.334);
+  --color-green-700: oklch(79.2% 0.209 151.711);
+  --color-amber-700: oklch(82.8% 0.189 84.429);
 }
 
 /* Keep in-page anchors clear of the sticky header. */
@@ -59,15 +109,15 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-paper);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
   background: var(--color-ink);
-  color: #fff;
+  color: var(--color-paper);
 }
 
 :focus-visible {
@@ -324,4 +374,17 @@ main:focus,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Admin: MDXEditor, dark
+   The blog editor switches on MDXEditor's own `dark-theme` class (see
+   components/admin/initialized-mdx-editor.tsx), which flips its toolbar and
+   popup scales but leaves --basePageBg white — the ground of its dropdowns,
+   dialogs and select triggers. Set it to the raised surface. Both the editor
+   and its <body> popup container carry the class, so cover both.
+   ------------------------------------------------------------------------ */
+:root[data-theme="dark"] .mdxeditor,
+:root[data-theme="dark"] .mdxeditor-popup-container {
+  --basePageBg: var(--color-shell);
 }

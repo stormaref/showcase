@@ -39,7 +39,7 @@ export function DesignActiveFilters({
                   type="button"
                   onClick={chip.onRemove}
                   aria-label={chip.removeLabel}
-                  className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 border border-gray-300 bg-white ps-3 pe-2 text-sm text-gray-700 transition hover:border-clay hover:text-clay"
+                  className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 border border-gray-300 bg-shell ps-3 pe-2 text-sm text-gray-700 transition hover:border-clay hover:text-clay"
                 >
                   {chip.label}
                   <X className="size-3.5 shrink-0" aria-hidden />

@@ -35,7 +35,7 @@ export default function AdminDesignsPage() {
         </div>
         <Link
           href="/admin/designs/new"
-          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white"
+          className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper"
         >
           New design
         </Link>
@@ -45,7 +45,7 @@ export default function AdminDesignsPage() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="overflow-hidden rounded-none border border-gray-200 bg-white"
+            className="overflow-hidden rounded-none border border-gray-200 bg-shell"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

@@ -174,7 +174,7 @@ export function CompanyInfoForm() {
 
   return (
     <form onSubmit={onSubmit} className="mt-8 max-w-2xl space-y-6">
-      <fieldset className="rounded-none border border-gray-200 bg-white p-6">
+      <fieldset className="rounded-none border border-gray-200 bg-shell p-6">
         <legend className="px-1 text-sm font-medium">Home hero image</legend>
         <p className="text-xs text-gray-500">
           Shown full-width at the top of the home page. When empty, the site
@@ -205,7 +205,7 @@ export function CompanyInfoForm() {
               type="button"
               disabled={isUploading}
               onClick={() => heroInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-shell px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               <Upload className="size-4" aria-hidden />
               {heroUrl ? "Replace image" : "Upload image"}
@@ -257,7 +257,7 @@ export function CompanyInfoForm() {
         </div>
       </fieldset>
 
-      <fieldset className="rounded-none border border-gray-200 bg-white p-6">
+      <fieldset className="rounded-none border border-gray-200 bg-shell p-6">
         <legend className="px-1 text-sm font-medium">Contact channels</legend>
         <p className="text-xs text-gray-500">
           Shared by both languages. Leave a field empty to hide it on the site.
@@ -340,7 +340,7 @@ export function CompanyInfoForm() {
 
       <TranslationTabs active={tab} onChange={setTab} hasFa={Boolean(fa.name)} />
 
-      <div className="space-y-4 rounded-none border border-gray-200 bg-white p-6">
+      <div className="space-y-4 rounded-none border border-gray-200 bg-shell p-6">
         <label className="block text-sm font-medium">
           Name {tab === "en" && <span className="text-red-600">*</span>}
           <input
@@ -427,7 +427,7 @@ export function CompanyInfoForm() {
       <button
         type="submit"
         disabled={saving}
-        className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper disabled:opacity-50"
       >
         {saving ? "Saving…" : "Save brand info"}
       </button>

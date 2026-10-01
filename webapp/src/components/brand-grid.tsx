@@ -13,6 +13,11 @@ type BrandGridProps = {
   headingLevel?: "h2" | "h3";
 };
 
+// Uploaded logos are often dark artwork on a transparent ground, so dark mode
+// sets them on a bone plate (the dark theme's ink) to keep them legible.
+const logoPlate =
+  "object-contain transition-opacity duration-500 group-hover:opacity-85 dark:bg-ink";
+
 function VisitLink({ href, label }: { href: string; label: string }) {
   return (
     <a
@@ -51,7 +56,7 @@ export function BrandGrid({
                 src={brand.logo_url}
                 alt=""
                 loading="lazy"
-                className="max-h-24 max-w-[220px] object-contain transition-opacity duration-500 group-hover:opacity-85"
+                className={cn(logoPlate, "max-h-24 max-w-[220px] dark:p-4")}
               />
             </div>
           )}
@@ -93,7 +98,7 @@ export function BrandGrid({
                   src={brand.logo_url}
                   alt=""
                   loading="lazy"
-                  className="max-h-14 max-w-[140px] object-contain transition-opacity duration-500 group-hover:opacity-85"
+                  className={cn(logoPlate, "max-h-14 max-w-[140px] dark:p-2.5")}
                 />
               ) : (
                 <span aria-hidden className="text-lg font-light uppercase tracking-[0.25em] text-ink">

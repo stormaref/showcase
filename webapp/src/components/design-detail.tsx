@@ -133,7 +133,7 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
                 {design.sizes.map((size) => (
                   <li
                     key={size.id}
-                    className="border border-gray-300 bg-white px-3 py-1 text-sm text-ink"
+                    className="border border-gray-300 bg-shell px-3 py-1 text-sm text-ink"
                   >
                     <bdi dir="ltr">{formatSizeLabel(size.label, locale)}</bdi>
                   </li>

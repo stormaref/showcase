@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { iranYekan } from "@/lib/fonts/iranyekan";
 import { workSans } from "@/lib/fonts/worksans";
+import { ThemeScript } from "@/lib/theme";
 import "./globals.css";
 
 // Fallback 404 for URLs outside any locale (the proxy skips paths with a file
@@ -16,7 +17,11 @@ export default async function RootNotFound() {
       lang="fa"
       dir="rtl"
       className={`h-full antialiased ${iranYekan.variable} ${workSans.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className={`flex min-h-full items-center bg-paper ${iranYekan.className}`}>
         <main className="mx-auto w-full max-w-3xl px-6 py-24 md:px-10">
           <p className="eyebrow">۴۰۴</p>
@@ -28,7 +33,7 @@ export default async function RootNotFound() {
           </p>
           <Link
             href="/fa"
-            className="mt-10 inline-block bg-clay px-8 py-3.5 text-[13px] font-medium text-white transition duration-300 hover:bg-clay-dark"
+            className="mt-10 inline-block bg-clay px-8 py-3.5 text-[13px] font-medium text-paper transition duration-300 hover:bg-clay-dark"
           >
             {fa("home")}
           </Link>

@@ -122,7 +122,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
         hasFa={Boolean(translations.fa.name)}
       />
 
-      <div className="space-y-4 rounded-none border border-gray-200 bg-white p-6">
+      <div className="space-y-4 rounded-none border border-gray-200 bg-shell p-6">
         <label className="block text-sm font-medium">
           Name {tab === "en" && <span className="text-red-600">*</span>}
           <input
@@ -148,12 +148,14 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
       <fieldset className="rounded-none border border-gray-200 p-4">
         <legend className="px-1 text-sm font-medium">Logo</legend>
         <div className="mt-2 flex items-center gap-4">
+          {/* Logos are often dark artwork on a transparent ground; dark mode
+              sets them on a bone plate, as the public brand grid does. */}
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={logoUrl}
               alt=""
-              className="size-20 rounded-none border border-gray-100 object-contain p-1"
+              className="size-20 rounded-none border border-gray-100 object-contain p-1 dark:bg-ink"
             />
           ) : (
             <div className="flex size-20 items-center justify-center rounded-none border border-dashed border-gray-200 text-xs text-gray-400">
@@ -172,7 +174,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
               type="button"
               disabled={isUploading}
               onClick={() => logoInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-shell px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               <Upload className="size-4" aria-hidden />
               {logoUrl ? "Replace logo" : "Upload logo"}
@@ -238,7 +240,7 @@ export function BrandForm({ initial, onSubmit, submitLabel }: BrandFormProps) {
       <button
         type="submit"
         disabled={saving || isUploading || !translations.en.name.trim()}
-        className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="rounded-none bg-ink px-4 py-2 text-sm font-medium text-paper disabled:opacity-50"
       >
         {saving ? "Saving…" : submitLabel}
       </button>

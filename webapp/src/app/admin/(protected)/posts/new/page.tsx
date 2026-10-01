@@ -136,7 +136,7 @@ export default function NewPostPage() {
           type="button"
           onClick={save}
           disabled={saving || !translations.en.title}
-          className="rounded-none bg-ink px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-none bg-ink px-5 py-2.5 text-sm font-medium text-paper disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save post"}
         </button>

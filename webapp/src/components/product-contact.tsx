@@ -31,9 +31,9 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 const callClass =
-  "inline-flex h-12 flex-1 items-center justify-center gap-2 bg-clay px-5 text-sm font-medium text-white transition hover:bg-clay-dark";
+  "inline-flex h-12 flex-1 items-center justify-center gap-2 bg-clay px-5 text-sm font-medium text-paper transition hover:bg-clay-dark";
 const whatsappClass =
-  "inline-flex h-12 flex-1 items-center justify-center gap-2 border border-ink/20 bg-white px-5 text-sm font-medium text-ink transition hover:border-ink";
+  "inline-flex h-12 flex-1 items-center justify-center gap-2 border border-ink/20 bg-shell px-5 text-sm font-medium text-ink transition hover:border-ink";
 
 type ProductContactBarProps = {
   links: ProductContactLinks;
@@ -62,7 +62,7 @@ export async function ProductContactBar({ links }: ProductContactBarProps) {
             rel="noopener noreferrer"
             className={whatsappClass}
           >
-            <WhatsAppIcon className="size-4 text-[#1a9e4b]" />
+            <WhatsAppIcon className="size-4 text-[#1a9e4b] dark:text-[#25d366]" />
             {t("whatsapp")}
           </a>
         )}

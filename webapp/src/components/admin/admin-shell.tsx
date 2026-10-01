@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UploadProgressBar } from "@/components/admin/upload-progress-bar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   UploadProgressProvider,
   useUploadProgress,
@@ -75,7 +76,7 @@ function AdminShellLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="relative flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
+      <aside className="relative flex w-56 shrink-0 flex-col border-r border-gray-200 bg-shell">
         <div className="border-b border-gray-100 px-5 py-5">
           <p className="text-[13px] font-semibold uppercase tracking-[0.25em] text-ink">
             Showcase Admin
@@ -96,22 +97,23 @@ function AdminShellLayout({
             </Link>
           ))}
         </nav>
-        <div className="mt-auto border-t border-gray-100 p-3">
+        <div className="mt-auto flex items-center gap-1 border-t border-gray-100 p-3">
           <button
             type="button"
             onClick={async () => {
               await logout();
               router.push("/admin/login");
             }}
-            className="w-full rounded-none px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
+            className="flex-1 rounded-none px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50 hover:text-ink"
           >
             Sign out
           </button>
+          <ThemeToggle label="Dark mode" className="hover:bg-gray-50" />
         </div>
       </aside>
       <main className="flex-1 overflow-auto">
         {isUploading && percent !== null && (
-          <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-8 py-2">
+          <div className="sticky top-0 z-10 border-b border-gray-200 bg-shell px-8 py-2">
             <UploadProgressBar percent={percent} label="Uploading image…" />
           </div>
         )}
