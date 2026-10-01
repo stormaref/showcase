@@ -51,7 +51,32 @@
       "supplyTitle": "Project-ready supply",
       "supplyDesc": "Order the quantities you need, from a single room to a large project."
     },
-    "heroAlt": "Sage green herringbone wall tiles and a marble bathtub"
+    "heroAlt": "Sage green herringbone wall tiles and a marble bathtub",
+    "craft": {
+      "eyebrow": "From sketch to surface",
+      "steps": [
+        {
+          "title": "Sketch",
+          "description": "Every tile begins as a single line on paper."
+        },
+        {
+          "title": "Geometry",
+          "description": "Compass and ruler set out the proportions."
+        },
+        {
+          "title": "Pattern",
+          "description": "Line by line, the design takes shape."
+        },
+        {
+          "title": "Glaze",
+          "description": "Colour and glaze turn a drawing into a tile."
+        },
+        {
+          "title": "Surface",
+          "description": "One tile, repeated, becomes a whole floor."
+        }
+      ]
+    }
   },
   "designs": {
     "eyebrow": "Product catalog",

@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import heroImage from "@/assets/images/home-hero.jpg";
 import { BrandGrid } from "@/components/brand-grid";
+import { TileSketchScroll } from "@/components/tile-sketch-scroll";
 import { apiFetch, type BlogPost, type Design, type Paginated } from "@/lib/api";
 import { getBrandInfo, getSiteName, phoneTelHref } from "@/lib/brand-info";
 import { getBrands } from "@/lib/brands";
@@ -104,6 +105,12 @@ export default async function HomePage({ params }: PageProps) {
   const dateLocale = locale === "fa" ? "fa-IR" : "en-US";
   // Admin picks the hero type colour to suit the photo: dark on light images.
   const heroDark = brand.heroTextTone === "dark";
+  const stepNumber = new Intl.NumberFormat(dateLocale, { minimumIntegerDigits: 2 });
+  const craftSteps = [0, 1, 2, 3, 4].map((i) => ({
+    number: stepNumber.format(i + 1),
+    title: t(`craft.steps.${i}.title`),
+    description: t(`craft.steps.${i}.description`),
+  }));
 
   return (
     <>
@@ -149,6 +156,9 @@ export default async function HomePage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {/* Scroll-scrubbed story: a tile sketched, inked, glazed, and laid */}
+      <TileSketchScroll eyebrow={t("craft.eyebrow")} steps={craftSteps} />
 
       {/* Full-bleed collection mosaic */}
       {designs.length > 0 && (
