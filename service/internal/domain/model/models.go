@@ -306,6 +306,11 @@ type BrandInfoTranslation struct {
 	Email              string    `gorm:"size:255" json:"email"`
 	HeroImageObjectKey string    `gorm:"size:500" json:"hero_image_object_key"`
 	HeroTextTone       string    `gorm:"size:10;not null;default:'dark'" json:"hero_text_tone"`
+	WhatsApp           string    `gorm:"size:50" json:"whatsapp"`
+	Instagram          string    `gorm:"size:255" json:"instagram"`
+	Telegram           string    `gorm:"size:255" json:"telegram"`
+	MapURL             string    `gorm:"size:1000" json:"map_url"`
+	Hours              string    `gorm:"size:255" json:"hours"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 }

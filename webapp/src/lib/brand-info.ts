@@ -13,36 +13,44 @@ export type BrandInfo = {
   heroImageUrl: string;
   /** Colour of the type over the hero image: dark for light photos, light for dark ones. */
   heroTextTone: HeroTextTone;
+  /** WhatsApp number in any common form (0912…, +98912…, ۰۹۱۲…). */
+  whatsapp: string;
+  /** Instagram handle or profile URL. */
+  instagram: string;
+  /** Telegram handle or t.me URL. */
+  telegram: string;
+  /** Map link (Neshan, Balad, Google Maps…). */
+  mapUrl: string;
+  /** Free-text opening hours, localised. */
+  hours: string;
 };
 
+// Used only when the API is unreachable. Contact details stay empty so the
+// site never shows made-up numbers or addresses; components hide empty blocks.
 const fallbacks: Record<string, BrandInfo> = {
-  en: {
-    name: "Art Ceramic",
-    tagline: "Ceramic tiles for every space",
-    about:
-      "Art Ceramic supplies ceramic tiles in a wide range of designs and sizes for kitchens, bathrooms, floors, and architectural surfaces. Every design is offered in multiple sizes — browse the catalog to find the right one for your project.",
-    addressLine1: "42 Kiln Street",
-    addressLine2: "Ceramics District",
-    addressLine3: "Portland, OR 97201",
-    phone: "+1 (555) 123-4567",
-    email: "hello@artceramic.example",
-    heroImageUrl: "",
-    heroTextTone: "dark",
-  },
-  fa: {
-    name: "آرت سرامیک",
-    tagline: "کاشی سرامیک برای هر فضا",
-    about:
-      "آرت سرامیک عرضه‌کننده کاشی سرامیک در طرح‌ها و سایزهای متنوع برای آشپزخانه، حمام، کف و سطوح معماری است. هر طرح در چند سایز عرضه می‌شود — کاتالوگ را مرور کنید تا گزینه مناسب پروژه خود را پیدا کنید.",
-    addressLine1: "خیابان کوره ۴۲",
-    addressLine2: "محله سرامیک",
-    addressLine3: "پورتلند، OR 97201",
-    phone: "+1 (555) 123-4567",
-    email: "hello@artceramic.example",
-    heroImageUrl: "",
-    heroTextTone: "dark",
-  },
+  en: emptyBrand("Aseman Roshan Tejarat"),
+  fa: emptyBrand("آسمان روشن تجارت"),
 };
+
+function emptyBrand(name: string): BrandInfo {
+  return {
+    name,
+    tagline: "",
+    about: "",
+    addressLine1: "",
+    addressLine2: "",
+    addressLine3: "",
+    phone: "",
+    email: "",
+    heroImageUrl: "",
+    heroTextTone: "dark",
+    whatsapp: "",
+    instagram: "",
+    telegram: "",
+    mapUrl: "",
+    hours: "",
+  };
+}
 
 function mapResponse(row: BrandInfoResponse): BrandInfo {
   return {
@@ -56,6 +64,11 @@ function mapResponse(row: BrandInfoResponse): BrandInfo {
     email: row.email,
     heroImageUrl: row.hero_image_url ?? "",
     heroTextTone: row.hero_text_tone === "light" ? "light" : "dark",
+    whatsapp: row.whatsapp ?? "",
+    instagram: row.instagram ?? "",
+    telegram: row.telegram ?? "",
+    mapUrl: row.map_url ?? "",
+    hours: row.hours ?? "",
   };
 }
 
@@ -77,13 +90,56 @@ export async function getSiteName(): Promise<string> {
   return brand.name.trim() || fallbacks.en.name;
 }
 
+const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+
+/** Persian/Arabic-Indic digits → ASCII, so admin input in either script dials. */
+export function toLatinDigits(value: string): string {
+  return value.replace(/[۰-۹٠-٩]/g, (d) => {
+    const fa = FA_DIGITS.indexOf(d);
+    return String(fa >= 0 ? fa : AR_DIGITS.indexOf(d));
+  });
+}
+
+/**
+ * International E.164-style digits for an Iranian-market number, without "+".
+ * "021 8821 7705" → "982188217705", "0098…" → "98…", "+98…" → "98…".
+ * Returns "" when there are no digits.
+ */
+export function internationalDigits(phone: string): string {
+  const raw = toLatinDigits(phone).trim();
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "";
+  if (raw.startsWith("+")) return digits;
+  if (digits.startsWith("00")) return digits.slice(2);
+  if (digits.startsWith("0")) return `98${digits.slice(1)}`;
+  return digits;
+}
+
 export function phoneTelHref(phone: string): string {
-  const trimmed = phone.trim();
-  if (!trimmed) return "tel:";
-  const normalized = trimmed.replace(/[^\d+]/g, "");
-  if (normalized.startsWith("+")) {
-    return `tel:${normalized}`;
-  }
-  const digits = trimmed.replace(/\D/g, "");
+  const digits = internationalDigits(phone);
   return digits ? `tel:+${digits}` : "tel:";
+}
+
+/** wa.me link, optionally with a prefilled message. "" when there is no number. */
+export function whatsappHref(number: string, text?: string): string {
+  const digits = internationalDigits(number);
+  if (!digits) return "";
+  return text ? `https://wa.me/${digits}?text=${encodeURIComponent(text)}` : `https://wa.me/${digits}`;
+}
+
+/** Accepts "@handle", "handle" or a full URL. "" when empty. */
+export function instagramHref(value: string): string {
+  const v = value.trim();
+  if (!v) return "";
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://instagram.com/${v.replace(/^@/, "")}`;
+}
+
+/** Accepts "@handle", "handle" or a full t.me URL. "" when empty. */
+export function telegramHref(value: string): string {
+  const v = value.trim();
+  if (!v) return "";
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://t.me/${v.replace(/^@/, "")}`;
 }

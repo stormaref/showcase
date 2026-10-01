@@ -184,6 +184,11 @@ export type BrandInfoResponse = {
   hero_image_object_key?: string;
   hero_image_url?: string;
   hero_text_tone?: HeroTextTone;
+  whatsapp?: string;
+  instagram?: string;
+  telegram?: string;
+  map_url?: string;
+  hours?: string;
 };
 
 export type HeroTextTone = "dark" | "light";

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/mail"
+	"net/url"
 	"strings"
 
 	"github.com/google/uuid"
@@ -33,6 +34,11 @@ type BrandInfoInput struct {
 	Email              string `json:"email"`
 	HeroImageObjectKey string `json:"hero_image_object_key"`
 	HeroTextTone       string `json:"hero_text_tone"`
+	WhatsApp           string `json:"whatsapp"`
+	Instagram          string `json:"instagram"`
+	Telegram           string `json:"telegram"`
+	MapURL             string `json:"map_url"`
+	Hours              string `json:"hours"`
 }
 
 type BrandInfoResponse struct {
@@ -48,6 +54,11 @@ type BrandInfoResponse struct {
 	HeroImageObjectKey string `json:"hero_image_object_key"`
 	HeroImageURL       string `json:"hero_image_url,omitempty"`
 	HeroTextTone       string `json:"hero_text_tone"`
+	WhatsApp           string `json:"whatsapp"`
+	Instagram          string `json:"instagram"`
+	Telegram           string `json:"telegram"`
+	MapURL             string `json:"map_url"`
+	Hours              string `json:"hours"`
 }
 
 type BrandInfoUpdateInput struct {
@@ -67,6 +78,11 @@ func (s *BrandInfoService) toResponse(row *model.BrandInfoTranslation) BrandInfo
 		Email:              row.Email,
 		HeroImageObjectKey: row.HeroImageObjectKey,
 		HeroTextTone:       normalizeHeroTextTone(row.HeroTextTone),
+		WhatsApp:           row.WhatsApp,
+		Instagram:          row.Instagram,
+		Telegram:           row.Telegram,
+		MapURL:             row.MapURL,
+		Hours:              row.Hours,
 	}
 	if row.HeroImageObjectKey != "" {
 		resp.HeroImageURL = s.store.PublicURL(row.HeroImageObjectKey)
@@ -112,6 +128,12 @@ func validateBrandInfoInput(locale string, in BrandInfoInput) error {
 	default:
 		return errors.New("hero text tone must be dark or light")
 	}
+	if mapURL := strings.TrimSpace(in.MapURL); mapURL != "" {
+		u, err := url.Parse(mapURL)
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+			return errors.New("map link must be an http(s) URL")
+		}
+	}
 	email := strings.TrimSpace(in.Email)
 	if email != "" {
 		if _, err := mail.ParseAddress(email); err != nil {
@@ -142,6 +164,11 @@ func inputToModel(locale string, in BrandInfoInput) *model.BrandInfoTranslation 
 		Email:              strings.TrimSpace(in.Email),
 		HeroImageObjectKey: strings.TrimSpace(in.HeroImageObjectKey),
 		HeroTextTone:       normalizeHeroTextTone(in.HeroTextTone),
+		WhatsApp:           strings.TrimSpace(in.WhatsApp),
+		Instagram:          strings.TrimSpace(in.Instagram),
+		Telegram:           strings.TrimSpace(in.Telegram),
+		MapURL:             strings.TrimSpace(in.MapURL),
+		Hours:              strings.TrimSpace(in.Hours),
 	}
 }
 
@@ -154,6 +181,7 @@ func isEmptyBrandInfoInput(in BrandInfoInput) bool {
 		strings.TrimSpace(in.AddressLine3) == "" &&
 		strings.TrimSpace(in.Phone) == "" &&
 		strings.TrimSpace(in.Email) == "" &&
+		strings.TrimSpace(in.Hours) == "" &&
 		strings.TrimSpace(in.HeroImageObjectKey) == ""
 }
 
