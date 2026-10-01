@@ -12,9 +12,8 @@ export const FINISH_PARAM = "finish";
 export const BRAND_PARAM = "brand";
 export const SORT_PARAM = "sort";
 
-/** Catalog orderings. "featured" keeps the curated order the API returns. */
+/** Catalog orderings. */
 export const SORT_OPTIONS = [
-  "featured",
   "newest",
   "oldest",
   "az",
@@ -23,7 +22,7 @@ export const SORT_OPTIONS = [
 
 export type SortOption = (typeof SORT_OPTIONS)[number];
 
-export const DEFAULT_SORT: SortOption = "featured";
+export const DEFAULT_SORT: SortOption = "newest";
 
 export function parseSortParam(searchParams: URLSearchParams): SortOption {
   const raw = searchParams.get(SORT_PARAM) ?? "";
@@ -225,17 +224,14 @@ function addedAt(item: Design): number {
 }
 
 /**
- * Order a already-filtered list. Returns a new array — "featured" hands back
- * the API's curated order untouched. Titles collate in the active locale so
- * Persian sorts by the Persian alphabet.
+ * Order a already-filtered list. Returns a new array. Titles collate in the
+ * active locale so Persian sorts by the Persian alphabet.
  */
 export function sortDesigns(
   items: Design[],
   sort: SortOption,
   locale?: string,
 ): Design[] {
-  if (sort === "featured") return items;
-
   const sorted = [...items];
   if (sort === "newest" || sort === "oldest") {
     const direction = sort === "newest" ? -1 : 1;

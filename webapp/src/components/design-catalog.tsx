@@ -189,7 +189,6 @@ export function DesignCatalog({ items }: DesignCatalogProps) {
           labels={{
             sortBy: t("sortBy"),
             options: {
-              featured: t("sortFeatured"),
               newest: t("sortNewest"),
               oldest: t("sortOldest"),
               az: t("sortAZ"),
