@@ -19,7 +19,11 @@
     "brands": "Brands",
     "blog": "Blog",
     "menu": "Menu",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "localeEn": "English",
+    "localeFa": "فارسی",
+    "changeLanguage": "Change language",
+    "supportedLanguages": "Supported languages"
   },
   "home": {
     "viewDesigns": "Browse products",
@@ -73,7 +77,8 @@
           "description": "One tile, repeated, becomes a whole floor."
         }
       ]
-    }
+    },
+    "readBlog": "Read blog"
   },
   "designs": {
     "eyebrow": "Product catalog",
@@ -110,12 +115,7 @@
     "viewProducts": "View products"
   },
   "designDetail": {
-    "showcase": "Showcase",
-    "noShowcaseImages": "No showcase images for this product.",
     "notFound": "Product not found",
-    "previousImage": "Previous image",
-    "nextImage": "Next image",
-    "slide": "Slide",
     "products": "Products",
     "breadcrumb": "Breadcrumb",
     "specBrand": "Brand",
@@ -127,11 +127,13 @@
     "call": "Call",
     "whatsapp": "WhatsApp",
     "whatsappMessage": "Hello, I would like to ask about the price and availability of \"{title}\".\n{url}",
-    "photosBySize": "Photos by size",
-    "size": "Size",
-    "enlargeImage": "View larger",
-    "closeImage": "Close",
-    "loading": "Loading product…"
+    "loading": "Loading product…",
+    "availableIn": "Available sizes",
+    "chooseCategory": "Choose a category",
+    "chooseCategoryHint": "Select a category to see its sizes.",
+    "sizesHint": "Shown to scale. Select a size to see it installed.",
+    "noDecorImage": "No installation photo for this size yet.",
+    "noSizes": "Sizes for this product are coming soon."
   },
   "blog": {
     "title": "Blog",

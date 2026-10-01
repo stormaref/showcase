@@ -259,11 +259,22 @@ type DesignSurfaceFinish struct {
 
 func (DesignSurfaceFinish) TableName() string { return "design_finishes" }
 
+// Image kinds within a variant (category x size). A variant has at most one
+// tile image (the design at that size, cropped to the size's aspect ratio)
+// and one decoration image (that size laid in a room). Images uploaded before
+// kinds existed keep an empty kind until an admin assigns one.
+const (
+	DesignImageKindTile   = "tile"
+	DesignImageKindDecor  = "decor"
+	DesignImageKindLegacy = ""
+)
+
 type DesignImage struct {
 	ID             uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
 	DesignID       uuid.UUID  `gorm:"type:uuid;index:idx_design_images_design_sort,priority:1;not null" json:"design_id"`
 	SizeID         *uuid.UUID `gorm:"type:uuid;index" json:"size_id"`
 	TypeID         *uuid.UUID `gorm:"type:uuid;index" json:"type_id"`
+	Kind           string     `gorm:"size:10;not null;default:''" json:"kind"`
 	ObjectKey      string     `gorm:"size:500;not null" json:"object_key"`
 	ThumbObjectKey string     `gorm:"size:500" json:"thumb_object_key"`
 	SortOrder      int        `gorm:"default:0;index:idx_design_images_design_sort,priority:2" json:"sort_order"`

@@ -19,7 +19,11 @@
     "brands": "برندها",
     "blog": "وبلاگ",
     "menu": "منو",
-    "skipToContent": "رفتن به محتوای اصلی"
+    "skipToContent": "رفتن به محتوای اصلی",
+    "localeEn": "English",
+    "localeFa": "فارسی",
+    "changeLanguage": "تغییر زبان",
+    "supportedLanguages": "زبان‌های پشتیبانی‌شده"
   },
   "home": {
     "viewDesigns": "مرور محصولات",
@@ -73,7 +77,8 @@
           "description": "یک کاشی، با تکرار، به یک سطح کامل تبدیل می‌شود."
         }
       ]
-    }
+    },
+    "readBlog": "خواندن وبلاگ"
   },
   "designs": {
     "eyebrow": "کاتالوگ محصولات",
@@ -110,12 +115,7 @@
     "viewProducts": "مشاهده محصولات"
   },
   "designDetail": {
-    "showcase": "نمایشگاه",
-    "noShowcaseImages": "تصویر نمایشگاهی برای این محصول وجود ندارد.",
     "notFound": "محصول یافت نشد",
-    "previousImage": "تصویر قبلی",
-    "nextImage": "تصویر بعدی",
-    "slide": "اسلاید",
     "products": "محصولات",
     "breadcrumb": "مسیر صفحه",
     "specBrand": "برند",
@@ -127,11 +127,13 @@
     "call": "تماس",
     "whatsapp": "واتس‌اپ",
     "whatsappMessage": "سلام، درباره قیمت و موجودی «{title}» سؤال داشتم.\n{url}",
-    "photosBySize": "تصاویر در سایزهای مختلف",
-    "size": "سایز",
-    "enlargeImage": "نمایش بزرگ‌تر",
-    "closeImage": "بستن",
-    "loading": "در حال بارگذاری محصول…"
+    "loading": "در حال بارگذاری محصول…",
+    "availableIn": "سایزهای موجود",
+    "chooseCategory": "انتخاب دسته",
+    "chooseCategoryHint": "برای دیدن سایزها، یک دسته را انتخاب کنید.",
+    "sizesHint": "به نسبت واقعی نمایش داده شده‌اند. برای دیدن اجرای هر سایز، آن را انتخاب کنید.",
+    "noDecorImage": "هنوز تصویر اجرایی برای این سایز ثبت نشده است.",
+    "noSizes": "سایزهای این محصول به‌زودی اعلام می‌شود."
   },
   "blog": {
     "title": "وبلاگ",

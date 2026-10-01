@@ -1,22 +1,20 @@
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { CatalogBackLink } from "@/components/catalog-back-link";
-import { ImageCarousel } from "@/components/image-carousel";
+import {
+  DesignSizeWall,
+  type SizeWallCategory,
+  type SizeWallTile,
+} from "@/components/design-size-wall";
 import {
   ProductContactBar,
   ProductContactCard,
   productContactLinks,
 } from "@/components/product-contact";
-import { ProductImageGrid } from "@/components/product-image-grid";
-import type { Design } from "@/lib/api";
+import type { Design, DesignImage } from "@/lib/api";
 import type { BrandInfo } from "@/lib/brand-info";
-import {
-  carouselSlides,
-  imagesForSizeAndType,
-  showcaseImages,
-} from "@/lib/design-images";
+import { imageSrc, legacyVariantImages, variantImage } from "@/lib/design-images";
 import { formatSizeLabel } from "@/lib/format";
 import { siteUrl } from "@/lib/locale";
 
@@ -26,8 +24,48 @@ type DesignDetailProps = {
   locale: string;
 };
 
-// Showcase column: ~1.1/2.1 of the 1200px content width on desktop.
-const SHOWCASE_SIZES = "(min-width: 1280px) 640px, (min-width: 1024px) 52vw, 100vw";
+function sizeWall(design: Design, locale: string) {
+  // Explicit category x size combinations; older cached responses without a
+  // variant list fall back to the full cartesian product.
+  const variantSet = design.variants
+    ? new Set(design.variants.map((v) => `${v.type_id}:${v.size_id}`))
+    : null;
+  const categories: SizeWallCategory[] = [];
+  const tiles: SizeWallTile[] = [];
+  for (const type of design.types ?? []) {
+    const sizes = design.sizes.filter(
+      (size) => !variantSet || variantSet.has(`${type.id}:${size.id}`),
+    );
+    if (sizes.length === 0) continue;
+    const category: SizeWallCategory = { id: type.id, name: type.name, previewSrc: "" };
+    categories.push(category);
+    let firstDecor: DesignImage | undefined;
+    let firstTile: DesignImage | undefined;
+    for (const size of sizes) {
+      const tile = variantImage(design.images, size.id, type.id, "tile");
+      // Until an admin sorts older images into tile and decoration, show the
+      // first of them as the decoration.
+      const decor =
+        variantImage(design.images, size.id, type.id, "decor") ??
+        legacyVariantImages(design.images, size.id, type.id)[0];
+      tiles.push({
+        key: `${type.id}:${size.id}`,
+        typeId: type.id,
+        label: formatSizeLabel(size.label, locale),
+        widthMm: size.width_mm,
+        heightMm: size.height_mm,
+        tileSrc: tile ? imageSrc(tile) : "",
+        decorSrc: decor ? imageSrc(decor) : "",
+      });
+      firstDecor ??= decor;
+      firstTile ??= tile;
+    }
+    // A category card previews the category in a room, else its tile.
+    const preview = firstDecor ?? firstTile;
+    category.previewSrc = preview ? imageSrc(preview, true) : "";
+  }
+  return { categories, tiles };
+}
 
 export async function DesignDetail({ design, brand, locale }: DesignDetailProps) {
   const t = await getTranslations("designDetail");
@@ -37,56 +75,13 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
   const firstType = types[0];
   const hasSpecs =
     Boolean(design.brand) || types.length > 0 || design.sizes.length > 0 || finishes.length > 0;
-
-  let showcase = carouselSlides(showcaseImages(design.images), alt);
-  if (showcase.length === 0 && design.primary_image_url) {
-    showcase = [{ src: design.primary_image_url, alt }];
-  }
-
-  // Explicit category x size combinations; older cached responses without a
-  // variant list fall back to the full cartesian product. Sizes without
-  // photos are left out here; they still show as chips in the spec list.
-  const variantSet = design.variants
-    ? new Set(design.variants.map((v) => `${v.type_id}:${v.size_id}`))
-    : null;
-  const galleries = types
-    .map((type) => ({
-      type,
-      sizes: design.sizes
-        .filter((size) => !variantSet || variantSet.has(`${type.id}:${size.id}`))
-        .map((size) => {
-          const label = formatSizeLabel(size.label, locale);
-          return {
-            size,
-            label,
-            slides: carouselSlides(
-              imagesForSizeAndType(design.images, size.id, type.id),
-              `${design.title} — ${type.name} ${label}`,
-            ),
-          };
-        })
-        .filter((entry) => entry.slides.length > 0),
-    }))
-    .filter((section) => section.sizes.length > 0);
+  const { categories, tiles } = sizeWall(design, locale);
 
   const productUrl = `${siteUrl()}/${locale}/products/${design.id}`;
   const contact = productContactLinks(
     brand,
     t("whatsappMessage", { title: design.title, url: productUrl }),
   );
-
-  // The carousel sits inside the labelled showcase section, so it takes no name of its own.
-  const carouselLabels = {
-    previous: t("previousImage"),
-    next: t("nextImage"),
-    slide: t("slide"),
-  };
-  const gridLabels = {
-    enlarge: t("enlargeImage"),
-    close: t("closeImage"),
-    previous: t("previousImage"),
-    next: t("nextImage"),
-  };
 
   return (
     <div>
@@ -122,38 +117,9 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
           </ol>
         </nav>
 
-        <div className="mt-6 lg:grid lg:grid-cols-[1.1fr_1fr] lg:items-start lg:gap-12">
-          <section aria-label={t("showcase")}>
-            {showcase.length > 1 ? (
-              <ImageCarousel
-                images={showcase}
-                slideClassName="aspect-square"
-                imageClassName="object-contain"
-                sizes={SHOWCASE_SIZES}
-                className="bg-gray-100"
-                labels={carouselLabels}
-              />
-            ) : showcase.length === 1 ? (
-              <div className="relative aspect-square bg-gray-100">
-                <Image
-                  src={showcase[0].src}
-                  alt={showcase[0].alt}
-                  fill
-                  sizes={SHOWCASE_SIZES}
-                  loading="eager"
-                  fetchPriority="high"
-                  className="object-contain"
-                />
-              </div>
-            ) : (
-              <div className="flex aspect-square items-center justify-center bg-cream px-6 text-center text-sm text-gray-600">
-                {t("noShowcaseImages")}
-              </div>
-            )}
-          </section>
-
-          <div className="mt-8 lg:mt-0">
-            <h1 className="text-3xl font-light tracking-tight text-ink md:text-5xl">
+        <div className="mt-6 lg:grid lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12">
+          <div>
+            <h1 className="text-3xl font-light tracking-tight text-ink md:text-5xl rtl:leading-[1.35]">
               {design.title}
             </h1>
             {design.caption && (
@@ -226,48 +192,36 @@ export async function DesignDetail({ design, brand, locale }: DesignDetailProps)
                 )}
               </dl>
             )}
-
-            {contact && (
-              <div className="mt-8">
-                <ProductContactCard links={contact} locale={locale} />
-              </div>
-            )}
           </div>
+
+          {contact && (
+            <div className="mt-8 lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:mt-0">
+              <ProductContactCard links={contact} locale={locale} />
+            </div>
+          )}
         </div>
 
-        {galleries.length > 0 && (
-          <section aria-labelledby="product-photos" className="mt-20 md:mt-28">
-            <h2
-              id="product-photos"
-              className="text-2xl font-light tracking-tight text-ink md:text-3xl"
-            >
-              {t("photosBySize")}
-            </h2>
-            <div className="mt-8 space-y-14">
-              {galleries.map(({ type, sizes }) => (
-                <div key={type.id}>
-                  <h3 className="border-t border-gray-200 pt-6 text-xl font-light text-ink md:text-2xl">
-                    {type.name}
-                  </h3>
-                  <div className="mt-8 space-y-10">
-                    {sizes.map(({ size, label, slides }) => (
-                      <article key={`${type.id}-${size.id}`}>
-                        <h4 className="mb-4 text-base font-medium text-ink">
-                          {t("size")} <bdi dir="ltr">{label}</bdi>
-                        </h4>
-                        <ProductImageGrid
-                          images={slides}
-                          locale={locale}
-                          labels={gridLabels}
-                        />
-                      </article>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Sizes drawn to scale, each with its own tile and room photo. */}
+        <div className="mt-16 md:mt-24">
+          {tiles.length > 0 ? (
+            <DesignSizeWall
+              categories={categories}
+              tiles={tiles}
+              alt={alt}
+              labels={{
+                categoryHeading: t("chooseCategory"),
+                categoryHint: t("chooseCategoryHint"),
+                heading: t("availableIn"),
+                hint: t("sizesHint"),
+                noDecor: t("noDecorImage"),
+              }}
+            />
+          ) : (
+            <p className="border border-gray-200 bg-cream px-6 py-14 text-center text-sm text-gray-600">
+              {t("noSizes")}
+            </p>
+          )}
+        </div>
       </div>
 
       {contact && <ProductContactBar links={contact} />}

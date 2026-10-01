@@ -223,12 +223,21 @@ func (r *DesignRepository) PrimaryImagesByDesignIDs(ctx context.Context, designI
 	if len(designIDs) == 0 {
 		return out, nil
 	}
+	// Same ranking as service.coverRank: products page image, decoration,
+	// tile, other.
 	var images []model.DesignImage
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT DISTINCT ON (design_id) *
 		FROM design_images
 		WHERE design_id IN ?
-		ORDER BY design_id, (size_id IS NULL AND type_id IS NULL) DESC, sort_order ASC, created_at ASC
+		ORDER BY design_id,
+			CASE
+				WHEN size_id IS NULL AND type_id IS NULL THEN 0
+				WHEN kind = 'decor' THEN 1
+				WHEN kind = 'tile' THEN 2
+				ELSE 3
+			END,
+			sort_order ASC, created_at ASC
 	`, designIDs).Scan(&images).Error
 	if err != nil {
 		return nil, err
